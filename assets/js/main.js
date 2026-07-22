@@ -951,8 +951,8 @@
 
       if (isMobileHero) {
         targetScale = 2.46;
-        targetShiftX = viewportWidth * -0.085;
-        targetShiftY = viewportHeight * -0.015;
+        targetShiftX = viewportWidth * 0.015;
+        targetShiftY = viewportHeight * 0.055;
         targetRotate = 0;
       }
 
