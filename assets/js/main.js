@@ -851,12 +851,38 @@
     const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
     const easeInOut = (value) => 0.5 - Math.cos(Math.PI * value) / 2;
     const segmentProgress = (value, start, end) => clamp((value - start) / (end - start), 0, 1);
+    const getViewportHeight = () => window.visualViewport?.height || window.innerHeight;
+    const mobileViewport = {
+      width: window.innerWidth,
+      height: getViewportHeight()
+    };
+
+    const getStableViewportHeight = (viewportWidth) => {
+      const currentHeight = getViewportHeight();
+
+      if (viewportWidth >= 768) {
+        mobileViewport.width = viewportWidth;
+        mobileViewport.height = currentHeight;
+        immersiveHero.style.removeProperty("--hero-mobile-stable-height");
+        return currentHeight;
+      }
+
+      if (Math.abs(viewportWidth - mobileViewport.width) > 32) {
+        mobileViewport.width = viewportWidth;
+        mobileViewport.height = currentHeight;
+      } else {
+        mobileViewport.height = Math.min(mobileViewport.height, currentHeight);
+      }
+
+      immersiveHero.style.setProperty("--hero-mobile-stable-height", `${mobileViewport.height.toFixed(2)}px`);
+      return mobileViewport.height;
+    };
 
     const updateHeroScrollCamera = () => {
       ticking = false;
 
       const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
+      const viewportHeight = getStableViewportHeight(viewportWidth);
       const heroTop = immersiveHero.offsetTop;
       const rawScroll = window.scrollY - heroTop;
       const totalScrollDistance = Math.max(immersiveHero.offsetHeight - viewportHeight, viewportHeight * 0.92, 520);

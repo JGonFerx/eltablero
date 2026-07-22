@@ -466,7 +466,7 @@
 .hero__shell {
   position: relative;
   z-index: 3;
-  min-height: 100svh;
+  min-height: var(--hero-stage-height);
   display: grid;
   align-content: end;
   padding-top: calc(var(--header-height-mobile) + clamp(2.5rem, 8vh, 4rem));
@@ -1968,8 +1968,8 @@
   .hero__media,
   .hero__media-full {
     inset: auto 0 auto;
-    top: clamp(4.75rem, 12svh, 6.5rem);
-    height: clamp(17rem, 45svh, 28rem);
+    top: clamp(4.75rem, calc(var(--hero-stage-height) * 0.12), 6.5rem);
+    height: clamp(17rem, calc(var(--hero-stage-height) * 0.45), 28rem);
     transform-origin: 25% 26%;
   }
 
@@ -1992,6 +1992,7 @@
   }
 
   .hero--immersive {
+    --hero-stage-height: var(--hero-mobile-stable-height, 100svh);
     --hero-object-position: 69% center;
   }
 
@@ -2172,13 +2173,13 @@
   }
 
   .hero__sign-glow.is-active {
-    opacity: 0.48;
-    filter: brightness(1.55);
+    opacity: 0.62;
+    filter: brightness(2.05);
   }
 
   .hero__sign-glow[data-glow-layer="brand"].is-active {
-    opacity: 0.3;
-    filter: brightness(1.16);
+    opacity: 0.34;
+    filter: brightness(1.32);
   }
 
   .hero__scroll-cue {
@@ -2193,26 +2194,26 @@
 @keyframes hero-sign-brand-idle-glow-mobile {
   0%,
   100% {
-    opacity: 0.08;
+    opacity: 0.1;
     filter: brightness(1.02);
   }
 
   50% {
-    opacity: 0.22;
-    filter: brightness(1.24);
+    opacity: 0.32;
+    filter: brightness(1.38);
   }
 }
 
 @keyframes hero-sign-idle-glow-mobile {
   0%,
   100% {
-    opacity: 0.12;
-    filter: brightness(1.08);
+    opacity: 0.2;
+    filter: brightness(1.16);
   }
 
   50% {
-    opacity: 0.34;
-    filter: brightness(1.42);
+    opacity: 0.58;
+    filter: brightness(2.08);
   }
 }
 
