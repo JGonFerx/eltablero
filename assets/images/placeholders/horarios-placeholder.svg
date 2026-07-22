@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-label="Imagen provisional editorial de horarios del club">
+  <rect width="960" height="720" fill="#f5f3ed"/>
+  <rect x="148" y="120" width="664" height="482" rx="32" fill="#ffffff"/>
+  <rect x="148" y="120" width="664" height="98" rx="32" fill="#dfe6d6"/>
+  <path d="M262 218v384M432 218v384M602 218v384" stroke="#171816" stroke-opacity="0.1" stroke-width="6"/>
+  <path d="M148 318h664M148 418h664M148 518h664" stroke="#171816" stroke-opacity="0.1" stroke-width="6"/>
+  <circle cx="234" cy="168" r="18" fill="#8ea07a"/>
+  <circle cx="728" cy="168" r="18" fill="#c9825c"/>
+</svg>

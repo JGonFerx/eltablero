@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-label="Imagen provisional editorial de ubicación del club">
+  <rect width="960" height="720" fill="#f6f4ee"/>
+  <g opacity="0.08" stroke="#171816">
+    <path d="M0 120h960M0 240h960M0 360h960M0 480h960M0 600h960"/>
+    <path d="M120 0v720M240 0v720M360 0v720M480 0v720M600 0v720M720 0v720M840 0v720"/>
+  </g>
+  <path d="M228 564c126-164 266-246 420-242 88 2 168 30 238 82" fill="none" stroke="#8ea07a" stroke-width="18" stroke-linecap="round"/>
+  <path d="M548 258c0 86-104 190-104 190s-104-104-104-190c0-58 46-104 104-104s104 46 104 104Z" fill="#fffef9"/>
+  <circle cx="444" cy="258" r="32" fill="#c9825c"/>
+</svg>

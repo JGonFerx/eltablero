@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-label="Imagen provisional editorial del interior del club">
+  <rect width="960" height="720" fill="#f6f3ec"/>
+  <path d="M112 620h736L708 182H252L112 620Z" fill="#ebe7de"/>
+  <path d="M250 182h460v438H250z" fill="#fdfcf8"/>
+  <path d="M250 182h460" stroke="#8ea07a" stroke-width="10"/>
+  <path d="M338 182v438M480 182v438M622 182v438M250 326h460M250 474h460" stroke="#171816" stroke-opacity="0.08" stroke-width="6"/>
+  <circle cx="746" cy="126" r="40" fill="#dfe6d6"/>
+</svg>

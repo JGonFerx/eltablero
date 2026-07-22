@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Open Graph provisional El Tablero Sport Club">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbfaf6"/>
+      <stop offset="100%" stop-color="#f0ede4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g opacity="0.08" stroke="#171816">
+    <path d="M0 90h1200M0 210h1200M0 330h1200M0 450h1200M0 570h1200M110 0v630M310 0v630M510 0v630M710 0v630M910 0v630M1110 0v630"/>
+  </g>
+  <rect x="120" y="120" width="120" height="120" rx="24" fill="#8ea07a"/>
+  <rect x="258" y="120" width="120" height="120" rx="24" fill="#dfe6d6"/>
+  <rect x="120" y="258" width="120" height="120" rx="24" fill="#dfe6d6"/>
+  <rect x="258" y="258" width="120" height="120" rx="24" fill="#c9825c"/>
+  <text x="470" y="248" fill="#171816" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="76" font-weight="600">El Tablero</text>
+  <text x="470" y="322" fill="#171816" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="76" font-weight="600">Sport Club</text>
+  <text x="470" y="394" fill="#6f736c" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="34">Entrenamiento funcional, fitness y pádel</text>
+</svg>

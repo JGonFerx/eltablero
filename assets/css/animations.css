@@ -1,0 +1,41 @@
+.js-enabled [data-reveal] {
+  opacity: 0;
+  transform: translateY(1rem);
+  transition:
+    opacity var(--duration-normal) var(--ease-out-premium),
+    transform var(--duration-normal) var(--ease-out-premium);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.js-enabled [data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.js-enabled [data-hero-sequence] {
+  opacity: 0;
+  transform: translateY(0.75rem);
+  transition:
+    opacity 520ms var(--ease-out-premium),
+    transform 520ms var(--ease-out-premium);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.js-enabled [data-hero-sequence].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js-enabled [data-reveal],
+  .js-enabled [data-hero-sequence] {
+    transition: none;
+    animation: none;
+  }
+
+  .js-enabled [data-reveal],
+  .js-enabled [data-hero-sequence] {
+    opacity: 1;
+    transform: none;
+  }
+}

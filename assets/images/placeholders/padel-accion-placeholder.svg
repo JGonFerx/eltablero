@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-label="Imagen provisional editorial de acción de pádel">
+  <rect width="960" height="720" fill="#f5f3ed"/>
+  <g opacity="0.08" stroke="#171816">
+    <path d="M0 120h960M0 240h960M0 360h960M0 480h960M0 600h960"/>
+    <path d="M120 0v720M240 0v720M360 0v720M480 0v720M600 0v720M720 0v720M840 0v720"/>
+  </g>
+  <circle cx="680" cy="170" r="30" fill="#c9825c"/>
+  <circle cx="490" cy="162" r="44" fill="#dfe6d6"/>
+  <path d="M498 214c30 0 56 26 56 56 0 22-12 39-26 49l114 158" fill="none" stroke="#171816" stroke-opacity="0.24" stroke-width="16" stroke-linecap="round"/>
+  <path d="M334 562c24-106 76-186 150-228 44-24 90-34 142-28" fill="none" stroke="#8ea07a" stroke-width="18" stroke-linecap="round"/>
+  <ellipse cx="648" cy="418" rx="84" ry="116" fill="none" stroke="#c9825c" stroke-width="12" transform="rotate(-26 648 418)"/>
+</svg>

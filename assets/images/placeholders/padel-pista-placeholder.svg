@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-label="Imagen provisional editorial de pista de pádel">
+  <rect width="960" height="720" fill="#f6f4ee"/>
+  <rect x="118" y="92" width="724" height="536" rx="34" fill="#dfe6d6" stroke="#8ea07a" stroke-width="10"/>
+  <rect x="198" y="168" width="564" height="384" rx="22" fill="#eef1ea" stroke="#171816" stroke-opacity="0.12" stroke-width="7"/>
+  <path d="M480 168v384M198 360h564" stroke="#171816" stroke-opacity="0.18" stroke-width="6"/>
+  <rect x="452" y="142" width="56" height="438" rx="20" fill="#cfd4ca"/>
+  <path d="M226 600c132-98 264-146 396-144 86 2 158 15 220 40" fill="none" stroke="#c9825c" stroke-width="14" stroke-linecap="round"/>
+</svg>

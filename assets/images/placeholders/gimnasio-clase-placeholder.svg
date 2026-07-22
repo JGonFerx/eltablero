@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-label="Imagen provisional editorial de entrenamiento funcional">
+  <rect width="960" height="720" fill="#f4f1ea"/>
+  <g opacity="0.08" stroke="#171816">
+    <path d="M0 90h960M0 180h960M0 270h960M0 360h960M0 450h960M0 540h960M0 630h960"/>
+    <path d="M120 0v720M240 0v720M360 0v720M480 0v720M600 0v720M720 0v720M840 0v720"/>
+  </g>
+  <circle cx="230" cy="212" r="46" fill="#8ea07a"/>
+  <circle cx="480" cy="174" r="56" fill="#dfe6d6"/>
+  <circle cx="724" cy="220" r="48" fill="#c9825c" fill-opacity="0.74"/>
+  <path d="M170 514c20-116 82-186 146-186 66 0 122 68 152 186" fill="none" stroke="#8ea07a" stroke-width="16" stroke-linecap="round"/>
+  <path d="M394 514c26-152 106-236 186-236 84 0 158 92 192 236" fill="none" stroke="#171816" stroke-opacity="0.25" stroke-width="16" stroke-linecap="round"/>
+  <path d="M628 514c18-116 78-176 140-176 64 0 122 64 152 176" fill="none" stroke="#c9825c" stroke-opacity="0.72" stroke-width="16" stroke-linecap="round"/>
+</svg>

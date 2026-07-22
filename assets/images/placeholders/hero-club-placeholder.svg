@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-label="Paisaje atmosférico provisional para la portada del club">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd8bf"/>
+      <stop offset="45%" stop-color="#ffd7c3"/>
+      <stop offset="100%" stop-color="#f4e7db"/>
+    </linearGradient>
+    <linearGradient id="lake" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f4faf5"/>
+      <stop offset="55%" stop-color="#f7dfe0"/>
+      <stop offset="100%" stop-color="#f7f2ee"/>
+    </linearGradient>
+    <linearGradient id="meadow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9caf76"/>
+      <stop offset="45%" stop-color="#d8bc66"/>
+      <stop offset="100%" stop-color="#f2d1a2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <path d="M0 246c136-64 256-72 364-26 92 38 162 24 244-42 112-90 236-98 364-30 78 42 162 48 254 10 118-48 244-34 374 44v126H0Z" fill="#f2caa9" opacity="0.44"/>
+  <path d="M0 332c122-96 252-132 390-110 88 14 168-4 248-68 124-100 256-122 412-72 118 38 208 38 330 2 78-24 150-28 242 6v140H0Z" fill="#e9c39d" opacity="0.56"/>
+  <path d="M72 394c84-76 150-112 230-116 64-4 116 16 174 62 44 34 86 42 130 26 48-18 98-64 156-136 32-40 84-70 144-82 88-18 170 8 240 76 52 50 108 66 180 52 42-8 92-32 150-70 92-60 188-76 290-48v120H72Z" fill="#a9a39f"/>
+  <path d="M0 458c122-48 232-52 326-14 90 36 194 30 322-20 100-40 196-48 292-24 96 24 196 26 304 6 110-20 228-10 356 32v96H0Z" fill="#d7b96a" opacity="0.9"/>
+  <path d="M0 516c140-16 282-14 424 6 190 28 362 34 516 20 126-12 246-8 360 12 110 18 210 18 300-2v238H0Z" fill="url(#lake)"/>
+  <path d="M0 526c134 24 248 22 344-8 112-36 234-36 368 0 144 38 282 36 420-4 122-34 278-34 468 0v82H0Z" fill="#dcb777" opacity="0.62"/>
+  <path d="M0 558c112 44 226 56 348 36 110-18 202-8 284 32 80 40 188 50 322 30 134-18 256-8 368 30 86 28 178 40 278 36v120H0Z" fill="url(#meadow)" opacity="0.88"/>
+  <path d="M0 716c104-48 204-66 304-54 102 10 198 54 292 132h-596Z" fill="#85a05e" opacity="0.74"/>
+  <path d="M1118 722c84-54 158-80 222-78 86 2 174 40 260 114v74h-482Z" fill="#d9b462" opacity="0.66"/>
+  <path d="M140 690c64 8 118 30 160 68 52 46 106 70 158 70 56 0 106-22 150-68 40-42 88-64 148-68" fill="none" stroke="#f4ded7" stroke-width="14" stroke-linecap="round" opacity="0.9"/>
+  <path d="M1034 646c96-8 178-2 246 18 68 18 130 48 188 88" fill="none" stroke="#f3e6da" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+  <g opacity="0.44">
+    <circle cx="1240" cy="146" r="6" fill="#171816"/>
+    <path d="M1230 150c8-12 18-12 30 0" fill="none" stroke="#171816" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="1272" cy="128" r="4" fill="#171816"/>
+    <path d="M1266 132c6-8 12-8 18 0" fill="none" stroke="#171816" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <rect y="782" width="1600" height="218" fill="url(#lake)" opacity="0.88"/>
+</svg>

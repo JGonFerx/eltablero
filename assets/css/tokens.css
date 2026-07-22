@@ -1,0 +1,77 @@
+:root {
+  --color-ink: #171816;
+  --color-ink-soft: #343630;
+  --color-paper: #f5f3ed;
+  --color-paper-bright: #fbfaf6;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f1f2ec;
+  --color-mist: #e8ebe5;
+  --color-muted: #6f736c;
+  --color-border: rgba(23, 24, 22, 0.12);
+  --color-border-strong: rgba(23, 24, 22, 0.2);
+  --color-accent: #8ea07a;
+  --color-accent-strong: #738261;
+  --color-accent-soft: #dfe6d6;
+  --color-clay: #c9825c;
+  --color-success: #758d67;
+  --color-warning: #b27d4f;
+  --color-danger: #b45858;
+  --color-shadow: rgba(28, 30, 27, 0.06);
+
+  --font-display: "Inter", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-body: "Inter", "Segoe UI", Helvetica, Arial, sans-serif;
+
+  --text-xs: clamp(0.75rem, 0.72rem + 0.12vw, 0.82rem);
+  --text-sm: clamp(0.88rem, 0.84rem + 0.15vw, 0.98rem);
+  --text-base: clamp(1rem, 0.96rem + 0.18vw, 1.08rem);
+  --text-lg: clamp(1.18rem, 1.08rem + 0.42vw, 1.44rem);
+  --text-xl: clamp(1.65rem, 1.3rem + 1vw, 2.35rem);
+  --text-2xl: clamp(2.3rem, 1.78rem + 2.25vw, 4.8rem);
+  --text-hero: clamp(3rem, 2.15rem + 4vw, 6.8rem);
+
+  --space-1: 0.375rem;
+  --space-2: 0.625rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2.25rem;
+  --space-6: 3.5rem;
+  --space-7: 5rem;
+  --space-8: 7rem;
+  --space-9: 10rem;
+
+  --radius-sm: 1rem;
+  --radius-md: 1.5rem;
+  --radius-lg: 2rem;
+  --radius-xl: 2.25rem;
+  --radius-pill: 999px;
+
+  --shadow-soft: 0 20px 60px -40px rgba(20, 22, 18, 0.18);
+
+  --duration-fast: 180ms;
+  --duration-normal: 420ms;
+  --duration-slow: 760ms;
+  --ease-out-premium: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --container-max: 88rem;
+  --container-readable: 46rem;
+  --container-wide: 96rem;
+  --page-gutter: clamp(1rem, 3vw, 3rem);
+  --section-space: clamp(5rem, 9vw, 10rem);
+  --header-height: 5rem;
+  --header-height-mobile: 4.5rem;
+
+  --z-header: 1000;
+  --z-overlay: 1100;
+  --z-menu: 1200;
+  --z-dialog: 1300;
+  --z-loader: 1400;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 1ms;
+    --duration-normal: 1ms;
+    --duration-slow: 1ms;
+  }
+}
