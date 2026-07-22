@@ -883,11 +883,14 @@
 
       const viewportWidth = window.innerWidth;
       const viewportHeight = getStableViewportHeight(viewportWidth);
+      const isMobileHero = viewportWidth < 768;
       const heroTop = immersiveHero.offsetTop;
       const rawScroll = window.scrollY - heroTop;
+      const mobileChromeScrollGuard = isMobileHero ? Math.min(128, viewportHeight * 0.15) : 0;
+      const adjustedRawScroll = Math.max(rawScroll - mobileChromeScrollGuard, 0);
       const totalScrollDistance = Math.max(immersiveHero.offsetHeight - viewportHeight, viewportHeight * 0.92, 520);
       const revealDistance = Math.min(totalScrollDistance, Math.max(viewportHeight * 1.55, 980));
-      const progress = clamp(rawScroll / revealDistance, 0, 1);
+      const progress = clamp(adjustedRawScroll / revealDistance, 0, 1);
       const easedCameraProgress = easeInOut(progress);
 
       let targetScale = 2.3;
@@ -902,10 +905,10 @@
         targetRotate = -4;
       }
 
-      if (viewportWidth < 768) {
-        targetScale = 2.98;
-        targetShiftX = 0;
-        targetShiftY = viewportHeight * 0.025;
+      if (isMobileHero) {
+        targetScale = 2.34;
+        targetShiftX = viewportWidth * -0.12;
+        targetShiftY = viewportHeight * -0.015;
         targetRotate = 0;
       }
 
@@ -915,9 +918,11 @@
       const rotate = targetRotate * easedCameraProgress;
       const blackoutProgress = segmentProgress(progress, 0.56, 0.8);
       const blackoutOpacity = easeInOut(blackoutProgress) * 0.9;
-      const shellFadeProgress = segmentProgress(progress, 0.16, 0.42);
+      const shellFadeProgress = isMobileHero
+        ? segmentProgress(progress, 0.055, 0.18)
+        : segmentProgress(progress, 0.16, 0.42);
       const shellOpacity = 1 - easeInOut(shellFadeProgress);
-      const shellShiftY = 36 * easeInOut(shellFadeProgress);
+      const shellShiftY = (isMobileHero ? 14 : 36) * easeInOut(shellFadeProgress);
       const decisionIntroReveal = easeInOut(segmentProgress(progress, 0.74, 0.88));
       const decisionPrimaryReveal = easeInOut(segmentProgress(progress, 0.68, 0.9));
       const decisionUtilitiesReveal = easeInOut(segmentProgress(progress, 0.9, 0.975));

@@ -1970,7 +1970,7 @@
     inset: auto 0 auto;
     top: clamp(4.75rem, calc(var(--hero-stage-height) * 0.12), 6.5rem);
     height: clamp(17rem, calc(var(--hero-stage-height) * 0.45), 28rem);
-    transform-origin: 25% 26%;
+    transform-origin: 46% 50%;
   }
 
   .hero__media::before,
