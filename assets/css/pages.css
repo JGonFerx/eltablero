@@ -56,6 +56,7 @@
 .hero--immersive.hero--scroll-enhanced .hero__stage {
   position: sticky;
   top: 0;
+  z-index: 2;
 }
 
 .hero__stage::before {
@@ -2001,7 +2002,7 @@
   }
 
   .hero--immersive.hero--scroll-enhanced {
-    min-height: 335svh;
+    min-height: 225svh;
   }
 
   .hero__decision-shell {
