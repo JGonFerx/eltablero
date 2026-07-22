@@ -1094,7 +1094,8 @@ body.gym-concept-page {
   transform: rotate(45deg);
 }
 
-.mobile-nav .is-current {
+.mobile-nav .is-current,
+.mobile-nav a[aria-current="page"] {
   position: relative;
   border-color: rgba(217, 147, 105, 0.86);
   background:
@@ -1107,7 +1108,8 @@ body.gym-concept-page {
     0 0 1.8rem rgba(201, 130, 92, 0.12);
 }
 
-.mobile-nav .is-current::after {
+.mobile-nav .is-current::after,
+.mobile-nav a[aria-current="page"]::after {
   content: "";
   position: absolute;
   top: 0.78rem;
