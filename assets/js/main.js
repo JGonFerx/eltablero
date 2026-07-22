@@ -949,7 +949,7 @@
 
       if (isMobileHero) {
         targetScale = 2.34;
-        targetShiftX = viewportWidth * -0.12;
+        targetShiftX = viewportWidth * -0.07;
         targetShiftY = viewportHeight * -0.015;
         targetRotate = 0;
       }
@@ -961,7 +961,7 @@
       const blackoutProgress = segmentProgress(progress, 0.56, 0.8);
       const blackoutOpacity = easeInOut(blackoutProgress) * 0.9;
       const shellFadeProgress = isMobileHero
-        ? segmentProgress(progress, 0.055, 0.18)
+        ? segmentProgress(progress, 0.12, 0.34)
         : segmentProgress(progress, 0.16, 0.42);
       const shellOpacity = 1 - easeInOut(shellFadeProgress);
       const shellShiftY = (isMobileHero ? 14 : 36) * easeInOut(shellFadeProgress);
