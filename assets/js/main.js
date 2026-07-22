@@ -852,9 +852,41 @@
     const easeInOut = (value) => 0.5 - Math.cos(Math.PI * value) / 2;
     const segmentProgress = (value, start, end) => clamp((value - start) / (end - start), 0, 1);
     const getViewportHeight = () => window.visualViewport?.height || window.innerHeight;
+    const isPinchZoomed = () => (window.visualViewport?.scale || 1) > 1.01;
     const mobileViewport = {
       width: window.innerWidth,
       height: getViewportHeight()
+    };
+
+    const setPinchZoomMode = (isActive) => {
+      immersiveHero.classList.toggle("is-pinch-zoomed", isActive);
+      document.body.classList.toggle("is-pinch-zoomed", isActive);
+
+      if (!isActive) {
+        return;
+      }
+
+      immersiveHero.style.setProperty("--hero-scroll-progress", "0");
+      immersiveHero.style.setProperty("--hero-media-scale", "1");
+      immersiveHero.style.setProperty("--hero-media-shift-x", "0px");
+      immersiveHero.style.setProperty("--hero-media-shift-y", "0px");
+      immersiveHero.style.setProperty("--hero-media-rotate", "0deg");
+      immersiveHero.style.setProperty("--hero-blackout-opacity", "0");
+      immersiveHero.style.setProperty("--hero-mobile-content-offset-y", "0px");
+      immersiveHero.style.setProperty("--hero-shell-opacity", "1");
+      immersiveHero.style.setProperty("--hero-shell-shift-y", "0px");
+      immersiveHero.style.setProperty("--hero-decision-intro-opacity", "0");
+      immersiveHero.style.setProperty("--hero-decision-intro-shift-y", "2.75rem");
+      immersiveHero.style.setProperty("--hero-decision-intro-scale", "0.94");
+      immersiveHero.style.setProperty("--hero-decision-primary-opacity", "0");
+      immersiveHero.style.setProperty("--hero-decision-primary-shift-y", "3.25rem");
+      immersiveHero.style.setProperty("--hero-decision-primary-scale", "0.94");
+      immersiveHero.style.setProperty("--hero-decision-utilities-opacity", "0");
+      immersiveHero.style.setProperty("--hero-decision-utilities-shift-y", "2.5rem");
+      immersiveHero.style.setProperty("--hero-decision-utilities-scale", "0.96");
+      decisionPrimary?.classList.remove("is-interactive");
+      siteHeader?.classList.remove("is-protecting-hero-cards");
+      immersiveHero.dataset.previewMode = "interactive";
     };
 
     const getStableViewportHeight = (viewportWidth) => {
@@ -864,14 +896,18 @@
         mobileViewport.width = viewportWidth;
         mobileViewport.height = currentHeight;
         immersiveHero.style.removeProperty("--hero-mobile-stable-height");
+        immersiveHero.style.removeProperty("--hero-mobile-content-offset-y");
         return currentHeight;
       }
 
       if (Math.abs(viewportWidth - mobileViewport.width) > 32) {
         mobileViewport.width = viewportWidth;
         mobileViewport.height = currentHeight;
+        immersiveHero.style.setProperty("--hero-mobile-content-offset-y", "0px");
       } else {
         mobileViewport.height = Math.min(mobileViewport.height, currentHeight);
+        const chromeViewportOffset = clamp(currentHeight - mobileViewport.height, 0, 92);
+        immersiveHero.style.setProperty("--hero-mobile-content-offset-y", `${chromeViewportOffset.toFixed(2)}px`);
       }
 
       immersiveHero.style.setProperty("--hero-mobile-stable-height", `${mobileViewport.height.toFixed(2)}px`);
@@ -882,6 +918,12 @@
       ticking = false;
 
       const viewportWidth = window.innerWidth;
+      if (viewportWidth < 768 && isPinchZoomed()) {
+        setPinchZoomMode(true);
+        return;
+      }
+
+      setPinchZoomMode(false);
       const viewportHeight = getStableViewportHeight(viewportWidth);
       const isMobileHero = viewportWidth < 768;
       const heroTop = immersiveHero.offsetTop;
@@ -980,6 +1022,8 @@
     updateHeroScrollCamera();
     window.addEventListener("scroll", requestHeroScrollCameraUpdate, { passive: true });
     window.addEventListener("resize", requestHeroScrollCameraUpdate, { passive: true });
+    window.visualViewport?.addEventListener("resize", requestHeroScrollCameraUpdate, { passive: true });
+    window.visualViewport?.addEventListener("scroll", requestHeroScrollCameraUpdate, { passive: true });
   } else if (immersiveHero) {
     immersiveHero.querySelector(".hero__decision-primary")?.classList.add("is-interactive");
   }

@@ -1717,6 +1717,10 @@
   font-size: 0.64rem;
 }
 
+.service-link__facts--padel span {
+  font-size: 0.64rem;
+}
+
 .split-panel {
   display: grid;
   gap: 1rem;
@@ -2033,6 +2037,7 @@
   .hero__content--editorial {
     max-width: min(100%, 22rem);
     padding-bottom: 0;
+    transform: translate3d(0, var(--hero-mobile-content-offset-y, 0px), 0);
   }
 
   .hero__eyebrow {
@@ -2103,7 +2108,8 @@
   }
 
   .mobile-sticky-actions.is-hidden,
-  .menu-open .mobile-sticky-actions {
+  .menu-open .mobile-sticky-actions,
+  .is-pinch-zoomed .mobile-sticky-actions {
     opacity: 0;
     transform: translate3d(0, calc(100% + 1.5rem), 0);
     pointer-events: none;
