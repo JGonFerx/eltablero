@@ -932,7 +932,7 @@
       const adjustedRawScroll = Math.max(rawScroll - mobileChromeScrollGuard, 0);
       const totalScrollDistance = Math.max(immersiveHero.offsetHeight - viewportHeight, viewportHeight * 0.92, 520);
       const revealDistance = isMobileHero
-        ? Math.min(totalScrollDistance, Math.max(viewportHeight * 0.92, 620))
+        ? Math.min(totalScrollDistance, Math.max(viewportHeight * 0.78, 520))
         : Math.min(totalScrollDistance, Math.max(viewportHeight * 1.55, 980));
       const progress = clamp(adjustedRawScroll / revealDistance, 0, 1);
       const easedCameraProgress = easeInOut(progress);
@@ -950,8 +950,8 @@
       }
 
       if (isMobileHero) {
-        targetScale = 2.34;
-        targetShiftX = viewportWidth * -0.07;
+        targetScale = 2.46;
+        targetShiftX = viewportWidth * -0.085;
         targetShiftY = viewportHeight * -0.015;
         targetRotate = 0;
       }
