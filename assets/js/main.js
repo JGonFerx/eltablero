@@ -973,8 +973,8 @@
       const shellOpacity = 1 - easeInOut(shellFadeProgress);
       const shellShiftY = (isMobileHero ? 14 : 36) * easeInOut(shellFadeProgress);
       const decisionIntroReveal = easeInOut(segmentProgress(progress, 0.68, 0.84));
-      const decisionPrimaryReveal = easeInOut(segmentProgress(progress, 0.66, 0.985));
-      const decisionUtilitiesReveal = easeInOut(segmentProgress(progress, 0.86, 0.995));
+      const decisionPrimaryReveal = easeInOut(segmentProgress(progress, 0.66, 0.92));
+      const decisionUtilitiesReveal = easeInOut(segmentProgress(progress, 0.84, 0.94));
       const previewMode = progress < 0.4 ? "interactive" : "glow-only";
 
       immersiveHero.style.setProperty("--hero-scroll-progress", progress.toFixed(4));
