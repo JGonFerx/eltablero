@@ -38,7 +38,7 @@
 }
 
 .hero--immersive.hero--scroll-enhanced {
-  min-height: 275svh;
+  min-height: 210svh;
   overflow: clip;
   --hero-decision-shell-opacity: 0;
   --hero-decision-shell-shift-y: 2rem;
@@ -2002,7 +2002,7 @@
   }
 
   .hero--immersive.hero--scroll-enhanced {
-    min-height: 225svh;
+    min-height: 185svh;
   }
 
   .hero__decision-shell {

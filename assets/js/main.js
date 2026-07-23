@@ -937,10 +937,8 @@
       const rawScroll = window.scrollY - heroTop;
       const mobileChromeScrollGuard = isMobileHero ? Math.min(128, viewportHeight * 0.15) : 0;
       const adjustedRawScroll = Math.max(rawScroll - mobileChromeScrollGuard, 0);
-      const totalScrollDistance = Math.max(immersiveHero.offsetHeight - viewportHeight, viewportHeight * 0.92, 520);
-      const revealDistance = isMobileHero
-        ? Math.min(totalScrollDistance, Math.max(viewportHeight * 0.78, 520))
-        : Math.min(totalScrollDistance, Math.max(viewportHeight * 1.55, 980));
+      const totalScrollDistance = Math.max(immersiveHero.offsetHeight - viewportHeight, 1);
+      const revealDistance = totalScrollDistance;
       const progress = clamp(adjustedRawScroll / revealDistance, 0, 1);
       const easedCameraProgress = easeInOut(progress);
 
@@ -974,9 +972,9 @@
         : segmentProgress(progress, 0.16, 0.42);
       const shellOpacity = 1 - easeInOut(shellFadeProgress);
       const shellShiftY = (isMobileHero ? 14 : 36) * easeInOut(shellFadeProgress);
-      const decisionIntroReveal = easeInOut(segmentProgress(progress, 0.74, 0.88));
-      const decisionPrimaryReveal = easeInOut(segmentProgress(progress, 0.68, 0.9));
-      const decisionUtilitiesReveal = easeInOut(segmentProgress(progress, 0.9, 0.975));
+      const decisionIntroReveal = easeInOut(segmentProgress(progress, 0.68, 0.84));
+      const decisionPrimaryReveal = easeInOut(segmentProgress(progress, 0.66, 0.985));
+      const decisionUtilitiesReveal = easeInOut(segmentProgress(progress, 0.86, 0.995));
       const previewMode = progress < 0.4 ? "interactive" : "glow-only";
 
       immersiveHero.style.setProperty("--hero-scroll-progress", progress.toFixed(4));
