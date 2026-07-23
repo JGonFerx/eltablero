@@ -900,17 +900,20 @@
         return currentHeight;
       }
 
+      const isAtHeroTop = window.scrollY <= immersiveHero.offsetTop + 2;
+
       if (Math.abs(viewportWidth - mobileViewport.width) > 32) {
         mobileViewport.width = viewportWidth;
         mobileViewport.height = currentHeight;
         immersiveHero.style.setProperty("--hero-mobile-content-offset-y", "0px");
+      } else if (isAtHeroTop) {
+        immersiveHero.style.setProperty("--hero-mobile-content-offset-y", "0px");
       } else {
         mobileViewport.height = Math.min(mobileViewport.height, currentHeight);
         const chromeViewportOffset = clamp(currentHeight - mobileViewport.height, 0, 92);
-        const isAtHeroTop = window.scrollY <= immersiveHero.offsetTop + 2;
         immersiveHero.style.setProperty(
           "--hero-mobile-content-offset-y",
-          isAtHeroTop ? "0px" : `${chromeViewportOffset.toFixed(2)}px`
+          `${chromeViewportOffset.toFixed(2)}px`
         );
       }
 
@@ -954,9 +957,9 @@
       }
 
       if (isMobileHero) {
-        targetScale = 2.58;
-        targetShiftX = viewportWidth * -0.18;
-        targetShiftY = viewportHeight * -0.075;
+        targetScale = 3.58;
+        targetShiftX = viewportWidth * 0.20;
+        targetShiftY = viewportHeight * 0.085;
         targetRotate = 0;
       }
 
