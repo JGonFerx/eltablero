@@ -5,51 +5,96 @@
   const countLabel = document.querySelector("[data-exercises-count]");
   const emptyState = document.querySelector("[data-exercises-empty]");
   const searchInput = document.querySelector("[data-exercises-search]");
-  const difficultySelect = document.querySelector("[data-exercises-difficulty]");
-  const equipmentSelect = document.querySelector("[data-exercises-equipment]");
-  const groupsContainer = document.querySelector("[data-exercises-groups]");
-  const activeFiltersContainer = document.querySelector("[data-exercises-active]");
   const backToTopButton = document.querySelector("[data-back-to-top]");
-  const dialog = document.querySelector("[data-exercise-dialog]");
-  const dialogPanel = document.querySelector("[data-exercise-dialog-panel]");
-  const dialogContent = document.querySelector("[data-exercise-dialog-content]");
-  const prevButton = document.querySelector("[data-exercise-prev]");
-  const nextButton = document.querySelector("[data-exercise-next]");
-  const navCount = document.querySelector("[data-exercise-nav-count]");
-  const favoritesChip = document.querySelector("[data-favorites-chip]");
-  const favoritesCountLabel = document.querySelector("[data-favorites-count]");
-  const bodyweightChip = document.querySelector("[data-bodyweight-chip]");
   const printFavoritesButton = document.querySelector("[data-print-favorites]");
-  const compareBar = document.querySelector("[data-compare-bar]");
-  const compareBarText = document.querySelector("[data-compare-bar-text]");
-  const compareClearButton = document.querySelector("[data-compare-clear]");
-  const compareViewButton = document.querySelector("[data-compare-view]");
-  const compareDialog = document.querySelector("[data-compare-dialog]");
-  const compareDialogPanel = document.querySelector("[data-compare-dialog-panel]");
-  const compareDialogContent = document.querySelector("[data-compare-dialog-content]");
+
+  const filtersOpenButton = document.querySelector("[data-filters-open]");
+  const filtersBadge = document.querySelector("[data-filters-badge]");
+  const filtersSummary = document.querySelector("[data-filters-summary]");
+  const filtersSummaryText = document.querySelector("[data-filters-summary-text]");
+  const filtersClearInline = document.querySelector("[data-filters-clear]");
+  const filterPanel = document.querySelector("[data-filter-panel]");
+  const filterPanelSheet = document.querySelector("[data-filter-panel-sheet]");
+  const filterFavoritesSwitch = document.querySelector("[data-filter-favorites]");
+  const filterGroupList = document.querySelector("[data-filter-group-list]");
+  const filterEquipmentList = document.querySelector("[data-filter-equipment-list]");
+  const filterEquipmentSearchWrap = document.querySelector("[data-equipment-search-wrap]");
+  const filterEquipmentSearch = document.querySelector("[data-filter-equipment-search]");
+  const filterPanelApply = document.querySelector("[data-filter-panel-apply]");
+  const filterPanelClear = document.querySelector("[data-filter-panel-clear]");
+  const routineView = document.querySelector("[data-routine-view]");
+  const routineTitle = document.querySelector("[data-routine-title]");
+  const routineNote = document.querySelector("[data-routine-note]");
+  const routineGrid = document.querySelector("[data-routine-grid]");
+  const routineSaveButton = document.querySelector("[data-routine-save-favorites]");
+  const routineDismissButton = document.querySelector("[data-routine-dismiss]");
+  const exercisePage = document.querySelector("[data-exercise-page]");
+  const exercisePageContent = document.querySelector("[data-exercise-page-content]");
+  const exercisesMain = document.querySelector(".exercises-main");
+  const exercisesIntro = document.querySelector(".exercises-intro");
+  const exercisesCatalog = document.querySelector(".exercises-catalog");
+  const routineCart = document.querySelector("[data-routine-cart]");
+  const routineCartToggle = document.querySelector("[data-routine-cart-toggle]");
+  const routineCartPanel = document.querySelector("[data-routine-cart-panel]");
+  const routineCartClose = document.querySelector("[data-routine-cart-close]");
+  const routineCartCount = document.querySelector("[data-routine-cart-count]");
+  const routineCartSummary = document.querySelector("[data-routine-cart-summary]");
+  const routineCartList = document.querySelector("[data-routine-cart-list]");
+  const routineCartEmpty = document.querySelector("[data-routine-cart-empty]");
+  const routineCartClear = document.querySelector("[data-routine-cart-clear]");
+  const routineCartView = document.querySelector("[data-routine-cart-view]");
+  const routineCartBuilder = document.querySelector("[data-routine-cart-builder]");
+  const routineCartTitleInput = document.querySelector("[data-routine-cart-title]");
+  const routineCartNoteInput = document.querySelector("[data-routine-cart-note]");
+  const routineCartBuilderList = document.querySelector("[data-routine-cart-builder-list]");
+  const routineCartGenerate = document.querySelector("[data-routine-cart-generate]");
+  const routineCartResult = document.querySelector("[data-routine-cart-result]");
+  const routineCartLink = document.querySelector("[data-routine-cart-link]");
+  const routineCartCopy = document.querySelector("[data-routine-cart-copy]");
+  const routineCartQr = document.querySelector("[data-routine-cart-qr]");
+  const routineCartPrint = document.querySelector("[data-routine-cart-print]");
+  const routineCartPoster = document.querySelector("[data-routine-cart-poster]");
+  const routineCartPosterCount = document.querySelector("[data-routine-cart-poster-count]");
+  const routineCartPosterDate = document.querySelector("[data-routine-cart-poster-date]");
+  const routineCartPosterTitle = document.querySelector("[data-routine-cart-poster-title]");
+  const routineCartPosterNote = document.querySelector("[data-routine-cart-poster-note]");
+  const routineCartPosterQr = document.querySelector("[data-routine-cart-poster-qr]");
+  const routineCartPosterList = document.querySelector("[data-routine-cart-poster-list]");
 
   if (!grid) {
     return;
   }
 
   let exercises = [];
-  let lastFocusedElement = null;
   let searchDebounce = null;
   let currentExercise = null;
-  let closeTimer = null;
-  let compareSet = [];
-  let compareLastFocused = null;
+  let routineCartTourAutoStarted = false;
+  let routineCartTourBuilt = false;
+  let routineCartTourActive = false;
+  let routineCartTourIndex = 0;
+  let routineCartTourPreviousFocus = null;
+  let routineCartTourRepositionHandler = null;
+  let routineCartTourBackdrop;
+  let routineCartTourSpot;
+  let routineCartTourPopup;
+  let routineCartTourStepLabel;
+  let routineCartTourTitle;
+  let routineCartTourText;
+  let routineCartTourDismissCheckbox;
+  let routineCartTourPrevButton;
+  let routineCartTourNextButton;
+  let routineCartTourCloseButton;
 
   const state = {
     q: "",
     grupo: "",
-    dificultad: "",
     equipamiento: "",
     favoritos: false,
-    pesoCorporal: false,
   };
 
   const FAVORITES_KEY = "eltablero:ejercicios:favoritos";
+  const ROUTINE_CART_KEY = "eltablero:ejercicios:rutina-carrito";
+  const ROUTINE_CART_TOUR_KEY = "eltablero:ejercicios:rutina-carrito-tour-dismissed";
 
   function loadFavorites() {
     try {
@@ -62,12 +107,76 @@
   }
 
   const favorites = loadFavorites();
+  let routineCartItems = loadRoutineCart();
 
   function saveFavorites() {
     try {
       window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(Array.from(favorites)));
     } catch (error) {
       /* almacenamiento no disponible (navegación privada, cuota, etc.) */
+    }
+  }
+
+  function normalizeRoutineCartItem(item) {
+    if (typeof item === "string") {
+      return { id: item, series: "", reps: "", rest: "" };
+    }
+
+    return {
+      id: item && (item.id || item.i) ? item.id || item.i : "",
+      series: item && (item.series || item.s) ? item.series || item.s : "",
+      reps: item && (item.reps || item.r) ? item.reps || item.r : "",
+      rest: item && (item.rest || item.d) ? item.rest || item.d : "",
+    };
+  }
+
+  function loadRoutineCart() {
+    try {
+      const raw = window.localStorage.getItem(ROUTINE_CART_KEY);
+      const items = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(items)) {
+        return [];
+      }
+      const seen = new Set();
+      return items
+        .map(normalizeRoutineCartItem)
+        .filter((item) => {
+          if (!item.id || seen.has(item.id)) {
+            return false;
+          }
+          seen.add(item.id);
+          return true;
+        });
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function saveRoutineCart() {
+    try {
+      window.localStorage.setItem(ROUTINE_CART_KEY, JSON.stringify(routineCartItems));
+    } catch (error) {
+      /* almacenamiento no disponible */
+    }
+  }
+
+  function sanitizeRoutineValue(value) {
+    return String(value).trim().replace(/\s+/g, " ").slice(0, 24);
+  }
+
+  function getRoutineCartItem(id) {
+    return routineCartItems.find((item) => item.id === id);
+  }
+
+  function updateRoutineCartSetting(id, key, value) {
+    const item = getRoutineCartItem(id);
+    if (!item) {
+      return;
+    }
+    item[key] = sanitizeRoutineValue(value);
+    saveRoutineCart();
+    if (routineCartResult) {
+      routineCartResult.hidden = true;
     }
   }
 
@@ -83,19 +192,9 @@
     }
     saveFavorites();
     syncFavoriteButtons(id);
-    updateFavoritesChip();
 
     if (state.favoritos) {
       renderGrid();
-    }
-  }
-
-  function updateFavoritesChip() {
-    if (favoritesCountLabel) {
-      favoritesCountLabel.textContent = favorites.size;
-    }
-    if (favoritesChip) {
-      favoritesChip.setAttribute("aria-pressed", String(state.favoritos));
     }
   }
 
@@ -105,177 +204,421 @@
     });
   }
 
-  function toggleCompare(id, checkboxEl) {
-    const index = compareSet.indexOf(id);
+  function getExerciseById(id) {
+    return exercises.find((exercise) => exercise.id === id);
+  }
 
-    if (index !== -1) {
-      compareSet.splice(index, 1);
+  function isInRoutineCart(id) {
+    return routineCartItems.some((item) => item.id === id);
+  }
+
+  function syncRoutineButtons(id) {
+    document.querySelectorAll("[data-routine-toggle]").forEach((button) => {
+      const exerciseId = button.dataset.routineToggle;
+      if (id && exerciseId !== id) {
+        return;
+      }
+      const isSelected = isInRoutineCart(exerciseId);
+      const label = button.querySelector("[data-routine-toggle-label]");
+      button.setAttribute("aria-pressed", String(isSelected));
+      button.classList.toggle("is-added", isSelected);
+      if (label) {
+        label.textContent = isSelected ? "Añadida" : "Añadir a rutina";
+      }
+      const exercise = getExerciseById(exerciseId);
+      if (exercise) {
+        button.setAttribute(
+          "aria-label",
+          `${isSelected ? "Quitar" : "Añadir"} ${exercise.nombre} ${isSelected ? "de" : "a"} la rutina`
+        );
+      }
+    });
+  }
+
+  function setRoutineCartOpen(isOpen) {
+    if (!routineCart || !routineCartPanel || !routineCartToggle) {
+      return;
+    }
+    if (!isOpen) {
+      setRoutineCartBuilderOpen(false);
+    }
+    routineCart.dataset.open = String(isOpen);
+    routineCartPanel.hidden = !isOpen;
+    routineCartToggle.setAttribute("aria-expanded", String(isOpen));
+  }
+
+  function setRoutineCartBuilderOpen(isOpen) {
+    if (!routineCart || !routineCartBuilder) {
+      return;
+    }
+    if (!isOpen) {
+      endRoutineCartTour();
+    }
+    routineCart.dataset.mode = isOpen ? "builder" : "summary";
+    routineCartBuilder.hidden = !isOpen;
+    document.body.classList.toggle("has-routine-cart-builder", isOpen);
+    if (routineCartView) {
+      routineCartView.textContent = "Crear rutina";
+    }
+    if (isOpen) {
+      window.setTimeout(maybeAutoStartRoutineCartTour, 260);
+    }
+  }
+
+  function renderRoutineCartBuilder() {
+    if (!routineCartBuilderList) {
+      return;
+    }
+
+    routineCartBuilderList.innerHTML = "";
+    const fragment = document.createDocumentFragment();
+
+    routineCartItems.forEach((item, index) => {
+      const exercise = getExerciseById(item.id);
+      if (!exercise) {
+        return;
+      }
+
+      const li = document.createElement("li");
+      li.className = "routine-cart__builder-item";
+      li.innerHTML = `
+        <span class="routine-cart__index">${index + 1}</span>
+        <span class="routine-cart__builder-copy">
+          <strong>${escapeHtml(exercise.nombre)}</strong>
+          <span>${escapeHtml(exercise.grupoMuscular)}</span>
+          <span class="routine-cart__prescription" data-routine-prescription="${escapeHtml(exercise.id)}">
+            <label>
+              <span>Series</span>
+              <input type="text" inputmode="numeric" autocomplete="off" maxlength="24" value="${escapeHtml(item.series)}" data-routine-setting="series" aria-label="Series de ${escapeHtml(exercise.nombre)}">
+            </label>
+            <label>
+              <span>Reps</span>
+              <input type="text" inputmode="text" autocomplete="off" maxlength="24" value="${escapeHtml(item.reps)}" data-routine-setting="reps" aria-label="Repeticiones de ${escapeHtml(exercise.nombre)}">
+            </label>
+            <label>
+              <span>Descanso</span>
+              <input type="text" inputmode="text" autocomplete="off" maxlength="24" value="${escapeHtml(item.rest)}" data-routine-setting="rest" aria-label="Descanso de ${escapeHtml(exercise.nombre)}">
+            </label>
+          </span>
+        </span>
+        <span class="routine-cart__builder-controls">
+          <button type="button" data-routine-move="-1" data-routine-move-id="${escapeHtml(exercise.id)}" ${index === 0 ? "disabled" : ""} aria-label="Subir ${escapeHtml(exercise.nombre)}">↑</button>
+          <button type="button" data-routine-move="1" data-routine-move-id="${escapeHtml(exercise.id)}" ${index === routineCartItems.length - 1 ? "disabled" : ""} aria-label="Bajar ${escapeHtml(exercise.nombre)}">↓</button>
+          <button type="button" data-routine-remove="${escapeHtml(exercise.id)}" aria-label="Quitar ${escapeHtml(exercise.nombre)}">×</button>
+        </span>
+      `;
+      fragment.appendChild(li);
+    });
+
+    routineCartBuilderList.appendChild(fragment);
+  }
+
+  function moveRoutineCartItem(id, direction) {
+    const index = routineCartItems.findIndex((item) => item.id === id);
+    const target = index + direction;
+    if (index === -1 || target < 0 || target >= routineCartItems.length) {
+      return;
+    }
+    const [item] = routineCartItems.splice(index, 1);
+    routineCartItems.splice(target, 0, item);
+    renderRoutineCart();
+    if (routineCartResult) {
+      routineCartResult.hidden = true;
+    }
+  }
+
+  function renderRoutineCart() {
+    if (!routineCart || !routineCartList) {
+      return;
+    }
+
+    routineCartItems = routineCartItems.filter((item) => getExerciseById(item.id));
+    const count = routineCartItems.length;
+    const label = count === 1 ? "1 ejercicio" : `${count} ejercicios`;
+
+    if (routineCartCount) {
+      routineCartCount.textContent = label;
+    }
+    if (routineCartSummary) {
+      routineCartSummary.textContent =
+        count === 0 ? "Selecciona ejercicios del catálogo." : `${label} en el orden de la rutina.`;
+    }
+    if (routineCartEmpty) {
+      routineCartEmpty.hidden = count > 0;
+    }
+    if (routineCartClear) {
+      routineCartClear.disabled = count === 0;
+    }
+    if (routineCartView) {
+      routineCartView.disabled = count === 0;
+    }
+    if (routineCartGenerate) {
+      routineCartGenerate.disabled = count === 0;
+    }
+    if (count === 0) {
+      setRoutineCartBuilderOpen(false);
+      if (routineCartResult) {
+        routineCartResult.hidden = true;
+      }
+    }
+
+    routineCartList.innerHTML = "";
+    const fragment = document.createDocumentFragment();
+
+    routineCartItems.forEach((item, index) => {
+      const exercise = getExerciseById(item.id);
+      if (!exercise) {
+        return;
+      }
+
+      const li = document.createElement("li");
+      li.className = "routine-cart__item";
+      li.innerHTML = `
+        <span class="routine-cart__index">${index + 1}</span>
+        <span class="routine-cart__media">
+          ${
+            exercise.imagenInicial
+              ? `<img src="${escapeHtml(exercise.imagenInicial)}" alt="" loading="lazy" decoding="async" width="128" height="128">`
+              : ""
+          }
+        </span>
+        <span class="routine-cart__item-copy">
+          <strong>${escapeHtml(exercise.nombre)}</strong>
+          <span>${escapeHtml(exercise.grupoMuscular)}</span>
+        </span>
+        <button type="button" class="routine-cart__remove" data-routine-remove="${escapeHtml(exercise.id)}" aria-label="Quitar ${escapeHtml(exercise.nombre)} de la rutina">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+        </button>
+      `;
+      fragment.appendChild(li);
+    });
+
+    routineCartList.appendChild(fragment);
+    initLazyImages(routineCartList);
+    renderRoutineCartBuilder();
+    saveRoutineCart();
+    syncRoutineButtons();
+  }
+
+  function addRoutineCartItem(id) {
+    if (isInRoutineCart(id) || !getExerciseById(id)) {
+      return;
+    }
+    routineCartItems.push({ id, series: "", reps: "", rest: "" });
+    if (routineCartResult) {
+      routineCartResult.hidden = true;
+    }
+    renderRoutineCart();
+    setRoutineCartOpen(true);
+  }
+
+  function removeRoutineCartItem(id) {
+    routineCartItems = routineCartItems.filter((item) => item.id !== id);
+    if (routineCartResult) {
+      routineCartResult.hidden = true;
+    }
+    renderRoutineCart();
+  }
+
+  function toggleRoutineCartItem(id) {
+    if (isInRoutineCart(id)) {
+      removeRoutineCartItem(id);
     } else {
-      if (compareSet.length >= 2) {
-        const removedId = compareSet.shift();
-        document.querySelectorAll(`[data-compare-toggle="${removedId}"]`).forEach((el) => {
-          el.checked = false;
-        });
-      }
-      compareSet.push(id);
+      addRoutineCartItem(id);
     }
+  }
 
-    if (checkboxEl) {
-      checkboxEl.checked = compareSet.includes(id);
+  function clearRoutineCart() {
+    routineCartItems = [];
+    if (routineCartResult) {
+      routineCartResult.hidden = true;
     }
-    document.querySelectorAll(`[data-compare-toggle="${id}"]`).forEach((el) => {
-      el.checked = compareSet.includes(id);
+    renderRoutineCart();
+  }
+
+  function viewRoutineCart() {
+    if (routineCartItems.length === 0) {
+      return;
+    }
+    setRoutineCartOpen(true);
+    setRoutineCartBuilderOpen(!routineCartBuilder || routineCartBuilder.hidden);
+  }
+
+  function getRoutineCartTitle() {
+    return routineCartTitleInput && routineCartTitleInput.value.trim()
+      ? routineCartTitleInput.value.trim()
+      : "Rutina de El Tablero";
+  }
+
+  function getRoutineCartNote() {
+    return routineCartNoteInput ? routineCartNoteInput.value.trim() : "";
+  }
+
+  function buildRoutineCartUrl() {
+    const routine = {
+      t: getRoutineCartTitle(),
+      n: getRoutineCartNote(),
+      e: routineCartItems.map((item) => item.id),
+      items: routineCartItems,
+    };
+    const hash = window.Routines.encode(routine);
+    return { routine, url: `${location.origin}${location.pathname}${hash}` };
+  }
+
+  function renderQr(container, text, size, correctLevel) {
+    if (!container) {
+      return;
+    }
+    container.innerHTML = "";
+    if (!window.QRCode) {
+      container.textContent = "No se pudo generar el código QR.";
+      return;
+    }
+    // eslint-disable-next-line no-new
+    new window.QRCode(container, {
+      text,
+      width: size,
+      height: size,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: correctLevel || window.QRCode.CorrectLevel.M,
     });
-
-    updateCompareBar();
   }
 
-  function updateCompareBar() {
-    if (!compareBar) {
+  function prepareRoutineCartPoster(routine, url) {
+    if (!routineCartPoster || !routineCartPosterTitle || !routineCartPosterList) {
       return;
     }
 
-    if (compareSet.length === 0) {
-      compareBar.hidden = true;
-      if (backToTopButton) {
-        backToTopButton.classList.remove("is-lifted");
-      }
+    routineCartPosterTitle.textContent = routine.t;
+    if (routineCartPosterCount) {
+      const count = routine.items.length;
+      routineCartPosterCount.textContent = count === 1 ? "1 ejercicio" : `${count} ejercicios`;
+    }
+    if (routineCartPosterDate) {
+      routineCartPosterDate.textContent = new Intl.DateTimeFormat("es-ES", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      }).format(new Date());
+    }
+    if (routineCartPosterNote) {
+      routineCartPosterNote.textContent = routine.n || "";
+    }
+    routineCartPosterList.innerHTML = routine.items
+      .map((entry, index) => ({ entry, exercise: getExerciseById(entry.id), index }))
+      .filter(({ exercise }) => Boolean(exercise))
+      .map(({ entry, exercise, index }) => {
+        const prescription = formatPrescription(entry);
+        const media = exercise.imagenInicial
+          ? `<img src="${escapeHtml(exercise.imagenInicial)}" alt="" decoding="async" width="512" height="512">`
+          : "";
+        return `
+          <li>
+            <span class="routine-poster__item-index">${String(index + 1).padStart(2, "0")}</span>
+            <span class="routine-poster__item-media">${media}</span>
+            <span class="routine-poster__item-copy">
+              <strong>${escapeHtml(exercise.nombre)}</strong>
+              <span>${escapeHtml(exercise.grupoMuscular)}</span>
+              <small>${escapeHtml(exercise.equipamiento[0] || "Peso corporal")}</small>
+            </span>
+            <span class="routine-poster__item-prescription">${prescription ? escapeHtml(prescription) : "Sin configurar"}</span>
+          </li>
+        `;
+      })
+      .join("");
+    renderQr(routineCartPosterQr, url, 680, window.QRCode && window.QRCode.CorrectLevel.L);
+    initLazyImages(routineCartPoster);
+  }
+
+  function generateRoutineCart() {
+    if (!window.Routines || routineCartItems.length === 0 || !routineCartLink) {
       return;
     }
-
-    compareBar.hidden = false;
-    if (backToTopButton) {
-      backToTopButton.classList.add("is-lifted");
-    }
-    compareViewButton.disabled = compareSet.length < 2;
-    const names = compareSet
-      .map((id) => exercises.find((item) => item.id === id))
-      .filter(Boolean)
-      .map((item) => item.nombre);
-
-    compareBarText.textContent =
-      compareSet.length === 1
-        ? `${names[0]} — elige uno más para comparar`
-        : `Comparando: ${names.join(" · ")}`;
-  }
-
-  function clearCompare() {
-    compareSet.forEach((id) => {
-      document.querySelectorAll(`[data-compare-toggle="${id}"]`).forEach((el) => {
-        el.checked = false;
-      });
-    });
-    compareSet = [];
-    updateCompareBar();
-  }
-
-  function renderCompareColumn(exercise) {
-    const facts = [
-      ["Parte del cuerpo", exercise.parteCuerpo],
-      ["Categoría", exercise.categoria],
-      ["Dificultad", exercise.dificultad],
-      ["Mecánica", exercise.mecanica],
-      ["Tipo de fuerza", exercise.tipoFuerza],
-      ["Equipamiento", exercise.equipamiento[0] || "Peso corporal"],
-    ];
-
-    const media = exercise.imagenInicial
-      ? `<img src="${escapeHtml(exercise.imagenInicial)}" alt="${escapeHtml(exercise.nombre)}" loading="lazy" decoding="async" width="512" height="512">`
-      : `<div class="exercise-detail__media-empty" style="margin:0;">Sin imagen disponible</div>`;
-
-    return `
-      <div class="compare-column">
-        <p class="exercise-detail__eyebrow">${escapeHtml(exercise.grupoMuscular)}</p>
-        <h3>${escapeHtml(exercise.nombre)}</h3>
-        <div class="compare-column__media">${media}</div>
-        <ul class="exercise-detail__facts compare-column__facts">
-          ${facts
-            .map(([label, value]) => `<li><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>`)
-            .join("")}
-        </ul>
-        ${
-          exercise.musculosPrincipales.length
-            ? `<ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--primary">${renderList(exercise.musculosPrincipales)}</ul>`
-            : ""
-        }
-        <button type="button" class="compare-column__open" data-compare-open-exercise="${escapeHtml(exercise.id)}">Ver ficha completa →</button>
-      </div>
-    `;
-  }
-
-  function renderComparison() {
-    const items = compareSet.map((id) => exercises.find((item) => item.id === id)).filter(Boolean);
-
-    compareDialogContent.innerHTML = `
-      <div class="compare-grid">
-        ${items.map(renderCompareColumn).join("")}
-      </div>
-    `;
-
-    initLazyImages(compareDialogContent);
-  }
-
-  function openCompare() {
-    if (compareSet.length < 2) {
-      return;
-    }
-
-    compareLastFocused = document.activeElement;
-    renderComparison();
-    compareDialog.hidden = false;
-    document.body.style.overflow = "hidden";
-    compareDialogPanel.focus();
-    document.addEventListener("keydown", onCompareKeydown);
-  }
-
-  function closeCompare() {
-    if (compareDialog.hidden) {
-      return;
-    }
-
-    compareDialog.hidden = true;
-    document.body.style.overflow = "";
-    document.removeEventListener("keydown", onCompareKeydown);
-
-    if (compareLastFocused) {
-      compareLastFocused.focus();
+    const { routine, url } = buildRoutineCartUrl();
+    routineCartLink.value = url;
+    renderQr(routineCartQr, url, 180);
+    prepareRoutineCartPoster(routine, url);
+    if (routineCartResult) {
+      routineCartResult.hidden = false;
     }
   }
 
-  function onCompareKeydown(event) {
-    if (event.key === "Escape") {
-      closeCompare();
+  function copyRoutineCartLink() {
+    if (!routineCartLink || !routineCartLink.value || !routineCartCopy) {
       return;
     }
+    const done = () => {
+      const original = routineCartCopy.textContent;
+      routineCartCopy.textContent = "¡Copiado!";
+      window.setTimeout(() => {
+        routineCartCopy.textContent = original;
+      }, 1600);
+    };
 
-    if (event.key !== "Tab") {
-      return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(routineCartLink.value).then(done).catch(() => fallbackCopy(routineCartLink.value, done));
+    } else {
+      fallbackCopy(routineCartLink.value, done);
     }
+  }
 
-    const focusable = compareDialogPanel.querySelectorAll(
-      'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-
-    if (focusable.length === 0) {
-      return;
+  function printRoutineCart() {
+    if (!routineCartLink || !routineCartLink.value) {
+      generateRoutineCart();
     }
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
+    document.body.classList.add("is-printing-routine-cart");
+    window.setTimeout(() => {
+      window.print();
+      window.setTimeout(() => {
+        document.body.classList.remove("is-printing-routine-cart");
+      }, 700);
+    }, 120);
   }
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const HEART_ICON =
     '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.8-9.1C.7 8 2.2 4.7 5.4 4c2-.4 3.9.5 5 2.1C11.6 4.5 13.5 3.6 15.5 4c3.2.7 4.7 4 3.2 7.4C16.4 15.9 12 20.5 12 20.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg>';
+
+  const ROUTINE_CART_TOUR_STEPS = [
+    {
+      selector: ".routine-cart__panel",
+      placement: "center",
+      title: "Crea una rutina sin salir del catálogo",
+      text: "Los ejercicios añadidos quedan en este panel. Desde aquí puedes configurar la rutina y compartirla sin abrir otra página.",
+    },
+    {
+      selector: "[data-routine-cart-title]",
+      placement: "bottom",
+      title: "Ponle nombre",
+      text: "Usa un título corto y claro, por ejemplo «Piernas — Lunes». También puedes añadir una nota para quien reciba la rutina.",
+    },
+    {
+      selector: "[data-routine-cart-builder-list]",
+      placement: "left",
+      title: "Revisa y ordena",
+      text: "Los ejercicios aparecen en el orden de la rutina. Usa las flechas para subir o bajar cada ejercicio, o la × para quitarlo.",
+    },
+    {
+      selector: "[data-routine-setting]",
+      placement: "bottom",
+      title: "Configura cada ejercicio",
+      text: "Añade series, repeticiones y descanso si quieres. Estos datos viajarán en el enlace compartido y en el póster impreso.",
+    },
+    {
+      selector: "[data-routine-cart-generate]",
+      placement: "top",
+      title: "Genera enlace y QR",
+      text: "Cuando la rutina esté lista, genera el enlace y el código QR. Después podrás copiarlo o imprimirlo como rutina del día.",
+    },
+    {
+      selector: "[data-routine-cart-tour]",
+      placement: "bottom",
+      title: "Repite la guía",
+      text: "Este botón vuelve a abrir la guía rápida cuando necesites revisar el flujo.",
+    },
+  ];
 
   const escapeHtml = (value) =>
     String(value).replace(/[&<>"']/g, (char) => (
@@ -288,8 +631,253 @@
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
 
-  function chipLabel(text, count) {
-    return `${escapeHtml(text)} <span class="exercises-chip__count">${count}</span>`;
+  function routineCartTourCurrentTarget() {
+    const step = ROUTINE_CART_TOUR_STEPS[routineCartTourIndex];
+    return step.placement !== "center" ? document.querySelector(step.selector) : null;
+  }
+
+  function buildRoutineCartTour() {
+    if (routineCartTourBuilt) {
+      return;
+    }
+    routineCartTourBuilt = true;
+
+    routineCartTourBackdrop = document.createElement("div");
+    routineCartTourBackdrop.className = "tour-backdrop";
+    routineCartTourBackdrop.hidden = true;
+
+    routineCartTourSpot = document.createElement("div");
+    routineCartTourSpot.className = "tour-spot";
+
+    routineCartTourPopup = document.createElement("div");
+    routineCartTourPopup.className = "tour-popup";
+    routineCartTourPopup.setAttribute("role", "dialog");
+    routineCartTourPopup.setAttribute("aria-modal", "true");
+    routineCartTourPopup.setAttribute("aria-labelledby", "routine-cart-tour-title");
+    routineCartTourPopup.innerHTML = `
+      <button type="button" class="tour-popup__close" data-routine-cart-tour-close aria-label="Cerrar guía">×</button>
+      <p class="tour-popup__step" data-routine-cart-tour-step></p>
+      <h2 class="tour-popup__title" id="routine-cart-tour-title" data-routine-cart-tour-title></h2>
+      <p class="tour-popup__text" data-routine-cart-tour-text></p>
+      <div class="tour-popup__footer">
+        <label class="tour-popup__dismiss">
+          <input type="checkbox" data-routine-cart-tour-dismiss>
+          No volver a mostrar
+        </label>
+        <div class="tour-popup__nav">
+          <button type="button" class="tour-popup__prev" data-routine-cart-tour-prev>Anterior</button>
+          <button type="button" class="tour-popup__next" data-routine-cart-tour-next>Siguiente</button>
+        </div>
+      </div>
+    `;
+
+    routineCartTourBackdrop.appendChild(routineCartTourSpot);
+    routineCartTourBackdrop.appendChild(routineCartTourPopup);
+    document.body.appendChild(routineCartTourBackdrop);
+
+    routineCartTourStepLabel = routineCartTourPopup.querySelector("[data-routine-cart-tour-step]");
+    routineCartTourTitle = routineCartTourPopup.querySelector("[data-routine-cart-tour-title]");
+    routineCartTourText = routineCartTourPopup.querySelector("[data-routine-cart-tour-text]");
+    routineCartTourDismissCheckbox = routineCartTourPopup.querySelector("[data-routine-cart-tour-dismiss]");
+    routineCartTourPrevButton = routineCartTourPopup.querySelector("[data-routine-cart-tour-prev]");
+    routineCartTourNextButton = routineCartTourPopup.querySelector("[data-routine-cart-tour-next]");
+    routineCartTourCloseButton = routineCartTourPopup.querySelector("[data-routine-cart-tour-close]");
+
+    routineCartTourCloseButton.addEventListener("click", endRoutineCartTour);
+    routineCartTourPrevButton.addEventListener("click", () => goToRoutineCartTourStep(routineCartTourIndex - 1, -1));
+    routineCartTourNextButton.addEventListener("click", () => {
+      if (routineCartTourIndex === ROUTINE_CART_TOUR_STEPS.length - 1) {
+        endRoutineCartTour();
+      } else {
+        goToRoutineCartTourStep(routineCartTourIndex + 1, 1);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (!routineCartTourActive) {
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        endRoutineCartTour();
+      } else if (event.key === "ArrowRight") {
+        routineCartTourNextButton.click();
+      } else if (event.key === "ArrowLeft" && !routineCartTourPrevButton.disabled) {
+        routineCartTourPrevButton.click();
+      } else if (event.key === "Tab") {
+        trapRoutineCartTourFocus(event);
+      }
+    });
+  }
+
+  function trapRoutineCartTourFocus(event) {
+    const focusable = routineCartTourPopup.querySelectorAll("button, input");
+    if (focusable.length === 0) {
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  function goToRoutineCartTourStep(requestedIndex, direction) {
+    let index = requestedIndex;
+    while (index >= 0 && index < ROUTINE_CART_TOUR_STEPS.length) {
+      const step = ROUTINE_CART_TOUR_STEPS[index];
+      if (step.placement === "center" || document.querySelector(step.selector)) {
+        routineCartTourIndex = index;
+        renderRoutineCartTourStep();
+        return;
+      }
+      index += direction;
+    }
+    endRoutineCartTour();
+  }
+
+  function renderRoutineCartTourStep() {
+    const step = ROUTINE_CART_TOUR_STEPS[routineCartTourIndex];
+    routineCartTourStepLabel.textContent = `Paso ${routineCartTourIndex + 1} de ${ROUTINE_CART_TOUR_STEPS.length}`;
+    routineCartTourTitle.textContent = step.title;
+    routineCartTourText.textContent = step.text;
+    routineCartTourPrevButton.disabled = routineCartTourIndex === 0;
+    routineCartTourNextButton.textContent =
+      routineCartTourIndex === ROUTINE_CART_TOUR_STEPS.length - 1 ? "Entendido" : "Siguiente";
+
+    const target = routineCartTourCurrentTarget();
+    if (target) {
+      target.scrollIntoView({
+        block: "center",
+        inline: "nearest",
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
+    }
+
+    window.setTimeout(() => positionRoutineCartTourAt(step, target), target && !prefersReducedMotion ? 260 : 0);
+  }
+
+  function positionRoutineCartTourAt(step, target) {
+    if (!routineCartTourPopup || !routineCartTourSpot) {
+      return;
+    }
+
+    if (!target) {
+      routineCartTourPopup.style.transform = "translate(-50%, -50%)";
+      routineCartTourPopup.style.top = "50%";
+      routineCartTourPopup.style.left = "50%";
+      routineCartTourPopup.style.maxWidth = "calc(100vw - 2rem)";
+      const popupRect = routineCartTourPopup.getBoundingClientRect();
+      const pad = 10;
+      routineCartTourSpot.style.top = `${popupRect.top - pad}px`;
+      routineCartTourSpot.style.left = `${popupRect.left - pad}px`;
+      routineCartTourSpot.style.width = `${popupRect.width + pad * 2}px`;
+      routineCartTourSpot.style.height = `${popupRect.height + pad * 2}px`;
+      return;
+    }
+
+    const rect = target.getBoundingClientRect();
+    const pad = 8;
+    routineCartTourSpot.style.top = `${rect.top - pad}px`;
+    routineCartTourSpot.style.left = `${rect.left - pad}px`;
+    routineCartTourSpot.style.width = `${rect.width + pad * 2}px`;
+    routineCartTourSpot.style.height = `${rect.height + pad * 2}px`;
+
+    routineCartTourPopup.style.transform = "none";
+    const popupWidth = routineCartTourPopup.offsetWidth || 320;
+    const popupHeight = routineCartTourPopup.offsetHeight || 180;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const gap = 16;
+    const margin = 12;
+    const fits = {
+      bottom: vh - rect.bottom >= popupHeight + gap,
+      top: rect.top >= popupHeight + gap,
+      right: vw - rect.right >= popupWidth + gap,
+      left: rect.left >= popupWidth + gap,
+    };
+
+    let side = step.placement;
+    if (!fits[side]) {
+      side = ["bottom", "top", "right", "left"].find((candidate) => fits[candidate]) || "bottom";
+    }
+
+    let top;
+    let left;
+    if (side === "bottom" || side === "top") {
+      top = side === "bottom" ? rect.bottom + gap : rect.top - gap - popupHeight;
+      left = rect.left + rect.width / 2 - popupWidth / 2;
+    } else {
+      left = side === "right" ? rect.right + gap : rect.left - gap - popupWidth;
+      top = rect.top + rect.height / 2 - popupHeight / 2;
+    }
+
+    top = Math.min(Math.max(top, margin), vh - popupHeight - margin);
+    left = Math.min(Math.max(left, margin), vw - popupWidth - margin);
+    routineCartTourPopup.style.top = `${top}px`;
+    routineCartTourPopup.style.left = `${left}px`;
+  }
+
+  function startRoutineCartTour() {
+    if (!routineCart || !routineCartBuilder || routineCartBuilder.hidden) {
+      return;
+    }
+    buildRoutineCartTour();
+    routineCartTourPreviousFocus = document.activeElement;
+    routineCartTourActive = true;
+    routineCartTourBackdrop.hidden = false;
+    routineCartTourDismissCheckbox.checked = false;
+    goToRoutineCartTourStep(0, 1);
+    window.setTimeout(() => routineCartTourNextButton.focus(), 60);
+
+    routineCartTourRepositionHandler = () => {
+      if (routineCartTourActive) {
+        positionRoutineCartTourAt(ROUTINE_CART_TOUR_STEPS[routineCartTourIndex], routineCartTourCurrentTarget());
+      }
+    };
+    window.addEventListener("resize", routineCartTourRepositionHandler);
+    window.addEventListener("scroll", routineCartTourRepositionHandler, true);
+  }
+
+  function endRoutineCartTour() {
+    if (!routineCartTourActive) {
+      return;
+    }
+    routineCartTourActive = false;
+    routineCartTourBackdrop.hidden = true;
+    if (routineCartTourDismissCheckbox.checked) {
+      try {
+        window.localStorage.setItem(ROUTINE_CART_TOUR_KEY, "1");
+      } catch (error) {
+        /* almacenamiento no disponible */
+      }
+    }
+    window.removeEventListener("resize", routineCartTourRepositionHandler);
+    window.removeEventListener("scroll", routineCartTourRepositionHandler, true);
+    routineCartTourRepositionHandler = null;
+
+    if (routineCartTourPreviousFocus && document.contains(routineCartTourPreviousFocus)) {
+      routineCartTourPreviousFocus.focus();
+    }
+  }
+
+  function maybeAutoStartRoutineCartTour() {
+    if (routineCartTourAutoStarted) {
+      return;
+    }
+    routineCartTourAutoStarted = true;
+    try {
+      if (window.localStorage.getItem(ROUTINE_CART_TOUR_KEY) === "1") {
+        return;
+      }
+    } catch (error) {
+      /* almacenamiento no disponible */
+    }
+    startRoutineCartTour();
   }
 
   function updateHeaderHeightVar() {
@@ -318,64 +906,220 @@
     grid.appendChild(fragment);
   }
 
-  function populateFilters(payload) {
-    const allChip = groupsContainer.querySelector('[data-group-chip=""]');
-    allChip.innerHTML = chipLabel("Todos", exercises.length);
+  const EXERCISE_TYPE_VALUES = ["Cuerpo completo", "Cardio", "Movilidad y estiramientos"];
+  const PRIMARY_GROUP_VALUES = ["Pecho", "Espalda", "Hombros"];
+  const GROUP_AGGREGATES = {
+    brazos: { label: "Brazos", all: "Brazo completo", values: ["Bíceps", "Tríceps", "Antebrazos"] },
+    piernas: {
+      label: "Piernas",
+      all: "Pierna completa",
+      values: ["Cuádriceps", "Isquiotibiales", "Glúteos", "Gemelos", "Aductores y abductores"],
+    },
+    core: { label: "Core", all: "Core completo", values: ["Abdominales", "Zona lumbar"] },
+  };
 
-    payload.grupos.forEach((group) => {
-      const count = exercises.filter((exercise) => exercise.gruposMusculares.includes(group)).length;
-      const chip = document.createElement("button");
-      chip.type = "button";
-      chip.className = "exercises-chip";
-      chip.dataset.groupChip = group;
-      chip.innerHTML = chipLabel(group, count);
-      groupsContainer.appendChild(chip);
-    });
+  let payloadGrupos = [];
+  const draftState = { grupo: "", equipamiento: "", favoritos: false };
+  const expandedAggregateGroups = new Set();
+  let previousFocusedElement = null;
 
-    const difficulties = Array.from(new Set(exercises.map((exercise) => exercise.dificultad))).sort();
-    difficulties.forEach((difficulty) => {
-      const option = document.createElement("option");
-      option.value = difficulty;
-      option.textContent = difficulty;
-      difficultySelect.appendChild(option);
-    });
-
-    const equipmentSet = new Set();
-    exercises.forEach((exercise) => exercise.equipamiento.forEach((item) => equipmentSet.add(item)));
-    Array.from(equipmentSet)
-      .sort((a, b) => a.localeCompare(b, "es"))
-      .forEach((item) => {
-        const option = document.createElement("option");
-        option.value = item;
-        option.textContent = item;
-        equipmentSelect.appendChild(option);
-      });
+  function groupValuesFor(value) {
+    return GROUP_AGGREGATES[value] ? GROUP_AGGREGATES[value].values : [value];
   }
 
-  function matchesFilters(exercise) {
-    if (state.favoritos && !isFavorite(exercise.id)) {
+  function countForGroupValue(value) {
+    const values = groupValuesFor(value);
+    return exercises.filter((exercise) => values.some((item) => exercise.gruposMusculares.includes(item))).length;
+  }
+
+  function countForEquipmentValue(value) {
+    return exercises.filter((exercise) => exercise.equipamiento.includes(value)).length;
+  }
+
+  function createRadioRow({ name, value, label, count, checked }) {
+    const row = document.createElement("label");
+    row.className = "filter-radio-row";
+    row.innerHTML = `
+      <input type="radio" name="${escapeHtml(name)}" value="${escapeHtml(value)}" ${checked ? "checked" : ""}>
+      <span class="filter-radio-row__indicator" aria-hidden="true"></span>
+      <span class="filter-radio-row__label">${escapeHtml(label)}</span>
+      ${count === undefined ? "" : `<span class="filter-radio-row__count">${count}</span>`}
+    `;
+    return row;
+  }
+
+  function buildAggregateGroup(key, aggregate, realValues) {
+    const isExpanded =
+      expandedAggregateGroups.has(key) || draftState.grupo === key || realValues.includes(draftState.grupo);
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "filter-expand-group";
+
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "filter-expand-toggle";
+    toggle.setAttribute("aria-expanded", String(isExpanded));
+    toggle.innerHTML = `
+      <svg class="filter-expand-toggle__caret" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      <span>${escapeHtml(aggregate.label)}</span>
+    `;
+
+    const panel = document.createElement("div");
+    panel.className = "filter-expand-panel";
+    panel.hidden = !isExpanded;
+    panel.appendChild(
+      createRadioRow({
+        name: "filter-grupo",
+        value: key,
+        label: aggregate.all,
+        count: countForGroupValue(key),
+        checked: draftState.grupo === key,
+      })
+    );
+    realValues.forEach((value) => {
+      panel.appendChild(
+        createRadioRow({
+          name: "filter-grupo",
+          value,
+          label: value,
+          count: countForGroupValue(value),
+          checked: draftState.grupo === value,
+        })
+      );
+    });
+
+    toggle.addEventListener("click", () => {
+      const expand = panel.hidden;
+      panel.hidden = !expand;
+      toggle.setAttribute("aria-expanded", String(expand));
+      if (expand) {
+        expandedAggregateGroups.add(key);
+      } else {
+        expandedAggregateGroups.delete(key);
+      }
+    });
+
+    wrapper.appendChild(toggle);
+    wrapper.appendChild(panel);
+    return wrapper;
+  }
+
+  function buildGroupList() {
+    filterGroupList.innerHTML = "";
+    const muscleGroups = payloadGrupos.filter((group) => !EXERCISE_TYPE_VALUES.includes(group));
+
+    filterGroupList.appendChild(
+      createRadioRow({ name: "filter-grupo", value: "", label: "Todos", checked: draftState.grupo === "" })
+    );
+
+    PRIMARY_GROUP_VALUES.filter((group) => muscleGroups.includes(group)).forEach((group) => {
+      filterGroupList.appendChild(
+        createRadioRow({
+          name: "filter-grupo",
+          value: group,
+          label: group,
+          count: countForGroupValue(group),
+          checked: draftState.grupo === group,
+        })
+      );
+    });
+
+    Object.entries(GROUP_AGGREGATES).forEach(([key, aggregate]) => {
+      const realValues = aggregate.values.filter((value) => muscleGroups.includes(value));
+      if (realValues.length > 0) {
+        filterGroupList.appendChild(buildAggregateGroup(key, aggregate, realValues));
+      }
+    });
+  }
+
+  function buildEquipmentList() {
+    const equipmentSet = new Set();
+    exercises.forEach((exercise) => exercise.equipamiento.forEach((item) => equipmentSet.add(item)));
+    const equipmentValues = Array.from(equipmentSet).sort((a, b) => a.localeCompare(b, "es"));
+
+    filterEquipmentList.innerHTML = "";
+    filterEquipmentList.appendChild(
+      createRadioRow({ name: "filter-equipamiento", value: "", label: "Todo el equipamiento", checked: draftState.equipamiento === "" })
+    );
+    equipmentValues.forEach((value) => {
+      filterEquipmentList.appendChild(
+        createRadioRow({
+          name: "filter-equipamiento",
+          value,
+          label: value,
+          count: countForEquipmentValue(value),
+          checked: draftState.equipamiento === value,
+        })
+      );
+    });
+
+    if (filterEquipmentSearchWrap) {
+      filterEquipmentSearchWrap.hidden = equipmentValues.length <= 8;
+    }
+  }
+
+  function filterEquipmentRows(query) {
+    const normalized = normalize(query.trim());
+    let anyVisible = false;
+    filterEquipmentList.querySelectorAll(".filter-radio-row").forEach((row) => {
+      const input = row.querySelector("input");
+      const isAll = input.value === "";
+      const match = isAll || !normalized || normalize(row.textContent).includes(normalized);
+      row.hidden = !match;
+      if (match) {
+        anyVisible = true;
+      }
+    });
+    let emptyEl = filterEquipmentList.querySelector(".filter-radio-list__empty");
+    if (!anyVisible) {
+      if (!emptyEl) {
+        emptyEl = document.createElement("p");
+        emptyEl.className = "filter-radio-list__empty";
+        emptyEl.textContent = "Sin resultados.";
+        filterEquipmentList.appendChild(emptyEl);
+      }
+    } else if (emptyEl) {
+      emptyEl.remove();
+    }
+  }
+
+  function populateFilters(payload) {
+    payloadGrupos = payload.grupos;
+    buildGroupList();
+    buildEquipmentList();
+  }
+
+  function matchesFiltersWith(exercise, candidate) {
+    if (candidate.favoritos && !isFavorite(exercise.id)) {
       return false;
     }
 
-    if (state.pesoCorporal && !exercise.esPesoCorporal) {
+    if (candidate.grupo) {
+      const values = groupValuesFor(candidate.grupo);
+      if (!values.some((value) => exercise.gruposMusculares.includes(value))) {
+        return false;
+      }
+    }
+
+    if (candidate.equipamiento && !exercise.equipamiento.includes(candidate.equipamiento)) {
       return false;
     }
 
-    if (state.grupo && !exercise.gruposMusculares.includes(state.grupo)) {
-      return false;
-    }
-
-    if (state.dificultad && exercise.dificultad !== state.dificultad) {
-      return false;
-    }
-
-    if (state.equipamiento && !exercise.equipamiento.includes(state.equipamiento)) {
-      return false;
-    }
-
-    if (state.q) {
-      const haystack = normalize(`${exercise.nombre} ${exercise.nombreAlternativo || ""}`);
-      if (!haystack.includes(normalize(state.q))) {
+    if (candidate.q) {
+      const haystack = normalize(
+        [
+          exercise.nombre,
+          exercise.nombreAlternativo || "",
+          exercise.grupoMuscular,
+          exercise.parteCuerpo,
+          exercise.categoria,
+          ...(exercise.gruposMusculares || []),
+          ...(exercise.musculosPrincipales || []),
+          ...(exercise.musculosSecundarios || []),
+          ...(exercise.equipamiento || []),
+        ].join(" ")
+      );
+      if (!haystack.includes(normalize(candidate.q))) {
         return false;
       }
     }
@@ -383,142 +1127,145 @@
     return true;
   }
 
+  function matchesFilters(exercise) {
+    return matchesFiltersWith(exercise, state);
+  }
+
+  function countMatchesForDraft() {
+    const candidate = { q: state.q, grupo: draftState.grupo, equipamiento: draftState.equipamiento, favoritos: draftState.favoritos };
+    return exercises.filter((exercise) => matchesFiltersWith(exercise, candidate)).length;
+  }
+
   function renderCard(exercise) {
     const card = document.createElement("div");
     card.className = "exercise-card";
     card.dataset.exerciseId = exercise.id;
+    card.dataset.current = String(currentExercise && currentExercise.id === exercise.id);
 
     const media = exercise.imagenInicial
       ? `<img src="${escapeHtml(exercise.imagenInicial)}" alt="" loading="lazy" decoding="async" width="512" height="512">`
       : `<div class="exercise-card__media--empty">Sin imagen disponible</div>`;
 
     card.innerHTML = `
-      <button type="button" class="exercise-card__open" aria-haspopup="dialog">
+      <button type="button" class="exercise-card__open">
         <span class="exercise-card__media">
           ${media}
-          <span class="exercise-card__difficulty">${escapeHtml(exercise.dificultad)}</span>
         </span>
         <span class="exercise-card__body">
-          <span class="exercise-card__group">${escapeHtml(exercise.grupoMuscular)}</span>
           <span class="exercise-card__name" role="heading" aria-level="2">${escapeHtml(exercise.nombre)}</span>
-          <span class="exercise-card__footer">
-            <span class="exercise-card__meta">${escapeHtml(exercise.equipamiento[0] || "Peso corporal")}</span>
-            <span class="exercise-card__cta">Ver ficha →</span>
-          </span>
+          <span class="exercise-card__group">${escapeHtml(exercise.grupoMuscular)}</span>
+          <span class="exercise-card__meta">${escapeHtml(exercise.equipamiento[0] || "Peso corporal")}</span>
         </span>
       </button>
       <button type="button" class="exercise-card__favorite" data-favorite-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isFavorite(exercise.id)}" aria-label="Guardar ${escapeHtml(exercise.nombre)} en favoritos">
         ${HEART_ICON}
       </button>
-      <label class="exercise-card__compare-row">
-        <input type="checkbox" data-compare-toggle="${escapeHtml(exercise.id)}" ${compareSet.includes(exercise.id) ? "checked" : ""}>
-        Comparar
-      </label>
+      <button type="button" class="exercise-card__add" data-routine-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isInRoutineCart(exercise.id)}" aria-label="${isInRoutineCart(exercise.id) ? "Quitar" : "Añadir"} ${escapeHtml(exercise.nombre)} ${isInRoutineCart(exercise.id) ? "de" : "a"} la rutina">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <span data-routine-toggle-label>${isInRoutineCart(exercise.id) ? "Añadida" : "Añadir a rutina"}</span>
+      </button>
     `;
 
     card
       .querySelector(".exercise-card__open")
-      .addEventListener("click", (event) => openExercise(exercise, true, event));
+      .addEventListener("click", () => openExercise(exercise, true));
     card.querySelector(".exercise-card__favorite").addEventListener("click", () => toggleFavorite(exercise.id));
-    card
-      .querySelector("[data-compare-toggle]")
-      .addEventListener("change", (event) => toggleCompare(exercise.id, event.target));
+    card.querySelector(".exercise-card__add").addEventListener("click", () => toggleRoutineCartItem(exercise.id));
 
     return card;
   }
 
-  function activeFilterDescriptors() {
-    const items = [];
-    if (state.favoritos) {
-      items.push({ key: "favoritos", label: "Favoritos" });
+  function syncCurrentCard() {
+    grid.querySelectorAll("[data-exercise-id]").forEach((card) => {
+      const isCurrent = Boolean(currentExercise && card.dataset.exerciseId === currentExercise.id);
+      card.dataset.current = String(isCurrent);
+    });
+  }
+
+  function formatPrescription(settings) {
+    const parts = [];
+    if (settings.series) {
+      parts.push(`${settings.series} series`);
     }
-    if (state.pesoCorporal) {
-      items.push({ key: "pesoCorporal", label: "Sin material" });
+    if (settings.reps) {
+      parts.push(`${settings.reps} reps`);
     }
-    if (state.q) {
-      items.push({ key: "q", label: `“${state.q}”` });
+    if (settings.rest) {
+      parts.push(`Descanso ${settings.rest}`);
     }
+    return parts.join(" · ");
+  }
+
+  function renderRoutineCard(entry) {
+    const exercise = exercises.find((item) => item.id === entry.id);
+    if (!exercise) {
+      return null;
+    }
+
+    const card = renderCard(exercise);
+    const prescription = formatPrescription(entry);
+    if (prescription) {
+      const body = card.querySelector(".exercise-card__body");
+      const footer = card.querySelector(".exercise-card__footer");
+      const prescriptionEl = document.createElement("span");
+      prescriptionEl.className = "routine-view__prescription";
+      prescriptionEl.textContent = prescription;
+      body.insertBefore(prescriptionEl, footer);
+    }
+    return card;
+  }
+
+  function groupLabelFor(value) {
+    return GROUP_AGGREGATES[value] ? GROUP_AGGREGATES[value].label : value;
+  }
+
+  function activeFilterLabels() {
+    const labels = [];
     if (state.grupo) {
-      items.push({ key: "grupo", label: state.grupo });
-    }
-    if (state.dificultad) {
-      items.push({ key: "dificultad", label: state.dificultad });
+      labels.push(groupLabelFor(state.grupo));
     }
     if (state.equipamiento) {
-      items.push({ key: "equipamiento", label: state.equipamiento });
+      labels.push(state.equipamiento);
     }
-    return items;
+    if (state.favoritos) {
+      labels.push("Solo favoritos");
+    }
+    return labels;
   }
 
-  function clearFilter(key) {
-    if (key === "favoritos") {
-      state.favoritos = false;
-      updateFavoritesChip();
-    } else if (key === "pesoCorporal") {
-      state.pesoCorporal = false;
-      if (bodyweightChip) {
-        bodyweightChip.setAttribute("aria-pressed", "false");
-      }
-    } else if (key === "q") {
-      state.q = "";
-      searchInput.value = "";
-    } else if (key === "grupo") {
-      state.grupo = "";
-      groupsContainer.querySelectorAll(".exercises-chip").forEach((el) => {
-        el.classList.toggle("is-active", el.dataset.groupChip === "");
-      });
-    } else if (key === "dificultad") {
-      state.dificultad = "";
-      difficultySelect.value = "";
-    } else if (key === "equipamiento") {
-      state.equipamiento = "";
-      equipmentSelect.value = "";
-    }
-    renderGrid();
+  function activeFilterCount() {
+    return activeFilterLabels().length;
   }
 
-  function clearAllFilters() {
-    state.q = "";
+  function resetFilters() {
     state.grupo = "";
-    state.dificultad = "";
     state.equipamiento = "";
     state.favoritos = false;
-    state.pesoCorporal = false;
-    searchInput.value = "";
-    difficultySelect.value = "";
-    equipmentSelect.value = "";
-    groupsContainer.querySelectorAll(".exercises-chip").forEach((el) => {
-      el.classList.toggle("is-active", el.dataset.groupChip === "");
-    });
-    if (bodyweightChip) {
-      bodyweightChip.setAttribute("aria-pressed", "false");
-    }
-    updateFavoritesChip();
     renderGrid();
   }
 
-  function renderActiveFilters() {
-    const items = activeFilterDescriptors();
+  function updateFiltersButton() {
+    const count = activeFilterCount();
+    if (filtersBadge) {
+      filtersBadge.hidden = count === 0;
+      filtersBadge.textContent = String(count);
+    }
+    if (filtersOpenButton) {
+      filtersOpenButton.classList.toggle("is-active", count > 0);
+    }
+  }
 
-    if (items.length === 0) {
-      activeFiltersContainer.hidden = true;
-      activeFiltersContainer.innerHTML = "";
+  function renderFiltersSummary() {
+    const labels = activeFilterLabels();
+    if (!filtersSummary) {
       return;
     }
-
-    activeFiltersContainer.hidden = false;
-    activeFiltersContainer.innerHTML =
-      items
-        .map(
-          (item) => `
-            <span class="exercises-active-filter" data-filter-key="${item.key}">
-              ${escapeHtml(item.label)}
-              <button type="button" aria-label="Quitar filtro ${escapeHtml(item.label)}" data-remove-filter="${item.key}">×</button>
-            </span>
-          `
-        )
-        .join("") +
-      `<button type="button" class="exercises-clear-filters" data-clear-filters>Limpiar filtros</button>`;
+    if (labels.length === 0) {
+      filtersSummary.hidden = true;
+      return;
+    }
+    filtersSummary.hidden = false;
+    filtersSummaryText.textContent = `Filtros: ${labels.join(" · ")}`;
   }
 
   function initLazyImages(container) {
@@ -553,47 +1300,49 @@
         : "No hay ejercicios que coincidan con estos filtros. Prueba a cambiar la búsqueda o el grupo muscular.";
     countLabel.textContent =
       filtered.length === exercises.length
-        ? `${exercises.length} ejercicios`
-        : `${filtered.length} de ${exercises.length} ejercicios`;
+        ? `${exercises.length} ejercicios encontrados`
+        : `${filtered.length} de ${exercises.length} ejercicios encontrados`;
 
     if (printFavoritesButton) {
       printFavoritesButton.hidden = !(state.favoritos && filtered.length > 0);
     }
 
-    renderActiveFilters();
+    updateFiltersButton();
+    renderFiltersSummary();
   }
 
   function renderMedia(exercise) {
-    if (exercise.imagenInicial && exercise.imagenFinal) {
-      return `
-        <div class="exercise-detail__media has-two">
-          <figure class="exercise-detail__media-figure">
-            <img src="${escapeHtml(exercise.imagenInicial)}" alt="${escapeHtml(exercise.nombre)} — posición inicial" loading="lazy" decoding="async" width="512" height="512">
-            <figcaption>Posición inicial</figcaption>
-          </figure>
-          <figure class="exercise-detail__media-figure">
-            <img src="${escapeHtml(exercise.imagenFinal)}" alt="${escapeHtml(exercise.nombre)} — posición final" loading="lazy" decoding="async" width="512" height="512">
-            <figcaption>Posición final</figcaption>
-          </figure>
-        </div>
-      `;
-    }
-
+    const figures = [];
     if (exercise.imagenInicial) {
-      return `
-        <div class="exercise-detail__media">
-          <figure class="exercise-detail__media-figure">
-            <img src="${escapeHtml(exercise.imagenInicial)}" alt="${escapeHtml(exercise.nombre)}" loading="lazy" decoding="async" width="512" height="512">
-          </figure>
-        </div>
-      `;
+      figures.push(`
+        <figure class="exercise-detail__position">
+          <figcaption>Posición inicial</figcaption>
+          <img src="${escapeHtml(exercise.imagenInicial)}" alt="${escapeHtml(exercise.nombre)} — posición inicial" loading="lazy" decoding="async" width="512" height="512">
+        </figure>
+      `);
+    }
+    if (exercise.imagenFinal) {
+      figures.push(`
+        <figure class="exercise-detail__position">
+          <figcaption>Posición final</figcaption>
+          <img src="${escapeHtml(exercise.imagenFinal)}" alt="${escapeHtml(exercise.nombre)} — posición final" loading="lazy" decoding="async" width="512" height="512">
+        </figure>
+      `);
     }
 
-    return `<div class="exercise-detail__media-empty">Sin imagen disponible para este ejercicio</div>`;
+    if (figures.length === 0) {
+      return "";
+    }
+
+    return `<div class="exercise-detail__positions ${figures.length === 1 ? "has-one" : "has-two"}">${figures.join("")}</div>`;
   }
 
   function renderList(items) {
     return items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  }
+
+  function renderSteps(items) {
+    return items.map((item, index) => `<li><span>${index + 1}</span><p>${escapeHtml(item)}</p></li>`).join("");
   }
 
   function getSimilarExercises(exercise, limit) {
@@ -604,7 +1353,7 @@
   }
 
   function renderSimilar(exercise) {
-    const similar = getSimilarExercises(exercise, 4);
+    const similar = getSimilarExercises(exercise, 8);
 
     if (similar.length === 0) {
       return "";
@@ -628,136 +1377,113 @@
       .join("");
 
     return `
-      <div class="exercise-detail__similar">
+      <section class="exercise-detail__similar">
         <h3>Ejercicios similares</h3>
-        <div class="exercise-detail__similar-grid">${cards}</div>
-      </div>
+        <div class="exercise-detail__similar-row">${cards}</div>
+      </section>
     `;
   }
 
   function renderExerciseDetail(exercise) {
-    const facts = [
-      ["Parte del cuerpo", exercise.parteCuerpo],
-      ["Categoría", exercise.categoria],
-      ["Dificultad", exercise.dificultad],
-      ["Mecánica", exercise.mecanica],
-      ["Tipo de fuerza", exercise.tipoFuerza],
-      ["Equipamiento", exercise.equipamiento[0] || "Peso corporal"],
-    ];
+    if (!exercisePageContent) {
+      return;
+    }
 
-    dialogContent.innerHTML = `
-      <div class="exercise-detail__header">
-        <p class="exercise-detail__eyebrow">${escapeHtml(exercise.grupoMuscular)}</p>
-        <h2 id="exercise-dialog-title">${escapeHtml(exercise.nombre)}</h2>
-        ${exercise.nombreAlternativo ? `<p class="exercise-detail__alt-name">${escapeHtml(exercise.nombreAlternativo)}</p>` : ""}
-      </div>
-      <div class="exercise-detail__body">
-        <div class="exercise-detail__media-col">
-          <button type="button" class="exercise-detail__favorite" data-favorite-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isFavorite(exercise.id)}" aria-label="Guardar ${escapeHtml(exercise.nombre)} en favoritos">
-            ${HEART_ICON}
+    const chips = [
+      exercise.parteCuerpo,
+      exercise.categoria,
+      exercise.dificultad,
+      exercise.equipamiento[0] || "Peso corporal",
+      exercise.mecanica,
+    ].filter(Boolean);
+
+    const anatomyImage = exercise.imagenAnatomia || exercise.imagenAnatomica || "";
+
+    exercisePageContent.innerHTML = `
+      <article class="exercise-detail" aria-labelledby="exercise-page-title">
+        <div class="exercise-detail__topbar">
+          <div class="exercise-detail__actions">
+            <button type="button" class="exercise-detail__favorite" data-favorite-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isFavorite(exercise.id)}" aria-label="Guardar ${escapeHtml(exercise.nombre)} en favoritos">
+              ${HEART_ICON}
+            </button>
+            <button type="button" class="exercise-detail__add" data-routine-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isInRoutineCart(exercise.id)}" aria-label="${isInRoutineCart(exercise.id) ? "Quitar" : "Añadir"} ${escapeHtml(exercise.nombre)} ${isInRoutineCart(exercise.id) ? "de" : "a"} la rutina">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
+              <span data-routine-toggle-label>${isInRoutineCart(exercise.id) ? "Añadida" : "Añadir a rutina"}</span>
+            </button>
+          </div>
+          <button type="button" class="exercise-detail__close" data-exercise-back aria-label="Cerrar ficha de ejercicio">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
           </button>
-          <button type="button" class="exercise-detail__share" data-copy-link="${escapeHtml(exercise.id)}">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="6" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"></circle><circle cx="17" cy="6" r="2.6" stroke="currentColor" stroke-width="1.8"></circle><circle cx="17" cy="18" r="2.6" stroke="currentColor" stroke-width="1.8"></circle><path d="m8.3 10.8 6.4-3.6M8.3 13.2l6.4 3.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
-            <span data-copy-link-label>Copiar enlace</span>
-          </button>
-          ${renderMedia(exercise)}
         </div>
-        <div class="exercise-detail__text-col">
-          <ul class="exercise-detail__facts">
-            ${facts
-              .map(([label, value]) => `<li><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>`)
-              .join("")}
+
+        <header class="exercise-detail__header">
+          <p class="exercise-detail__eyebrow">${escapeHtml(exercise.grupoMuscular)}</p>
+          <h1 id="exercise-page-title">${escapeHtml(exercise.nombre)}</h1>
+          ${exercise.nombreAlternativo ? `<p class="exercise-detail__alt-name">${escapeHtml(exercise.nombreAlternativo)}</p>` : ""}
+          <ul class="exercise-detail__chips" aria-label="Datos del ejercicio">
+            ${chips.map((chip) => `<li>${escapeHtml(chip)}</li>`).join("")}
           </ul>
-          ${exercise.descripcion ? `<p class="exercise-detail__description">${escapeHtml(exercise.descripcion)}</p>` : ""}
+        </header>
+
+        ${renderMedia(exercise)}
+
+        ${exercise.descripcion ? `<p class="exercise-detail__description">${escapeHtml(exercise.descripcion)}</p>` : ""}
+
+        <div class="exercise-detail__info">
+          <div class="exercise-detail__copy">
+            ${
+              exercise.musculosPrincipales.length || exercise.musculosSecundarios.length
+                ? `<section class="exercise-detail__muscles">
+                    <h2>Músculos implicados</h2>
+                    ${
+                      exercise.musculosPrincipales.length
+                        ? `<div class="exercise-detail__muscle-group"><span>Principales</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--primary">${renderList(exercise.musculosPrincipales)}</ul></div>`
+                        : ""
+                    }
+                    ${
+                      exercise.musculosSecundarios.length
+                        ? `<div class="exercise-detail__muscle-group"><span>Secundarios</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--secondary">${renderList(exercise.musculosSecundarios)}</ul></div>`
+                        : ""
+                    }
+                  </section>`
+                : ""
+            }
+          </div>
           ${
-            exercise.musculosPrincipales.length || exercise.musculosSecundarios.length
-              ? `<div class="exercise-detail__section">
-                  <h3>Músculos implicados</h3>
-                  ${
-                    exercise.musculosPrincipales.length
-                      ? `<ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--primary">${renderList(exercise.musculosPrincipales)}</ul>`
-                      : ""
-                  }
-                  ${
-                    exercise.musculosSecundarios.length
-                      ? `<ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--secondary" style="margin-top:0.5rem;">${renderList(exercise.musculosSecundarios)}</ul>`
-                      : ""
-                  }
-                </div>`
+            anatomyImage
+              ? `<figure class="exercise-detail__anatomy"><img src="${escapeHtml(anatomyImage)}" alt="" loading="lazy" decoding="async"></figure>`
               : ""
           }
+        </div>
+
+        <div class="exercise-detail__guidance">
           ${
             exercise.instrucciones.length
-              ? `<div class="exercise-detail__section">
-                  <h3>Instrucciones</h3>
-                  <ol>${renderList(exercise.instrucciones)}</ol>
-                </div>`
+              ? `<section class="exercise-detail__section">
+                  <h2>Instrucciones</h2>
+                  <ol class="exercise-detail__steps">${renderSteps(exercise.instrucciones)}</ol>
+                </section>`
               : ""
           }
           ${
             exercise.consejos.length
-              ? `<div class="exercise-detail__section">
-                  <h3>Consejos</h3>
-                  <ul>${renderList(exercise.consejos)}</ul>
-                </div>`
+              ? `<section class="exercise-detail__section">
+                  <h2>Consejos</h2>
+                  <ul class="exercise-detail__tips">${renderList(exercise.consejos)}</ul>
+                </section>`
               : ""
           }
         </div>
-      </div>
-      ${renderSimilar(exercise)}
+
+        ${renderSimilar(exercise)}
+      </article>
     `;
 
-    initLazyImages(dialogContent);
+    initLazyImages(exercisePageContent);
   }
 
   function getFilteredList() {
     return exercises.filter(matchesFilters);
-  }
-
-  function updateNavControls(exercise) {
-    if (!prevButton || !nextButton) {
-      return;
-    }
-
-    const list = getFilteredList();
-    const index = list.findIndex((item) => item.id === exercise.id);
-
-    if (index === -1) {
-      prevButton.disabled = true;
-      nextButton.disabled = true;
-      navCount.textContent = "";
-      return;
-    }
-
-    prevButton.disabled = index <= 0;
-    nextButton.disabled = index >= list.length - 1;
-    navCount.textContent = `${index + 1} de ${list.length}`;
-  }
-
-  function copyExerciseLink(button) {
-    const id = button.dataset.copyLink;
-    const url = `${location.origin}${location.pathname}#ejercicio/${id}`;
-    const label = button.querySelector("[data-copy-link-label]");
-
-    const showCopied = () => {
-      button.classList.add("is-copied");
-      if (label) {
-        label.textContent = "¡Enlace copiado!";
-      }
-      window.clearTimeout(button._copyResetTimer);
-      button._copyResetTimer = window.setTimeout(() => {
-        button.classList.remove("is-copied");
-        if (label) {
-          label.textContent = "Copiar enlace";
-        }
-      }, 1800);
-    };
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(showCopied).catch(() => fallbackCopy(url, showCopied));
-    } else {
-      fallbackCopy(url, showCopied);
-    }
   }
 
   function fallbackCopy(text, onDone) {
@@ -776,79 +1502,50 @@
     document.body.removeChild(textarea);
   }
 
-  function showExercise(exercise, updateHash) {
+  function showExercise(exercise) {
     currentExercise = exercise;
     renderExerciseDetail(exercise);
-    dialogPanel.scrollTop = 0;
-    updateNavControls(exercise);
+    syncCurrentCard();
+    if (exercisePage) {
+      exercisePage.hidden = false;
+    }
+    if (exercisesMain) {
+      exercisesMain.classList.add("is-exercise-open");
+    }
+    if (routineView) {
+      routineView.hidden = true;
+    }
+    exercisesIntro.hidden = true;
+    exercisesCatalog.hidden = false;
+    if (backToTopButton) {
+      backToTopButton.classList.remove("is-visible");
+    }
+    if (window.matchMedia("(max-width: 56rem)").matches && exercisePage) {
+      exercisePage.scrollIntoView({ block: "start", behavior: prefersReducedMotion ? "auto" : "smooth" });
+    }
+  }
 
+  function openExercise(exercise, updateHash) {
+    showExercise(exercise);
     if (updateHash) {
       history.pushState({ exercise: exercise.id }, "", `#ejercicio/${exercise.id}`);
     }
   }
 
-  function navigate(direction) {
-    if (!currentExercise) {
-      return;
-    }
-
-    const list = getFilteredList();
-    const index = list.findIndex((item) => item.id === currentExercise.id);
-    const nextIndex = index + direction;
-
-    if (index === -1 || nextIndex < 0 || nextIndex >= list.length) {
-      return;
-    }
-
-    showExercise(list[nextIndex], true);
-  }
-
-  function setDialogOrigin(originEvent) {
-    if (!originEvent || typeof originEvent.clientX !== "number") {
-      dialogPanel.style.removeProperty("--dialog-origin-x");
-      dialogPanel.style.removeProperty("--dialog-origin-y");
-      return;
-    }
-
-    const rect = dialogPanel.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) {
-      return;
-    }
-
-    const originX = ((originEvent.clientX - rect.left) / rect.width) * 100;
-    const originY = ((originEvent.clientY - rect.top) / rect.height) * 100;
-    dialogPanel.style.setProperty("--dialog-origin-x", `${originX.toFixed(1)}%`);
-    dialogPanel.style.setProperty("--dialog-origin-y", `${originY.toFixed(1)}%`);
-  }
-
-  function openExercise(exercise, updateHash, originEvent) {
-    window.clearTimeout(closeTimer);
-    lastFocusedElement = document.activeElement;
-    showExercise(exercise, updateHash);
-    dialog.hidden = false;
-    dialog.classList.remove("is-visible");
-    setDialogOrigin(originEvent);
-    document.body.style.overflow = "hidden";
-    if (backToTopButton) {
-      backToTopButton.classList.remove("is-visible");
-    }
-    dialogPanel.focus();
-
-    document.addEventListener("keydown", onDialogKeydown);
-
-    requestAnimationFrame(() => {
-      dialog.classList.add("is-visible");
-    });
-  }
-
   function closeExercise(updateHash) {
-    if (dialog.hidden || closeTimer) {
-      return;
-    }
-
-    dialog.classList.remove("is-visible");
     currentExercise = null;
-    document.removeEventListener("keydown", onDialogKeydown);
+    if (exercisePage) {
+      exercisePage.hidden = true;
+    }
+    if (exercisePageContent) {
+      exercisePageContent.innerHTML = "";
+    }
+    if (exercisesMain) {
+      exercisesMain.classList.remove("is-exercise-open");
+    }
+    syncCurrentCard();
+    exercisesIntro.hidden = false;
+    exercisesCatalog.hidden = false;
     if (backToTopButton) {
       backToTopButton.classList.toggle("is-visible", window.scrollY > 640);
     }
@@ -856,77 +1553,135 @@
     if (updateHash && location.hash.startsWith("#ejercicio/")) {
       history.pushState({}, "", location.pathname);
     }
-
-    closeTimer = window.setTimeout(
-      () => {
-        dialog.hidden = true;
-        document.body.style.overflow = "";
-        closeTimer = null;
-      },
-      prefersReducedMotion ? 0 : 300
-    );
-
-    if (lastFocusedElement) {
-      lastFocusedElement.focus();
-    }
-  }
-
-  function onDialogKeydown(event) {
-    if (event.key === "Escape") {
-      closeExercise(true);
-      return;
-    }
-
-    if (event.key === "ArrowLeft") {
-      navigate(-1);
-      return;
-    }
-
-    if (event.key === "ArrowRight") {
-      navigate(1);
-      return;
-    }
-
-    if (event.key !== "Tab") {
-      return;
-    }
-
-    const focusable = dialogPanel.querySelectorAll(
-      'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-
-    if (focusable.length === 0) {
-      return;
-    }
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
   }
 
   function openFromHash() {
     const match = location.hash.match(/^#ejercicio\/(.+)$/);
     if (!match) {
-      closeExercise(false);
+      if (currentExercise) {
+        closeExercise(false);
+      } else {
+        if (exercisePage) {
+          exercisePage.hidden = true;
+        }
+        if (exercisesMain) {
+          exercisesMain.classList.remove("is-exercise-open");
+        }
+        exercisesIntro.hidden = false;
+        exercisesCatalog.hidden = false;
+      }
       return;
     }
 
     const exercise = exercises.find((item) => item.id === match[1]);
     if (exercise) {
-      openExercise(exercise, false);
+      showExercise(exercise);
+    }
+  }
+
+  function checkRoutineView() {
+    if (!routineView || !window.Routines) {
+      return;
+    }
+
+    const routine = window.Routines.decode(location.hash);
+    const routineItems = routine ? routine.items || routine.e.map((id) => ({ id })) : [];
+    const routineCards = routineItems.map(renderRoutineCard).filter(Boolean);
+
+    if (!routine || routineCards.length === 0) {
+      routineView.hidden = true;
+      if (!location.hash.startsWith("#ejercicio/") && !currentExercise) {
+        exercisesIntro.hidden = false;
+        exercisesCatalog.hidden = false;
+      }
+      return;
+    }
+
+    currentExercise = null;
+    if (exercisePage) {
+      exercisePage.hidden = true;
+    }
+    if (exercisePageContent) {
+      exercisePageContent.innerHTML = "";
+    }
+    if (exercisesMain) {
+      exercisesMain.classList.remove("is-exercise-open");
+    }
+    exercisesIntro.hidden = true;
+    exercisesCatalog.hidden = true;
+    routineView.hidden = false;
+
+    routineTitle.textContent = routine.t || "Rutina compartida";
+
+    if (routine.n) {
+      routineNote.textContent = routine.n;
+      routineNote.hidden = false;
+    } else {
+      routineNote.hidden = true;
+    }
+
+    routineGrid.innerHTML = "";
+    const fragment = document.createDocumentFragment();
+    routineCards.forEach((card) => fragment.appendChild(card));
+    routineGrid.appendChild(fragment);
+    initLazyImages(routineGrid);
+
+    window.scrollTo(0, 0);
+  }
+
+  function isRoutineHash(hash) {
+    return hash.startsWith("#rutina?") || hash.startsWith("#r?");
+  }
+
+  function syncRoute() {
+    if (isRoutineHash(location.hash)) {
+      checkRoutineView();
+      return;
+    }
+
+    routineView.hidden = true;
+    openFromHash();
+  }
+
+  function dismissRoutineView() {
+    if (isRoutineHash(location.hash)) {
+      history.pushState({}, "", location.pathname);
+    }
+    checkRoutineView();
+  }
+
+  function saveRoutineToFavorites() {
+    const routine = window.Routines.decode(location.hash);
+    if (!routine) {
+      return;
+    }
+
+    routine.e.forEach((id) => {
+      if (!favorites.has(id)) {
+        favorites.add(id);
+      }
+    });
+    saveFavorites();
+    routine.e.forEach((id) => syncFavoriteButtons(id));
+
+    if (routineSaveButton) {
+      const original = routineSaveButton.textContent;
+      routineSaveButton.textContent = "¡Guardada en Favoritos!";
+      routineSaveButton.disabled = true;
+      window.setTimeout(() => {
+        routineSaveButton.textContent = original;
+        routineSaveButton.disabled = false;
+      }, 1800);
     }
   }
 
   function bindBackToTop() {
     if (!backToTopButton) {
       return;
+    }
+
+    if (routineCart) {
+      backToTopButton.classList.add("is-lifted");
     }
 
     let ticking = false;
@@ -949,86 +1704,258 @@
     });
   }
 
+  function updateApplyButtonLabel() {
+    if (!filterPanelApply) {
+      return;
+    }
+    const count = countMatchesForDraft();
+    filterPanelApply.textContent = `Ver ${count} ejercicio${count === 1 ? "" : "s"}`;
+  }
+
+  function updateFilterPanelClearVisibility() {
+    if (!filterPanelClear) {
+      return;
+    }
+    const hasDraftFilters = Boolean(draftState.grupo) || Boolean(draftState.equipamiento) || draftState.favoritos;
+    filterPanelClear.classList.toggle("is-visible", hasDraftFilters);
+  }
+
+  function refreshFilterPanelLists() {
+    buildGroupList();
+    buildEquipmentList();
+    if (filterEquipmentSearch) {
+      filterEquipmentSearch.value = "";
+    }
+  }
+
+  function openFilterPanel() {
+    if (!filterPanel) {
+      return;
+    }
+    draftState.grupo = state.grupo;
+    draftState.equipamiento = state.equipamiento;
+    draftState.favoritos = state.favoritos;
+    if (filterFavoritesSwitch) {
+      filterFavoritesSwitch.checked = draftState.favoritos;
+    }
+    refreshFilterPanelLists();
+    updateApplyButtonLabel();
+    updateFilterPanelClearVisibility();
+
+    previousFocusedElement = document.activeElement;
+    filterPanel.hidden = false;
+    document.body.classList.add("has-filter-panel-open");
+    window.requestAnimationFrame(() => {
+      filterPanel.classList.add("is-open");
+    });
+    filterPanelSheet.focus();
+    document.addEventListener("keydown", onFilterPanelKeydown);
+  }
+
+  function closeFilterPanel() {
+    if (!filterPanel || filterPanel.hidden) {
+      return;
+    }
+    filterPanel.classList.remove("is-open");
+    document.body.classList.remove("has-filter-panel-open");
+    document.removeEventListener("keydown", onFilterPanelKeydown);
+
+    const finish = () => {
+      filterPanel.hidden = true;
+    };
+    if (prefersReducedMotion) {
+      finish();
+    } else {
+      window.setTimeout(finish, 260);
+    }
+
+    if (filtersOpenButton) {
+      filtersOpenButton.focus();
+    } else if (previousFocusedElement) {
+      previousFocusedElement.focus();
+    }
+  }
+
+  function applyFilterPanel() {
+    state.grupo = draftState.grupo;
+    state.equipamiento = draftState.equipamiento;
+    state.favoritos = draftState.favoritos;
+    renderGrid();
+    closeFilterPanel();
+  }
+
+  function clearFilterPanel() {
+    draftState.grupo = "";
+    draftState.equipamiento = "";
+    draftState.favoritos = false;
+    if (filterFavoritesSwitch) {
+      filterFavoritesSwitch.checked = false;
+    }
+    expandedAggregateGroups.clear();
+    refreshFilterPanelLists();
+    updateApplyButtonLabel();
+    if (filterPanelClear) {
+      filterPanelClear.classList.remove("is-visible");
+    }
+    applyFilterPanel();
+  }
+
+  function onFilterPanelKeydown(event) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeFilterPanel();
+      return;
+    }
+    if (event.key !== "Tab") {
+      return;
+    }
+    const focusable = filterPanelSheet.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) {
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
   function bindEvents() {
-    document.querySelectorAll("[data-exercise-dialog-close]").forEach((element) => {
-      element.addEventListener("click", () => closeExercise(true));
-    });
-
-    if (prevButton) {
-      prevButton.addEventListener("click", () => navigate(-1));
-    }
-
-    if (nextButton) {
-      nextButton.addEventListener("click", () => navigate(1));
-    }
-
-    dialogContent.addEventListener("click", (event) => {
-      const favoriteButton = event.target.closest("[data-favorite-toggle]");
-      if (favoriteButton) {
-        toggleFavorite(favoriteButton.dataset.favoriteToggle);
-        return;
-      }
-
-      const similarCard = event.target.closest("[data-similar-id]");
-      if (similarCard) {
-        const exercise = exercises.find((item) => item.id === similarCard.dataset.similarId);
-        if (exercise) {
-          showExercise(exercise, true);
+    if (exercisePageContent) {
+      exercisePageContent.addEventListener("click", (event) => {
+        const backButton = event.target.closest("[data-exercise-back]");
+        if (backButton) {
+          closeExercise(true);
+          return;
         }
-        return;
-      }
 
-      const shareButton = event.target.closest("[data-copy-link]");
-      if (shareButton) {
-        copyExerciseLink(shareButton);
-      }
-    });
+        const routineButton = event.target.closest("[data-routine-toggle]");
+        if (routineButton) {
+          toggleRoutineCartItem(routineButton.dataset.routineToggle);
+          return;
+        }
 
-    if (favoritesChip) {
-      favoritesChip.addEventListener("click", () => {
-        state.favoritos = !state.favoritos;
-        updateFavoritesChip();
-        renderGrid();
+        const favoriteButton = event.target.closest("[data-favorite-toggle]");
+        if (favoriteButton) {
+          toggleFavorite(favoriteButton.dataset.favoriteToggle);
+          return;
+        }
+
+        const similarCard = event.target.closest("[data-similar-id]");
+        if (similarCard) {
+          const exercise = exercises.find((item) => item.id === similarCard.dataset.similarId);
+          if (exercise) {
+            openExercise(exercise, true);
+          }
+          return;
+        }
       });
     }
 
-    if (bodyweightChip) {
-      bodyweightChip.addEventListener("click", () => {
-        state.pesoCorporal = !state.pesoCorporal;
-        bodyweightChip.setAttribute("aria-pressed", String(state.pesoCorporal));
-        renderGrid();
+    if (routineCartToggle) {
+      routineCartToggle.addEventListener("click", () => {
+        setRoutineCartOpen(routineCartPanel ? routineCartPanel.hidden : true);
+      });
+    }
+
+    if (routineCart) {
+      routineCart.addEventListener("click", (event) => {
+        if (routineCart.dataset.mode !== "builder" || event.target !== routineCart) {
+          return;
+        }
+        setRoutineCartBuilderOpen(false);
+      });
+    }
+
+    if (routineCartClose) {
+      routineCartClose.addEventListener("click", () => setRoutineCartOpen(false));
+    }
+
+    if (routineCartClear) {
+      routineCartClear.addEventListener("click", clearRoutineCart);
+    }
+
+    if (routineCartView) {
+      routineCartView.addEventListener("click", viewRoutineCart);
+    }
+
+    document.addEventListener("click", (event) => {
+      if (event.target.closest("[data-routine-cart-tour]")) {
+        startRoutineCartTour();
+      }
+    });
+
+    if (routineCartTitleInput) {
+      routineCartTitleInput.addEventListener("input", () => {
+        if (routineCartResult) {
+          routineCartResult.hidden = true;
+        }
+      });
+    }
+
+    if (routineCartNoteInput) {
+      routineCartNoteInput.addEventListener("input", () => {
+        if (routineCartResult) {
+          routineCartResult.hidden = true;
+        }
+      });
+    }
+
+    if (routineCartGenerate) {
+      routineCartGenerate.addEventListener("click", generateRoutineCart);
+    }
+
+    if (routineCartCopy) {
+      routineCartCopy.addEventListener("click", copyRoutineCartLink);
+    }
+
+    if (routineCartPrint) {
+      routineCartPrint.addEventListener("click", printRoutineCart);
+    }
+
+    if (routineCartList) {
+      routineCartList.addEventListener("click", (event) => {
+        const removeButton = event.target.closest("[data-routine-remove]");
+        if (!removeButton) {
+          return;
+        }
+        removeRoutineCartItem(removeButton.dataset.routineRemove);
+      });
+    }
+
+    if (routineCartBuilderList) {
+      routineCartBuilderList.addEventListener("input", (event) => {
+        const input = event.target.closest("[data-routine-setting]");
+        const row = event.target.closest("[data-routine-prescription]");
+        if (!input || !row) {
+          return;
+        }
+        updateRoutineCartSetting(row.dataset.routinePrescription, input.dataset.routineSetting, input.value);
+      });
+
+      routineCartBuilderList.addEventListener("click", (event) => {
+        const moveButton = event.target.closest("[data-routine-move]");
+        if (moveButton) {
+          moveRoutineCartItem(moveButton.dataset.routineMoveId, Number(moveButton.dataset.routineMove));
+          return;
+        }
+
+        const removeButton = event.target.closest("[data-routine-remove]");
+        if (removeButton) {
+          removeRoutineCartItem(removeButton.dataset.routineRemove);
+        }
       });
     }
 
     if (printFavoritesButton) {
       printFavoritesButton.addEventListener("click", () => {
         window.print();
-      });
-    }
-
-    if (compareClearButton) {
-      compareClearButton.addEventListener("click", clearCompare);
-    }
-
-    if (compareViewButton) {
-      compareViewButton.addEventListener("click", openCompare);
-    }
-
-    document.querySelectorAll("[data-compare-dialog-close]").forEach((element) => {
-      element.addEventListener("click", closeCompare);
-    });
-
-    if (compareDialogContent) {
-      compareDialogContent.addEventListener("click", (event) => {
-        const openButton = event.target.closest("[data-compare-open-exercise]");
-        if (!openButton) {
-          return;
-        }
-        const exercise = exercises.find((item) => item.id === openButton.dataset.compareOpenExercise);
-        if (exercise) {
-          closeCompare();
-          openExercise(exercise, true);
-        }
       });
     }
 
@@ -1040,43 +1967,70 @@
       }, 130);
     });
 
-    difficultySelect.addEventListener("change", () => {
-      state.dificultad = difficultySelect.value;
-      renderGrid();
-    });
+    if (filtersOpenButton) {
+      filtersOpenButton.addEventListener("click", openFilterPanel);
+    }
 
-    equipmentSelect.addEventListener("change", () => {
-      state.equipamiento = equipmentSelect.value;
-      renderGrid();
-    });
+    if (filtersClearInline) {
+      filtersClearInline.addEventListener("click", resetFilters);
+    }
 
-    groupsContainer.addEventListener("click", (event) => {
-      const chip = event.target.closest("[data-group-chip]");
-      if (!chip) {
-        return;
-      }
-
-      state.grupo = chip.dataset.groupChip;
-      groupsContainer.querySelectorAll(".exercises-chip").forEach((el) => {
-        el.classList.toggle("is-active", el === chip);
+    if (filterPanel) {
+      document.querySelectorAll("[data-filter-panel-close]").forEach((element) => {
+        element.addEventListener("click", closeFilterPanel);
       });
-      renderGrid();
-    });
 
-    activeFiltersContainer.addEventListener("click", (event) => {
-      const removeButton = event.target.closest("[data-remove-filter]");
-      if (removeButton) {
-        clearFilter(removeButton.dataset.removeFilter);
-        return;
+      if (filterPanelApply) {
+        filterPanelApply.addEventListener("click", applyFilterPanel);
       }
-      if (event.target.closest("[data-clear-filters]")) {
-        clearAllFilters();
-      }
-    });
 
-    window.addEventListener("hashchange", openFromHash);
-    window.addEventListener("popstate", openFromHash);
+      if (filterPanelClear) {
+        filterPanelClear.addEventListener("click", clearFilterPanel);
+      }
+
+      if (filterFavoritesSwitch) {
+        filterFavoritesSwitch.addEventListener("change", () => {
+          draftState.favoritos = filterFavoritesSwitch.checked;
+          updateApplyButtonLabel();
+          updateFilterPanelClearVisibility();
+        });
+      }
+
+      if (filterEquipmentSearch) {
+        filterEquipmentSearch.addEventListener("input", () => {
+          filterEquipmentRows(filterEquipmentSearch.value);
+        });
+      }
+
+      filterPanel.addEventListener("change", (event) => {
+        const target = event.target;
+        if (target.name === "filter-grupo") {
+          draftState.grupo = target.value;
+          updateApplyButtonLabel();
+          updateFilterPanelClearVisibility();
+        } else if (target.name === "filter-equipamiento") {
+          draftState.equipamiento = target.value;
+          updateApplyButtonLabel();
+          updateFilterPanelClearVisibility();
+        }
+      });
+    }
+
+    window.addEventListener("hashchange", () => {
+      syncRoute();
+    });
+    window.addEventListener("popstate", () => {
+      syncRoute();
+    });
     window.addEventListener("resize", updateHeaderHeightVar);
+
+    if (routineSaveButton) {
+      routineSaveButton.addEventListener("click", saveRoutineToFavorites);
+    }
+
+    if (routineDismissButton) {
+      routineDismissButton.addEventListener("click", dismissRoutineView);
+    }
 
     bindBackToTop();
   }
@@ -1095,9 +2049,9 @@
       exercises = payload.exercises;
       populateFilters(payload);
       bindEvents();
-      updateFavoritesChip();
       renderGrid();
-      openFromHash();
+      renderRoutineCart();
+      syncRoute();
       updateHeaderHeightVar();
     })
     .catch((error) => {

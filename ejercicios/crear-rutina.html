@@ -3,25 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Catálogo de ejercicios — El Tablero Sport Club</title>
+    <title>Crear rutina — El Tablero Sport Club</title>
     <meta
       name="description"
-      content="Catálogo de ejercicios de gimnasio con instrucciones, consejos, músculos implicados y equipamiento, filtrable por grupo muscular."
+      content="Herramienta interna para crear rutinas de ejercicios y compartirlas por enlace o código QR."
     >
-    <meta name="robots" content="noindex, follow">
-    <link rel="canonical" href="https://eltablerosportclub.com/ejercicios/">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://eltablerosportclub.com/ejercicios/crear-rutina.html">
     <meta name="theme-color" content="#f5f3ed">
-    <meta property="og:locale" content="es_ES">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="El Tablero Sport Club">
-    <meta property="og:title" content="Catálogo de ejercicios — El Tablero Sport Club">
-    <meta property="og:description" content="Catálogo de ejercicios de gimnasio filtrable por grupo muscular, con instrucciones y consejos de ejecución.">
-    <meta property="og:url" content="https://eltablerosportclub.com/ejercicios/">
-    <meta property="og:image" content="https://eltablerosportclub.com/assets/images/brand/og-cover.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Catálogo de ejercicios — El Tablero Sport Club">
-    <meta name="twitter:description" content="Catálogo de ejercicios de gimnasio filtrable por grupo muscular, con instrucciones y consejos de ejecución.">
-    <meta name="twitter:image" content="https://eltablerosportclub.com/assets/images/brand/og-cover.png">
     <link rel="icon" href="../assets/icons/favicon-192.png" type="image/png">
     <link rel="stylesheet" href="../assets/css/tokens.css">
     <link rel="stylesheet" href="../assets/css/base.css">
@@ -30,14 +19,15 @@
     <link rel="stylesheet" href="../assets/css/pages.css">
     <link rel="stylesheet" href="../assets/css/animations.css">
     <link rel="stylesheet" href="./exercises.css">
+    <link rel="stylesheet" href="./crear-rutina.css">
     <script>document.documentElement.classList.add("js-enabled");</script>
     <script src="../assets/js/config.js" defer></script>
     <script src="../assets/js/main.js" defer></script>
     <script src="../assets/js/navigation.js" defer></script>
-    <script src="../assets/js/animations.js" defer></script>
     <script src="./assets/vendor/qrcode.js" defer></script>
     <script src="./routines.js" defer></script>
-    <script src="./exercises.js" defer></script>
+    <script src="./crear-rutina.js" defer></script>
+    <script src="./crear-rutina-tour.js" defer></script>
   </head>
   <body class="gym-concept-page">
     <a class="skip-link" href="#main-content">Saltar al contenido</a>
@@ -101,51 +91,89 @@
         </div>
       </div>
 
-      <main class="exercises-main" id="main-content">
-        <section class="routine-view" data-routine-view hidden>
-          <div class="routine-view__inner">
-            <p class="exercises-intro__eyebrow">Rutina compartida</p>
-            <h1 class="routine-view__title" data-routine-title></h1>
-            <p class="routine-view__note" data-routine-note hidden></p>
-            <div class="routine-view__actions">
-              <button type="button" class="routine-view__save" data-routine-save-favorites>Guardar rutina en Favoritos</button>
-              <button type="button" class="routine-view__dismiss" data-routine-dismiss>Ver catálogo completo</button>
-            </div>
-            <div class="exercises-grid routine-view__grid" data-routine-grid></div>
-          </div>
-        </section>
-
-        <section class="exercise-page" data-exercise-page hidden>
-          <div class="exercise-page__inner" data-exercise-page-content>
-            <!-- Rellenado dinámicamente por exercises.js -->
-          </div>
-        </section>
-
-        <section class="exercises-intro" data-reveal>
+      <main class="exercises-main routine-builder" id="main-content">
+        <section class="exercises-intro">
           <div class="exercises-intro__inner">
+            <p class="exercises-intro__eyebrow">Constructor de rutinas</p>
             <div class="exercises-intro__head">
               <div>
-                <p class="exercises-intro__eyebrow">Catálogo de ejercicios</p>
-                <h1 id="exercises-title">Ejercicios de gimnasio</h1>
+                <h1>Crear una rutina</h1>
                 <p class="exercises-intro__lead">
-                  Consulta cómo realizar cada ejercicio, los músculos implicados y el material necesario.
+                  Elige los ejercicios en el orden en que se deben hacer, ponle un nombre y genera un enlace y un código QR para compartirla o imprimirla como "rutina del día".
                 </p>
               </div>
-              <a class="exercises-intro__cta" href="./crear-rutina.html">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                Crear rutina
-              </a>
+              <div class="routine-builder__intro-actions">
+                <a class="exercises-intro__cta" href="./index.html">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5 8 12l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  Volver al catálogo
+                </a>
+                <button type="button" class="exercises-intro__cta" data-tour-restart>
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"></circle><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.32c-.66.27-1.15.9-1.15 1.68v.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="12" cy="16.9" r="0.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"></circle></svg>
+                  Ver guía rápida
+                </button>
+              </div>
             </div>
           </div>
         </section>
 
-        <section class="exercises-catalog" aria-labelledby="exercises-title">
-          <div class="exercises-catalog__inner">
+        <section class="routine-builder__layout">
+          <div class="routine-builder__panel" data-routine-panel>
+            <div class="routine-builder__section">
+              <div class="routine-builder__section-head">
+                <span class="routine-builder__step">1</span>
+                <h2>Detalles de la rutina</h2>
+              </div>
+
+              <div class="routine-builder__field">
+                <label for="routine-title">Título de la rutina</label>
+                <div class="routine-builder__input-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 13.5 13.5 4l6 6L10 19.5H4v-6Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path><path d="m12 6.5 5.5 5.5" stroke="currentColor" stroke-width="1.8"></path></svg>
+                  <input type="text" id="routine-title" data-routine-title-input placeholder="Ej. Piernas — Lunes" maxlength="80">
+                </div>
+              </div>
+              <div class="routine-builder__field">
+                <label for="routine-note">Notas para quien la reciba (opcional)</label>
+                <textarea id="routine-note" data-routine-note-input placeholder="Ej. Priorizar técnica y adaptar cargas si hay molestias" maxlength="240" rows="3"></textarea>
+              </div>
+            </div>
+
+            <div class="routine-builder__section routine-builder__selected">
+              <div class="routine-builder__section-head">
+                <span class="routine-builder__step">2</span>
+                <h2>Ejercicios elegidos <span data-selected-count>(0)</span></h2>
+              </div>
+              <ol class="routine-builder__list" data-selected-list></ol>
+              <p class="routine-builder__empty" data-selected-empty>Todavía no has añadido ningún ejercicio. Búscalo a la derecha y pulsa "Añadir".</p>
+            </div>
+
+            <div class="routine-builder__section">
+              <div class="routine-builder__section-head">
+                <span class="routine-builder__step">3</span>
+                <h2>Comparte la rutina</h2>
+              </div>
+
+              <button type="button" class="routine-builder__generate" data-generate-routine disabled>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.8"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.8"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.8"></rect><path d="M14.5 14.5h2.7M14.5 18.5h5M20 14.5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                Generar enlace y QR
+              </button>
+
+              <div class="routine-builder__result" data-routine-result hidden>
+                <div class="routine-builder__link-row">
+                  <input type="text" readonly data-routine-link aria-label="Enlace de la rutina">
+                  <button type="button" data-copy-routine-link>Copiar</button>
+                </div>
+                <div class="routine-builder__qr" data-routine-qr></div>
+                <button type="button" class="routine-builder__print" data-print-routine>Imprimir póster "rutina del día"</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="routine-builder__catalog">
             <div class="exercises-searchbar">
               <div class="exercises-field exercises-search">
-                <label for="exercise-search" class="visually-hidden">Buscar ejercicio</label>
+                <label for="routine-exercise-search" class="visually-hidden">Buscar ejercicio</label>
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle><path d="m20 20-3.2-3.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
-                <input type="search" id="exercise-search" name="q" placeholder="Buscar ejercicio, músculo o equipo…" autocomplete="off" data-exercises-search>
+                <input type="search" id="routine-exercise-search" placeholder="Buscar ejercicio…" autocomplete="off" data-builder-search>
               </div>
               <button type="button" class="exercises-filters-btn" data-filters-open aria-haspopup="dialog">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M8 12h8M11 18h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
@@ -155,8 +183,7 @@
             </div>
 
             <div class="exercises-results-bar">
-              <p class="exercises-catalog__count" data-exercises-count aria-live="polite"></p>
-              <button type="button" class="exercises-print-button" data-print-favorites hidden>Imprimir favoritos</button>
+              <p class="routine-builder__count" data-builder-count aria-live="polite"></p>
             </div>
 
             <p class="exercises-filters-summary" data-filters-summary hidden>
@@ -164,161 +191,23 @@
               <button type="button" data-filters-clear>Limpiar</button>
             </p>
 
-            <div class="exercises-grid" data-exercises-grid aria-live="polite"></div>
-
-            <p class="exercises-empty" data-exercises-empty hidden>
-              No hay ejercicios que coincidan con estos filtros. Prueba a cambiar la búsqueda o el grupo muscular.
-            </p>
-
-            <p class="exercises-data-attribution">
-              Exercise data by
-              <a
-                href="https://repdb.co/free-exercise-dataset"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                RepDB
-              </a>
-            </p>
+            <div class="exercises-grid routine-builder__grid" data-builder-grid></div>
           </div>
         </section>
       </main>
 
-      <aside class="routine-cart" data-routine-cart aria-label="Rutina en preparación">
-        <button type="button" class="routine-cart__toggle" data-routine-cart-toggle aria-expanded="false" aria-controls="routine-cart-panel">
-          <span class="routine-cart__toggle-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M7 7h10M7 12h10M7 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 18.5v-13Z" stroke="currentColor" stroke-width="1.8"></path></svg>
-          </span>
-          <span class="routine-cart__toggle-copy">
-            <span>Mi rutina</span>
-            <strong data-routine-cart-count>0 ejercicios</strong>
-          </span>
-        </button>
-
-        <section class="routine-cart__panel" id="routine-cart-panel" data-routine-cart-panel hidden>
-          <div class="routine-cart__head">
-            <div>
-              <h2>Mi rutina</h2>
-              <p data-routine-cart-summary>Selecciona ejercicios del catálogo.</p>
-            </div>
-            <div class="routine-cart__head-actions">
-              <button type="button" class="routine-cart__guide" data-routine-cart-tour>
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"></circle><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.32c-.66.27-1.15.9-1.15 1.68v.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="12" cy="16.9" r="0.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"></circle></svg>
-                Guía rápida
-              </button>
-              <button type="button" class="routine-cart__close" data-routine-cart-close aria-label="Cerrar rutina">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
-              </button>
-            </div>
-          </div>
-
-          <ol class="routine-cart__list" data-routine-cart-list></ol>
-          <p class="routine-cart__empty" data-routine-cart-empty>No has añadido ejercicios todavía.</p>
-
-          <div class="routine-cart__actions">
-            <button type="button" class="routine-cart__clear" data-routine-cart-clear disabled>Vaciar</button>
-            <button type="button" class="routine-cart__view" data-routine-cart-view disabled>Crear rutina</button>
-          </div>
-
-          <div class="routine-cart__builder" data-routine-cart-builder hidden>
-            <div class="routine-cart__section">
-              <div class="routine-cart__section-head">
-                <span>1</span>
-                <h3>Detalles de la rutina</h3>
-              </div>
-              <label class="routine-cart__field">
-                <span>Título de la rutina</span>
-                <input type="text" maxlength="80" placeholder="Ej. Piernas — Lunes" data-routine-cart-title>
-              </label>
-              <label class="routine-cart__field">
-                <span>Notas para quien la reciba (opcional)</span>
-                <textarea maxlength="240" rows="3" placeholder="Ej. Priorizar técnica y adaptar cargas si hay molestias" data-routine-cart-note></textarea>
-              </label>
-            </div>
-
-            <div class="routine-cart__section">
-              <div class="routine-cart__section-head">
-                <span>2</span>
-                <h3>Ejercicios elegidos</h3>
-              </div>
-              <ol class="routine-cart__builder-list" data-routine-cart-builder-list></ol>
-            </div>
-
-            <div class="routine-cart__section">
-              <div class="routine-cart__section-head">
-                <span>3</span>
-                <h3>Comparte la rutina</h3>
-              </div>
-              <button type="button" class="routine-cart__generate" data-routine-cart-generate disabled>
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.8"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.8"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.8"></rect><path d="M14.5 14.5h2.7M14.5 18.5h5M20 14.5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
-                Generar enlace y QR
-              </button>
-              <div class="routine-cart__result" data-routine-cart-result hidden>
-                <div class="routine-cart__link-row">
-                  <input type="text" readonly data-routine-cart-link aria-label="Enlace de la rutina">
-                  <button type="button" data-routine-cart-copy>Copiar</button>
-                </div>
-                <div class="routine-cart__qr" data-routine-cart-qr></div>
-                <button type="button" class="routine-cart__print" data-routine-cart-print>Imprimir póster "rutina del día"</button>
-              </div>
-            </div>
-          </div>
-        </section>
-      </aside>
-
-      <div class="routine-poster routine-poster--cart" data-routine-cart-poster>
-        <div class="routine-poster__sheet">
-          <header class="routine-poster__header">
-            <img class="routine-poster__logo" src="../assets/images/brand/site-logo-header-white-700.webp" alt="El Tablero Sport Club" width="700" height="265">
-            <div class="routine-poster__header-copy">
-              <p>Rutina del día</p>
-              <strong data-routine-cart-poster-count></strong>
-            </div>
-          </header>
-
-          <section class="routine-poster__intro">
-            <div>
-              <p class="routine-poster__eyebrow">Plan de entrenamiento</p>
-              <h2 data-routine-cart-poster-title></h2>
-              <p class="routine-poster__note" data-routine-cart-poster-note></p>
-            </div>
-            <aside class="routine-poster__qr-card">
-              <div class="routine-poster__qr" data-routine-cart-poster-qr></div>
-              <p class="routine-poster__hint">Escanea el código para abrir la rutina completa en el móvil</p>
-            </aside>
-          </section>
-
-          <ol class="routine-poster__list" data-routine-cart-poster-list></ol>
-
-          <footer class="routine-poster__footer">
-            <span>El Tablero Sport Club</span>
-            <span data-routine-cart-poster-date></span>
-          </footer>
-        </div>
-      </div>
-
       <div class="filter-panel" data-filter-panel hidden>
         <div class="filter-panel__overlay" data-filter-panel-close></div>
-        <div class="filter-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="filter-panel-title" tabindex="-1" data-filter-panel-sheet>
+        <div class="filter-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="routine-filter-panel-title" tabindex="-1" data-filter-panel-sheet>
           <div class="filter-panel__drag" aria-hidden="true"></div>
           <div class="filter-panel__header">
-            <h2 id="filter-panel-title">Filtros</h2>
+            <h2 id="routine-filter-panel-title">Filtros</h2>
             <button type="button" class="filter-panel__close" data-filter-panel-close aria-label="Cerrar filtros">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6 18 18M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
             </button>
           </div>
 
           <div class="filter-panel__body">
-            <div class="filter-panel__section">
-              <label class="filter-switch">
-                <span class="filter-switch__label">Solo favoritos</span>
-                <span class="filter-switch__control">
-                  <input type="checkbox" data-filter-favorites>
-                  <span class="filter-switch__track" aria-hidden="true"></span>
-                </span>
-              </label>
-            </div>
-
             <div class="filter-panel__section">
               <h3 class="filter-panel__section-title">Grupo muscular</h3>
               <div class="filter-radio-list" data-filter-group-list role="radiogroup" aria-label="Grupo muscular"></div>
@@ -341,9 +230,39 @@
         </div>
       </div>
 
-      <button type="button" class="exercises-back-to-top" data-back-to-top hidden aria-label="Volver arriba">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V5M12 5l-6 6M12 5l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-      </button>
+      <div class="exercise-dialog" data-exercise-dialog hidden>
+        <div class="exercise-dialog__backdrop" data-exercise-dialog-close></div>
+        <div class="exercise-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="exercise-dialog-title" data-exercise-dialog-panel tabindex="-1">
+          <div class="exercise-dialog__topbar">
+            <div class="exercise-dialog__nav">
+              <button class="exercise-dialog__nav-button" type="button" data-exercise-prev aria-label="Ejercicio anterior">
+                <span aria-hidden="true">‹</span><span class="exercise-dialog__nav-label">Anterior</span>
+              </button>
+              <span class="exercise-dialog__nav-count" data-exercise-nav-count></span>
+              <button class="exercise-dialog__nav-button" type="button" data-exercise-next aria-label="Siguiente ejercicio">
+                <span class="exercise-dialog__nav-label">Siguiente</span><span aria-hidden="true">›</span>
+              </button>
+            </div>
+            <button class="exercise-dialog__close" type="button" data-exercise-dialog-close>
+              <span aria-hidden="true">×</span>
+              <span class="visually-hidden">Cerrar ficha del ejercicio</span>
+            </button>
+          </div>
+          <div class="exercise-dialog__content" data-exercise-dialog-content>
+            <!-- Rellenado dinámicamente por crear-rutina.js -->
+          </div>
+        </div>
+      </div>
+
+      <div class="routine-poster" data-routine-poster>
+        <div class="routine-poster__brand">El Tablero Sport Club</div>
+        <p class="routine-poster__eyebrow">Rutina del día</p>
+        <h2 data-poster-title></h2>
+        <p class="routine-poster__note" data-poster-note></p>
+        <div class="routine-poster__qr" data-poster-qr></div>
+        <p class="routine-poster__hint">Escanea el código para ver la rutina completa en tu móvil</p>
+        <ol class="routine-poster__list" data-poster-list></ol>
+      </div>
 
       <footer class="site-footer">
         <div class="container site-footer__container">
