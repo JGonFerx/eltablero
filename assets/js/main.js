@@ -134,6 +134,17 @@
     });
   }
 
+  document.querySelectorAll("img, .service-link").forEach((element) => {
+    element.draggable = false;
+  });
+
+  document.addEventListener("dragstart", (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (target?.closest("img, .service-link")) {
+      event.preventDefault();
+    }
+  }, true);
+
   const clubTickers = Array.from(document.querySelectorAll(".club-ticker"));
   clubTickers.forEach((clubTicker) => {
     if (typeof clubTicker.getAnimations !== "function") {
@@ -158,6 +169,101 @@
       clubTicker.addEventListener("focusin", () => setTickerRate(0.64));
       clubTicker.addEventListener("focusout", () => setTickerRate(1));
     }
+  });
+
+  const zoneShowcases = Array.from(document.querySelectorAll("[data-zone-showcase]"));
+  zoneShowcases.forEach((showcase) => {
+    const slides = Array.from(showcase.querySelectorAll("[data-zone-slide]"));
+    const buttons = Array.from(showcase.querySelectorAll("[data-zone-control]"));
+    const previousButton = showcase.querySelector("[data-zone-prev]");
+    const nextButton = showcase.querySelector("[data-zone-next]");
+    let activeIndex = slides.findIndex((slide) => slide.classList.contains("is-active"));
+
+    if (!slides.length || !buttons.length) {
+      return;
+    }
+
+    activeIndex = activeIndex >= 0 ? activeIndex : 0;
+
+    const warmZoneImage = (index) => {
+      const slide = slides[index];
+      const image = slide?.querySelector("img");
+
+      if (!image || image.dataset.warmed === "true") {
+        return;
+      }
+
+      image.dataset.warmed = "true";
+      image.loading = "eager";
+
+      if (typeof image.decode === "function") {
+        image.decode().catch(() => {});
+      }
+    };
+
+    const setActiveZone = (nextIndex, shouldFocus = false) => {
+      const normalizedIndex = (nextIndex + slides.length) % slides.length;
+      activeIndex = normalizedIndex;
+
+      slides.forEach((slide, index) => {
+        const isActive = index === activeIndex;
+        slide.classList.toggle("is-active", isActive);
+        slide.setAttribute("aria-hidden", String(!isActive));
+      });
+
+      buttons.forEach((button, index) => {
+        const isActive = index === activeIndex;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+        button.tabIndex = isActive ? 0 : -1;
+      });
+
+      warmZoneImage(activeIndex);
+      warmZoneImage((activeIndex + 1) % slides.length);
+
+      if (shouldFocus) {
+        buttons[activeIndex]?.focus();
+      }
+    };
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const nextIndex = Number.parseInt(button.dataset.zoneControl, 10);
+
+        if (Number.isNaN(nextIndex)) {
+          return;
+        }
+
+        setActiveZone(nextIndex);
+      });
+
+      button.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+          event.preventDefault();
+          setActiveZone(activeIndex + 1, true);
+        }
+
+        if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+          event.preventDefault();
+          setActiveZone(activeIndex - 1, true);
+        }
+
+        if (event.key === "Home") {
+          event.preventDefault();
+          setActiveZone(0, true);
+        }
+
+        if (event.key === "End") {
+          event.preventDefault();
+          setActiveZone(slides.length - 1, true);
+        }
+      });
+    });
+
+    previousButton?.addEventListener("click", () => setActiveZone(activeIndex - 1));
+    nextButton?.addEventListener("click", () => setActiveZone(activeIndex + 1));
+
+    setActiveZone(activeIndex);
   });
 
   const mobileStickyActions = document.querySelector("[data-mobile-sticky-actions]");
@@ -965,16 +1071,30 @@
       const shiftX = targetShiftX * easedCameraProgress;
       const shiftY = targetShiftY * easedCameraProgress;
       const rotate = targetRotate * easedCameraProgress;
-      const blackoutProgress = segmentProgress(progress, 0.56, 0.8);
-      const blackoutOpacity = easeInOut(blackoutProgress) * 0.9;
+      const blackoutProgress = isMobileHero
+        ? segmentProgress(progress, 0.5, 0.72)
+        : segmentProgress(progress, 0.56, 0.8);
+      const blackoutOpacity = easeInOut(blackoutProgress) * (isMobileHero ? 0.82 : 0.9);
       const shellFadeProgress = isMobileHero
         ? segmentProgress(progress, 0.12, 0.34)
         : segmentProgress(progress, 0.16, 0.42);
       const shellOpacity = 1 - easeInOut(shellFadeProgress);
       const shellShiftY = (isMobileHero ? 14 : 36) * easeInOut(shellFadeProgress);
-      const decisionIntroReveal = easeInOut(segmentProgress(progress, 0.68, 0.84));
-      const decisionPrimaryReveal = easeInOut(segmentProgress(progress, 0.66, 0.92));
-      const decisionUtilitiesReveal = easeInOut(segmentProgress(progress, 0.84, 0.94));
+      const decisionIntroReveal = easeInOut(
+        isMobileHero
+          ? segmentProgress(progress, 0.5, 0.68)
+          : segmentProgress(progress, 0.68, 0.84)
+      );
+      const decisionPrimaryReveal = easeInOut(
+        isMobileHero
+          ? segmentProgress(progress, 0.48, 0.72)
+          : segmentProgress(progress, 0.66, 0.92)
+      );
+      const decisionUtilitiesReveal = easeInOut(
+        isMobileHero
+          ? segmentProgress(progress, 0.68, 0.82)
+          : segmentProgress(progress, 0.84, 0.94)
+      );
       const previewMode = progress < 0.4 ? "interactive" : "glow-only";
 
       immersiveHero.style.setProperty("--hero-scroll-progress", progress.toFixed(4));
@@ -997,7 +1117,7 @@
       immersiveHero.style.setProperty("--hero-decision-primary-opacity", decisionPrimaryReveal.toFixed(4));
       immersiveHero.style.setProperty(
         "--hero-decision-primary-shift-y",
-        `${(52 * (1 - decisionPrimaryReveal)).toFixed(2)}px`
+        `${((isMobileHero ? 30 : 52) * (1 - decisionPrimaryReveal)).toFixed(2)}px`
       );
       immersiveHero.style.setProperty(
         "--hero-decision-primary-scale",

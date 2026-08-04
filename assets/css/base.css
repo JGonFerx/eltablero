@@ -43,6 +43,15 @@ svg {
   max-width: 100%;
 }
 
+img {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+a {
+  -webkit-user-drag: none;
+}
+
 picture {
   display: block;
 }

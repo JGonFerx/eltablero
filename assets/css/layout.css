@@ -1342,6 +1342,10 @@ body.gym-concept-page {
   padding: clamp(2.5rem, 5vw, 4.75rem) 0 1.15rem;
 }
 
+.site-footer--home-no-ticker {
+  padding-top: 0;
+}
+
 .site-footer__container,
 .site-footer__top,
 .site-footer__summary,
