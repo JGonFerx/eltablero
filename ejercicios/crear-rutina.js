@@ -205,7 +205,7 @@
       }
       const action = card.querySelector(".routine-builder__card-action");
       if (action) {
-        action.textContent = isSelected ? "Añadida ✓" : "Añadir +";
+        action.textContent = isSelected ? "Añadido ✓" : "Añadir +";
       }
     });
   }
@@ -282,7 +282,7 @@
         <span class="exercise-card__body">
           <span class="exercise-card__group">${escapeHtml(exercise.grupoMuscular)}</span>
           <span class="exercise-card__name">${escapeHtml(exercise.nombre)}</span>
-          <span class="routine-builder__card-action">${isSelected ? "Añadida ✓" : "Añadir +"}</span>
+          <span class="routine-builder__card-action">${isSelected ? "Añadido ✓" : "Añadir +"}</span>
         </span>
       </button>
       <button type="button" class="routine-builder__card-info" aria-label="Ver detalles de ${escapeHtml(exercise.nombre)}" title="Ver detalles">
@@ -793,7 +793,7 @@
       ...getExerciseSettings(id),
     }));
     const routine = {
-      t: titleInput.value.trim() || "Rutina de El Tablero",
+      t: titleInput.value.trim() || "Rutina semanal",
       n: noteInput.value.trim(),
       e: selected,
       items,

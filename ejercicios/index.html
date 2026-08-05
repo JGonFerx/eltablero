@@ -240,6 +240,15 @@
               </div>
               <div class="routine-cart__builder-layout">
                 <div class="routine-cart__builder-main">
+                  <div class="routine-cart__week-planner" aria-label="Plan semanal">
+                    <div>
+                      <strong>Plan semanal</strong>
+                      <p><span data-routine-week-count>1 día</span> de entrenamiento. Elige los días y asigna cada ejercicio.</p>
+                    </div>
+                    <div class="routine-cart__week-controls">
+                      <div class="routine-cart__week-days" data-routine-week-days aria-label="Días de entrenamiento"></div>
+                    </div>
+                  </div>
                   <div class="routine-cart__quick-values" aria-label="Valores rápidos">
                     <strong>Valores rápidos</strong>
                     <label>
@@ -248,11 +257,11 @@
                     </label>
                     <label>
                       <span>Repeticiones</span>
-                      <input type="text" inputmode="text" autocomplete="off" value="12" data-routine-quick-setting="reps">
+                      <input type="text" inputmode="text" autocomplete="off" value="10" data-routine-quick-setting="reps">
                     </label>
                     <label>
                       <span>Descanso</span>
-                      <input type="text" inputmode="numeric" autocomplete="off" value="1" data-routine-quick-setting="rest">
+                      <input type="text" inputmode="numeric" autocomplete="off" value="2" data-routine-quick-setting="rest">
                       <small>min</small>
                     </label>
                     <button type="button" data-routine-quick-apply>Aplicar a todos</button>
@@ -263,6 +272,13 @@
                 <aside class="routine-cart__summary-card" aria-label="Resumen de la rutina">
                   <h4>Resumen de la rutina</h4>
                   <dl>
+                    <div>
+                      <span class="routine-cart__summary-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M8 3v3M16 3v3M4.5 9h15M6.5 5h11A2.5 2.5 0 0 1 20 7.5v10A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-10A2.5 2.5 0 0 1 6.5 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                      </span>
+                      <dt data-routine-summary-days>1</dt>
+                      <dd>Días</dd>
+                    </div>
                     <div>
                       <span class="routine-cart__summary-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none"><path d="M6 8v8M18 8v8M3.5 10v4M20.5 10v4M6 12h12" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path></svg>
@@ -277,15 +293,15 @@
                       <dt data-routine-summary-series>0</dt>
                       <dd>Series totales</dd>
                     </div>
-                    <div>
+                    <div class="routine-cart__summary-duration">
                       <span class="routine-cart__summary-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.9"></circle><path d="M12 7.5v5l3.2 1.8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                       </span>
-                      <dt data-routine-summary-duration>≈ 0 min</dt>
-                      <dd>Duración estimada</dd>
+                      <dt data-routine-summary-duration><span>≈ 0 min</span></dt>
+                      <dd>Duración por día</dd>
                     </div>
                   </dl>
-                  <p><span aria-hidden="true">ⓘ</span><span>El tiempo es una estimación basada en los descansos configurados y un ritmo moderado.<br>Fórmula utilizada para calcular el tiempo: (series × repeticiones × 2,5 s) + (series × descanso × 1,2).</span></p>
+                  <p><span aria-hidden="true">ⓘ</span><span>El tiempo se estima por día de entrenamiento, con los descansos configurados y un ritmo moderado.<br>Fórmula utilizada para calcular el tiempo: (series × repeticiones × 2,5 s) + (series × descanso × 1,2).</span></p>
                 </aside>
               </div>
             </div>
@@ -295,6 +311,7 @@
                 <span>3</span>
                 <h3>Comparte la rutina</h3>
               </div>
+              <p class="routine-cart__validation" data-routine-cart-validation role="alert" hidden></p>
               <div class="routine-cart__share-actions">
                 <button type="button" class="routine-cart__generate" data-routine-cart-generate disabled>
                   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.8"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.8"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.8"></rect><path d="M14.5 14.5h2.7M14.5 18.5h5M20 14.5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
@@ -359,10 +376,6 @@
         <div class="routine-poster__sheet">
           <header class="routine-poster__header">
             <img class="routine-poster__logo" src="../assets/images/brand/site-logo-header-white-700.webp" alt="El Tablero Sport Club" width="700" height="265">
-            <div class="routine-poster__header-copy">
-              <p>Rutina del día</p>
-              <strong data-routine-cart-poster-count></strong>
-            </div>
           </header>
 
           <section class="routine-poster__intro">
@@ -370,6 +383,7 @@
               <p class="routine-poster__eyebrow">Plan de entrenamiento</p>
               <h2 data-routine-cart-poster-title></h2>
               <p class="routine-poster__note" data-routine-cart-poster-note></p>
+              <p class="routine-poster__meta" data-routine-cart-poster-meta></p>
               <p class="routine-poster__site">https://eltablerosportclub.com</p>
             </div>
             <aside class="routine-poster__qr-card">

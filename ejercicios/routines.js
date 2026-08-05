@@ -1,6 +1,6 @@
 /**
  * Codifica y decodifica rutinas dentro de la propia URL — sin backend.
- * Formato compacto: #r?i=id:s:r:d,id2&t=<base64url>&n=<base64url>
+ * Formato compacto: #r?i=id:s:r:d:day,id2&w=lunes,miercoles&t=<base64url>&n=<base64url>
  * Formato legacy: #rutina?t=<titulo>&n=<nota>&e=id1,id2,id3
  * Formato legacy con parametros: añade p=<payload> con series, repeticiones y descanso por ejercicio.
  * Compartido entre index.html (vista de rutina) y crear-rutina.html (constructor).
@@ -21,7 +21,7 @@
 
   function normalizeItem(item) {
     if (typeof item === "string") {
-      return { id: item, series: "", reps: "", rest: "" };
+      return { id: item, series: "", reps: "", rest: "", day: "" };
     }
 
     return {
@@ -29,6 +29,7 @@
       series: item.series || item.s || "",
       reps: item.reps || item.r || "",
       rest: item.rest || item.d || "",
+      day: item.day || item.w || "",
     };
   }
 
@@ -53,6 +54,7 @@
       compactValue(item.series),
       compactValue(item.reps),
       compactValue(item.rest),
+      encodeURIComponent(item.day || ""),
     ];
 
     while (fields.length > 1 && fields[fields.length - 1] === "") {
@@ -69,6 +71,7 @@
       series: expandValue(fields[1]),
       reps: expandValue(fields[2]),
       rest: expandValue(fields[3]),
+      day: decodeURIComponent(fields[4] || ""),
     });
   }
 
@@ -82,6 +85,10 @@
     const params = [`i=${items.map(packItem).join(",")}`];
     if (routine.t) {
       params.push(`t=${compactValue(routine.t)}`);
+    }
+    const days = Array.isArray(routine.days) ? routine.days.filter(Boolean) : [];
+    if (days.length) {
+      params.push(`w=${days.map((day) => encodeURIComponent(day)).join(",")}`);
     }
     if (routine.n) {
       params.push(`n=${compactValue(routine.n)}`);
@@ -108,11 +115,17 @@
       return null;
     }
 
+    const days = (params.get("w") || "")
+      .split(",")
+      .map((day) => decodeURIComponent(day.trim()))
+      .filter(Boolean);
+
     return {
       t: expandValue(params.get("t")),
       n: expandValue(params.get("n")),
       e: items.map((item) => item.id),
       items,
+      days,
     };
   }
 
@@ -152,6 +165,7 @@
       n: params.get("n") || "",
       e,
       items: items.length ? items : e.map((id) => normalizeItem(id)),
+      days: [],
     };
   }
 

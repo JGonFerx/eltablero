@@ -61,14 +61,19 @@
   const routineCartNoteCount = document.querySelector("[data-routine-cart-note-count]");
   const routineQuickApply = document.querySelector("[data-routine-quick-apply]");
   const routineCartAddMore = document.querySelector("[data-routine-cart-add-more]");
+  const routineSummaryDays = document.querySelector("[data-routine-summary-days]");
   const routineSummaryExercises = document.querySelector("[data-routine-summary-exercises]");
   const routineSummarySeries = document.querySelector("[data-routine-summary-series]");
   const routineSummaryDuration = document.querySelector("[data-routine-summary-duration]");
+  const routineWeekDaysWrap = document.querySelector("[data-routine-week-days]");
+  const routineWeekCount = document.querySelector("[data-routine-week-count]");
+  const routineCartValidation = document.querySelector("[data-routine-cart-validation]");
   const routineCartPoster = document.querySelector("[data-routine-cart-poster]");
   const routineCartPosterCount = document.querySelector("[data-routine-cart-poster-count]");
   const routineCartPosterDate = document.querySelector("[data-routine-cart-poster-date]");
   const routineCartPosterTitle = document.querySelector("[data-routine-cart-poster-title]");
   const routineCartPosterNote = document.querySelector("[data-routine-cart-poster-note]");
+  const routineCartPosterMeta = document.querySelector("[data-routine-cart-poster-meta]");
   const routineCartPosterQr = document.querySelector("[data-routine-cart-poster-qr]");
   const routineCartPosterList = document.querySelector("[data-routine-cart-poster-list]");
 
@@ -107,7 +112,21 @@
 
   const FAVORITES_KEY = "eltablero:ejercicios:favoritos";
   const ROUTINE_CART_KEY = "eltablero:ejercicios:rutina-carrito";
+  const ROUTINE_CART_DAYS_KEY = "eltablero:ejercicios:rutina-dias";
   const ROUTINE_CART_TOUR_KEY = "eltablero:ejercicios:rutina-carrito-tour-dismissed";
+  const ROUTINE_UNASSIGNED_DAY = "";
+  const ROUTINE_DEFAULT_SERIES = "3";
+  const ROUTINE_DEFAULT_REPS = "10";
+  const ROUTINE_DEFAULT_REST = "2";
+  const WEEK_DAYS = [
+    { id: "lunes", label: "Lunes", short: "Lun" },
+    { id: "martes", label: "Martes", short: "Mar" },
+    { id: "miercoles", label: "Miércoles", short: "Mié" },
+    { id: "jueves", label: "Jueves", short: "Jue" },
+    { id: "viernes", label: "Viernes", short: "Vie" },
+    { id: "sabado", label: "Sábado", short: "Sáb" },
+    { id: "domingo", label: "Domingo", short: "Dom" },
+  ];
 
   function loadFavorites() {
     try {
@@ -120,7 +139,10 @@
   }
 
   const favorites = loadFavorites();
+  let routineCartDays = loadRoutineCartDays();
   let routineCartItems = loadRoutineCart();
+  let routineCartSelectedIds = new Set();
+  let routineTouchDrag = null;
 
   function saveFavorites() {
     try {
@@ -130,17 +152,62 @@
     }
   }
 
+  function routineDayMeta(day) {
+    if (!day) {
+      return { id: ROUTINE_UNASSIGNED_DAY, label: "Sin día definido", short: "Sin día" };
+    }
+    return WEEK_DAYS.find((item) => item.id === day) || { id: ROUTINE_UNASSIGNED_DAY, label: "Sin día definido", short: "Sin día" };
+  }
+
+  function normalizeRoutineCartDays(days) {
+    const selected = new Set(Array.isArray(days) ? days : []);
+    const normalized = WEEK_DAYS.map((day) => day.id).filter((day) => selected.has(day));
+    return normalized.length ? normalized : [WEEK_DAYS[0].id];
+  }
+
+  function isRoutineDaySelected(day) {
+    return routineCartDays.includes(day);
+  }
+
+  function normalizeRoutineDay(day) {
+    return isRoutineDaySelected(day) ? day : ROUTINE_UNASSIGNED_DAY;
+  }
+
   function normalizeRoutineCartItem(item) {
     if (typeof item === "string") {
-      return { id: item, series: "", reps: "", rest: "" };
+      return {
+        id: item,
+        series: ROUTINE_DEFAULT_SERIES,
+        reps: ROUTINE_DEFAULT_REPS,
+        rest: ROUTINE_DEFAULT_REST,
+        day: ROUTINE_UNASSIGNED_DAY,
+      };
     }
 
     return {
       id: item && (item.id || item.i) ? item.id || item.i : "",
-      series: item && (item.series || item.s) ? item.series || item.s : "",
-      reps: item && (item.reps || item.r) ? item.reps || item.r : "",
-      rest: item && (item.rest || item.d) ? item.rest || item.d : "",
+      series: item && (item.series || item.s) ? item.series || item.s : ROUTINE_DEFAULT_SERIES,
+      reps: item && (item.reps || item.r) ? item.reps || item.r : ROUTINE_DEFAULT_REPS,
+      rest: item && (item.rest || item.d) ? item.rest || item.d : ROUTINE_DEFAULT_REST,
+      day: normalizeRoutineDay(item && (item.day || item.w) ? item.day || item.w : ROUTINE_UNASSIGNED_DAY),
     };
+  }
+
+  function loadRoutineCartDays() {
+    try {
+      const raw = window.localStorage.getItem(ROUTINE_CART_DAYS_KEY);
+      return normalizeRoutineCartDays(raw ? JSON.parse(raw) : []);
+    } catch (error) {
+      return normalizeRoutineCartDays([]);
+    }
+  }
+
+  function saveRoutineCartDays() {
+    try {
+      window.localStorage.setItem(ROUTINE_CART_DAYS_KEY, JSON.stringify(routineCartDays));
+    } catch (error) {
+      /* almacenamiento no disponible */
+    }
   }
 
   function loadRoutineCart() {
@@ -181,12 +248,38 @@
     return routineCartItems.find((item) => item.id === id);
   }
 
+  function clearRoutineCartValidation() {
+    if (routineCartValidation) {
+      routineCartValidation.hidden = true;
+      routineCartValidation.textContent = "";
+    }
+  }
+
+  function setRoutineCartValidation(message) {
+    if (!routineCartValidation) {
+      return;
+    }
+    routineCartValidation.textContent = message;
+    routineCartValidation.hidden = false;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    routineCartValidation.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+  }
+
+  function hasRoutineValue(value) {
+    return parseRoutineNumber(value) > 0;
+  }
+
+  function hasCompleteRoutinePrescription(item) {
+    return hasRoutineValue(item.series) && hasRoutineValue(item.reps) && hasRoutineValue(item.rest);
+  }
+
   function updateRoutineCartSetting(id, key, value) {
     const item = getRoutineCartItem(id);
     if (!item) {
       return;
     }
-    item[key] = sanitizeRoutineValue(value);
+    item[key] = key === "day" ? normalizeRoutineDay(value) : sanitizeRoutineValue(value);
+    clearRoutineCartValidation();
     saveRoutineCart();
     updateRoutineCartBuilderSummary();
     if (routineCartResult) {
@@ -199,21 +292,34 @@
     return match ? Number(match[0]) : 0;
   }
 
+  function routineItemSeconds(item) {
+    const series = parseRoutineNumber(item.series);
+    const reps = parseRoutineNumber(item.reps);
+    const restMinutes = parseRoutineNumber(item.rest);
+    return series * reps * 2.5 + series * restMinutes * 60 * 1.2;
+  }
+
+  function routineDayDuration(day) {
+    return Math.max(
+      0,
+      Math.round(
+        routineCartItems
+          .filter((item) => normalizeRoutineDay(item.day) === day)
+          .reduce((total, item) => total + routineItemSeconds(item), 0) / 60
+      )
+    );
+  }
+
   function updateRoutineCartBuilderSummary() {
     const exerciseCount = routineCartItems.length;
     const seriesTotal = routineCartItems.reduce((total, item) => total + parseRoutineNumber(item.series), 0);
-    const restSeconds = routineCartItems.reduce((total, item) => {
-      const series = parseRoutineNumber(item.series);
-      const restMinutes = parseRoutineNumber(item.rest);
-      return total + series * restMinutes * 60 * 1.2;
-    }, 0);
-    const activeSeconds = routineCartItems.reduce((total, item) => {
-      const series = parseRoutineNumber(item.series);
-      const reps = parseRoutineNumber(item.reps);
-      return total + series * reps * 2.5;
-    }, 0);
-    const duration = Math.max(0, Math.round((activeSeconds + restSeconds) / 60));
+    const durationByDay = routineCartDays
+      .map((day) => `<span>${routineDayMeta(day).short} ≈ ${routineDayDuration(day)} min</span>`)
+      .join("");
 
+    if (routineSummaryDays) {
+      routineSummaryDays.textContent = String(routineCartDays.length);
+    }
     if (routineSummaryExercises) {
       routineSummaryExercises.textContent = String(exerciseCount);
     }
@@ -221,7 +327,7 @@
       routineSummarySeries.textContent = String(seriesTotal);
     }
     if (routineSummaryDuration) {
-      routineSummaryDuration.textContent = `≈ ${duration} min`;
+      routineSummaryDuration.innerHTML = durationByDay || "<span>≈ 0 min</span>";
     }
     if (routineCartNoteCount && routineCartNoteInput) {
       routineCartNoteCount.textContent = String(routineCartNoteInput.value.trim().length);
@@ -236,6 +342,41 @@
     routineCartNoteInput.style.height = `${routineCartNoteInput.scrollHeight}px`;
   }
 
+  function renderRoutineWeekControls() {
+    if (!routineWeekDaysWrap) {
+      return;
+    }
+    routineCartDays = normalizeRoutineCartDays(routineCartDays);
+    if (routineWeekCount) {
+      routineWeekCount.textContent = routineCartDays.length === 1 ? "1 día" : `${routineCartDays.length} días`;
+    }
+    routineWeekDaysWrap.innerHTML = WEEK_DAYS
+      .map((day) => {
+        const selected = routineCartDays.includes(day.id);
+        return `<button type="button" data-routine-week-day="${day.id}" aria-pressed="${selected}">${day.short}</button>`;
+      })
+      .join("");
+  }
+
+  function setRoutineWeekDay(day, isSelected) {
+    if (!WEEK_DAYS.some((item) => item.id === day)) {
+      return;
+    }
+    if (isSelected) {
+      routineCartDays = normalizeRoutineCartDays([...routineCartDays, day]);
+    } else if (routineCartDays.length > 1) {
+      routineCartDays = normalizeRoutineCartDays(routineCartDays.filter((item) => item !== day));
+    }
+    routineCartItems = routineCartItems.map((item) => ({ ...item, day: normalizeRoutineDay(item.day) }));
+    clearRoutineCartValidation();
+    saveRoutineCartDays();
+    saveRoutineCart();
+    if (routineCartResult) {
+      routineCartResult.hidden = true;
+    }
+    renderRoutineCart();
+  }
+
   function applyRoutineQuickValues() {
     const values = {};
     document.querySelectorAll("[data-routine-quick-setting]").forEach((input) => {
@@ -247,6 +388,7 @@
       reps: values.reps || item.reps,
       rest: values.rest || item.rest,
     }));
+    clearRoutineCartValidation();
     saveRoutineCart();
     if (routineCartResult) {
       routineCartResult.hidden = true;
@@ -278,6 +420,10 @@
     });
   }
 
+  function routineDayExerciseCount(day) {
+    return routineCartItems.filter((item) => normalizeRoutineDay(item.day) === day).length;
+  }
+
   function getExerciseById(id) {
     return exercises.find((exercise) => exercise.id === id);
   }
@@ -297,7 +443,7 @@
       button.setAttribute("aria-pressed", String(isSelected));
       button.classList.toggle("is-added", isSelected);
       if (label) {
-        label.textContent = isSelected ? "Añadida" : "Añadir a rutina";
+        label.textContent = isSelected ? "Añadido" : "Añadir a rutina";
       }
       const exercise = getExerciseById(exerciseId);
       if (exercise) {
@@ -341,68 +487,499 @@
     }
   }
 
+  function pruneRoutineCartSelection() {
+    const validIds = new Set(routineCartItems.map((item) => item.id));
+    routineCartSelectedIds = new Set(Array.from(routineCartSelectedIds).filter((id) => validIds.has(id)));
+  }
+
+  function routineDragIds(anchorId) {
+    const selected = routineCartItems.filter((item) => routineCartSelectedIds.has(item.id)).map((item) => item.id);
+    return selected.includes(anchorId) ? selected : [anchorId];
+  }
+
+  function renderRoutineCartBuilderItem(item, index, dayIndex, dayTotal) {
+    const exercise = getExerciseById(item.id);
+    if (!exercise) {
+      return null;
+    }
+
+    item.day = normalizeRoutineDay(item.day);
+    const isUnassigned = !item.day;
+    const hasMissingPrescription = !hasCompleteRoutinePrescription(item);
+    const dragLabel = routineCartSelectedIds.has(item.id) && routineCartSelectedIds.size > 1
+      ? `Arrastrar ${routineCartSelectedIds.size} ejercicios a otro día`
+      : `Arrastrar ${exercise.nombre} a otro día`;
+    const li = document.createElement("li");
+    li.className = `routine-cart__builder-item${routineCartSelectedIds.has(item.id) ? " is-selected" : ""}${isUnassigned ? " is-unassigned" : ""}${hasMissingPrescription ? " has-missing-prescription" : ""}`;
+    li.dataset.routineDay = item.day;
+    li.dataset.routineBuilderId = item.id;
+    li.innerHTML = `
+      <label class="routine-cart__select" title="Marcar para mover en grupo">
+        <input type="checkbox" data-routine-select="${escapeHtml(exercise.id)}" ${routineCartSelectedIds.has(item.id) ? "checked" : ""} aria-label="Marcar ${escapeHtml(exercise.nombre)} para mover en grupo">
+        <span aria-hidden="true"></span>
+      </label>
+      <span class="routine-cart__drag" data-routine-drag-id="${escapeHtml(exercise.id)}" role="button" tabindex="0" aria-label="${escapeHtml(dragLabel)}" title="Arrastrar a otro día"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="9" cy="5" r="1.45" fill="currentColor"></circle><circle cx="15" cy="5" r="1.45" fill="currentColor"></circle><circle cx="9" cy="12" r="1.45" fill="currentColor"></circle><circle cx="15" cy="12" r="1.45" fill="currentColor"></circle><circle cx="9" cy="19" r="1.45" fill="currentColor"></circle><circle cx="15" cy="19" r="1.45" fill="currentColor"></circle></svg></span>
+      <span class="routine-cart__index">${index + 1}</span>
+      <span class="routine-cart__builder-copy">
+        <span class="routine-cart__builder-title-row">
+          <strong>${escapeHtml(exercise.nombre)}</strong>
+        </span>
+        <span>${escapeHtml(exercise.grupoMuscular)}</span>
+      </span>
+      <span class="routine-cart__prescription" data-routine-prescription="${escapeHtml(exercise.id)}">
+        <label>
+          <span>Series</span>
+          <input type="text" inputmode="numeric" autocomplete="off" maxlength="24" value="${escapeHtml(item.series)}" data-routine-setting="series" aria-label="Series de ${escapeHtml(exercise.nombre)}" aria-invalid="${!hasRoutineValue(item.series)}">
+        </label>
+        <label>
+          <span>Repeticiones</span>
+          <input type="text" inputmode="text" autocomplete="off" maxlength="24" value="${escapeHtml(item.reps)}" data-routine-setting="reps" aria-label="Repeticiones de ${escapeHtml(exercise.nombre)}" aria-invalid="${!hasRoutineValue(item.reps)}">
+        </label>
+        <label>
+          <span>Descanso</span>
+          <input type="text" inputmode="text" autocomplete="off" maxlength="24" value="${escapeHtml(item.rest)}" data-routine-setting="rest" aria-label="Descanso de ${escapeHtml(exercise.nombre)}" aria-invalid="${!hasRoutineValue(item.rest)}">
+        </label>
+      </span>
+      <span class="routine-cart__builder-controls">
+        <button type="button" data-routine-info="${escapeHtml(exercise.id)}" aria-label="Ver detalles de ${escapeHtml(exercise.nombre)}">i</button>
+        <button type="button" data-routine-move="-1" data-routine-move-id="${escapeHtml(exercise.id)}" ${dayIndex === 0 ? "disabled" : ""} aria-label="Subir ${escapeHtml(exercise.nombre)}">↑</button>
+        <button type="button" data-routine-move="1" data-routine-move-id="${escapeHtml(exercise.id)}" ${dayIndex === dayTotal - 1 ? "disabled" : ""} aria-label="Bajar ${escapeHtml(exercise.nombre)}">↓</button>
+        <button type="button" data-routine-remove="${escapeHtml(exercise.id)}" aria-label="Quitar ${escapeHtml(exercise.nombre)}">×</button>
+      </span>
+    `;
+    return li;
+  }
+
   function renderRoutineCartBuilder() {
     if (!routineCartBuilderList) {
       return;
     }
 
+    renderRoutineWeekControls();
+    pruneRoutineCartSelection();
     routineCartBuilderList.innerHTML = "";
     const fragment = document.createDocumentFragment();
+    let globalIndex = 0;
 
-    routineCartItems.forEach((item, index) => {
-      const exercise = getExerciseById(item.id);
-      if (!exercise) {
-        return;
-      }
-
-      const li = document.createElement("li");
-      li.className = "routine-cart__builder-item";
-      li.innerHTML = `
-        <span class="routine-cart__drag" aria-hidden="true">⋮⋮</span>
-        <span class="routine-cart__index">${index + 1}</span>
-        <span class="routine-cart__builder-copy">
-          <span class="routine-cart__builder-title-row">
-            <strong>${escapeHtml(exercise.nombre)}</strong>
-            </span>
-          <span>${escapeHtml(exercise.grupoMuscular)}</span>
-        </span>
-        <span class="routine-cart__prescription" data-routine-prescription="${escapeHtml(exercise.id)}">
-          <label>
-            <span>Series</span>
-            <input type="text" inputmode="numeric" autocomplete="off" maxlength="24" value="${escapeHtml(item.series)}" data-routine-setting="series" aria-label="Series de ${escapeHtml(exercise.nombre)}">
-          </label>
-          <label>
-            <span>Repeticiones</span>
-            <input type="text" inputmode="text" autocomplete="off" maxlength="24" value="${escapeHtml(item.reps)}" data-routine-setting="reps" aria-label="Repeticiones de ${escapeHtml(exercise.nombre)}">
-          </label>
-          <label>
-            <span>Descanso</span>
-            <input type="text" inputmode="text" autocomplete="off" maxlength="24" value="${escapeHtml(item.rest)}" data-routine-setting="rest" aria-label="Descanso de ${escapeHtml(exercise.nombre)}">
-          </label>
-        </span>
-        <span class="routine-cart__builder-controls">
-          <button type="button" data-routine-info="${escapeHtml(exercise.id)}" aria-label="Ver detalles de ${escapeHtml(exercise.nombre)}">i</button>
-          <button type="button" data-routine-move="-1" data-routine-move-id="${escapeHtml(exercise.id)}" ${index === 0 ? "disabled" : ""} aria-label="Subir ${escapeHtml(exercise.nombre)}">↑</button>
-          <button type="button" data-routine-move="1" data-routine-move-id="${escapeHtml(exercise.id)}" ${index === routineCartItems.length - 1 ? "disabled" : ""} aria-label="Bajar ${escapeHtml(exercise.nombre)}">↓</button>
-          <button type="button" data-routine-remove="${escapeHtml(exercise.id)}" aria-label="Quitar ${escapeHtml(exercise.nombre)}">×</button>
-        </span>
+    const renderDayGroup = (day, entries, isUnassigned) => {
+      const meta = routineDayMeta(day);
+      const selectedCount = routineCartSelectedIds.size;
+      const group = document.createElement("li");
+      group.className = `routine-cart__day-group${isUnassigned ? " routine-cart__day-group--unassigned" : ""}`;
+      group.dataset.routineDayDrop = day;
+      group.innerHTML = `
+        <div class="routine-cart__day-head">
+          <div>
+            <strong>${escapeHtml(meta.label)}</strong>
+            <span>${entries.length === 1 ? "1 ejercicio" : `${entries.length} ejercicios`} · ≈ ${routineDayDuration(day)} min</span>
+          </div>
+          ${selectedCount && !isUnassigned ? `<button type="button" data-routine-move-selected-day="${escapeHtml(day)}">Mover marcados aquí</button>` : ""}
+        </div>
+        <ol class="routine-cart__day-list" data-routine-day-list="${escapeHtml(day)}"></ol>
       `;
-      fragment.appendChild(li);
+      const list = group.querySelector("[data-routine-day-list]");
+      entries.forEach((item, dayIndex) => {
+        const row = renderRoutineCartBuilderItem(item, globalIndex, dayIndex, entries.length);
+        if (row) {
+          globalIndex += 1;
+          list.appendChild(row);
+        }
+      });
+      if (entries.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "routine-cart__day-empty";
+        empty.textContent = isUnassigned ? "Los ejercicios nuevos aparecerán aquí." : "Arrastra ejercicios aquí.";
+        list.appendChild(empty);
+      }
+      fragment.appendChild(group);
+    };
+
+    const unassignedEntries = routineCartItems.filter((item) => !normalizeRoutineDay(item.day));
+    if (unassignedEntries.length) {
+      renderDayGroup(ROUTINE_UNASSIGNED_DAY, unassignedEntries, true);
+    }
+    routineCartDays.forEach((day) => {
+      renderDayGroup(day, routineCartItems.filter((item) => normalizeRoutineDay(item.day) === day), false);
     });
 
     routineCartBuilderList.appendChild(fragment);
     updateRoutineCartBuilderSummary();
   }
 
-  function moveRoutineCartItem(id, direction) {
-    const index = routineCartItems.findIndex((item) => item.id === id);
-    const target = index + direction;
-    if (index === -1 || target < 0 || target >= routineCartItems.length) {
+  function renderRoutineCartWithReorderAnimation(movedIds) {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const previousRects = new Map();
+    if (routineCartBuilderList && !reduceMotion) {
+      routineCartBuilderList.querySelectorAll("[data-routine-builder-id]").forEach((row) => {
+        previousRects.set(row.dataset.routineBuilderId, row.getBoundingClientRect());
+      });
+    }
+
+    renderRoutineCart();
+
+    if (!routineCartBuilderList || reduceMotion || previousRects.size === 0) {
       return;
     }
-    const [item] = routineCartItems.splice(index, 1);
-    routineCartItems.splice(target, 0, item);
-    renderRoutineCart();
+
+    const movedSet = new Set(movedIds || []);
+    window.requestAnimationFrame(() => {
+      routineCartBuilderList.querySelectorAll("[data-routine-builder-id]").forEach((row) => {
+        const previous = previousRects.get(row.dataset.routineBuilderId);
+        if (!previous) {
+          return;
+        }
+        const current = row.getBoundingClientRect();
+        const dx = previous.left - current.left;
+        const dy = previous.top - current.top;
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+          row.animate(
+            [
+              { transform: `translate(${dx}px, ${dy}px)` },
+              { transform: "translate(0, 0)" },
+            ],
+            { duration: 320, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
+          );
+        }
+        if (movedSet.has(row.dataset.routineBuilderId)) {
+          row.classList.add("is-just-moved");
+          window.setTimeout(() => row.classList.remove("is-just-moved"), 520);
+        }
+      });
+    });
+  }
+
+  function moveRoutineCartItem(id, direction) {
+    const item = getRoutineCartItem(id);
+    if (!item) {
+      return;
+    }
+    const day = normalizeRoutineDay(item.day);
+    const dayItems = routineCartItems.filter((entry) => normalizeRoutineDay(entry.day) === day);
+    const dayIndex = dayItems.findIndex((entry) => entry.id === id);
+    const targetDayItem = dayItems[dayIndex + direction];
+    if (!targetDayItem) {
+      return;
+    }
+    const index = routineCartItems.findIndex((entry) => entry.id === id);
+    const target = routineCartItems.findIndex((entry) => entry.id === targetDayItem.id);
+    const [moved] = routineCartItems.splice(index, 1);
+    routineCartItems.splice(target, 0, moved);
+    renderRoutineCartWithReorderAnimation([id]);
+    if (routineCartResult) {
+      routineCartResult.hidden = true;
+    }
+  }
+
+  function cleanupRoutineTouchDrag() {
+    if (!routineTouchDrag) {
+      return;
+    }
+    const pointerId = routineTouchDrag.pointerId;
+    window.clearTimeout(routineTouchDrag.timer);
+    if (routineTouchDrag.scrollFrame) {
+      window.cancelAnimationFrame(routineTouchDrag.scrollFrame);
+    }
+    if (routineTouchDrag.ghost) {
+      routineTouchDrag.ghost.remove();
+    }
+    if (routineTouchDrag.handle) {
+      if (routineTouchDrag.previousDraggable === null) {
+        routineTouchDrag.handle.removeAttribute("draggable");
+      } else if (typeof routineTouchDrag.previousDraggable === "string") {
+        routineTouchDrag.handle.setAttribute("draggable", routineTouchDrag.previousDraggable);
+      }
+    }
+    document.body.classList.remove("is-routine-touch-dragging");
+    document.removeEventListener("pointermove", handleRoutinePointerMove);
+    document.removeEventListener("pointerup", finishPointerRoutineTouchDrag);
+    document.removeEventListener("pointercancel", cancelPointerRoutineTouchDrag);
+    if (routineCartBuilderList) {
+      routineCartBuilderList.querySelectorAll(".is-touch-dragging, .is-drop-target").forEach((element) => {
+        element.classList.remove("is-touch-dragging", "is-drop-target");
+      });
+    }
+    if (routineTouchDrag.handle && typeof routineTouchDrag.handle.releasePointerCapture === "function" && pointerId !== undefined) {
+      try {
+        routineTouchDrag.handle.releasePointerCapture(pointerId);
+      } catch (error) {
+        /* La captura puede estar ya liberada. */
+      }
+    }
+    routineTouchDrag = null;
+  }
+
+  function routineTouchPoint(event) {
+    const touch = event.touches && event.touches[0] ? event.touches[0] : event.changedTouches && event.changedTouches[0];
+    return touch ? { x: touch.clientX, y: touch.clientY } : null;
+  }
+
+  function routinePointerPoint(event) {
+    return { x: event.clientX, y: event.clientY };
+  }
+
+  function createRoutineTouchGhost(ids, point, sourceRow) {
+    let ghost;
+    if (ids.length > 1) {
+      const names = ids
+        .map((id) => getExerciseById(id))
+        .filter(Boolean)
+        .slice(0, 3)
+        .map((exercise) => `<span>${escapeHtml(exercise.nombre)}</span>`)
+        .join("");
+      ghost = document.createElement("div");
+      ghost.className = "routine-cart__touch-ghost routine-cart__touch-ghost--stack";
+      ghost.innerHTML = `
+        <strong>Mover ${ids.length} ejercicios</strong>
+        <span class="routine-cart__touch-ghost-list">${names}</span>
+      `;
+    } else {
+      ghost = sourceRow ? sourceRow.cloneNode(true) : document.createElement("div");
+      ghost.className = "routine-cart__touch-ghost";
+      ghost.removeAttribute("data-routine-builder-id");
+      ghost.querySelectorAll("input, button, select, [draggable]").forEach((element) => {
+        element.setAttribute("tabindex", "-1");
+        element.removeAttribute("draggable");
+      });
+      if (!sourceRow) {
+        ghost.textContent = "Mover 1 ejercicio";
+      }
+    }
+    if (ids.length > 1) {
+      const badge = document.createElement("span");
+      badge.className = "routine-cart__touch-ghost-count";
+      badge.textContent = `${ids.length} ejercicios`;
+      ghost.appendChild(badge);
+    }
+    document.body.appendChild(ghost);
+    const baseWidth = ids.length > 1 ? 360 : 420;
+    ghost.style.width = `${Math.min(baseWidth, window.innerWidth - 24)}px`;
+    positionRoutineTouchGhost(ghost, point);
+    return ghost;
+  }
+
+  function clearRoutineHtmlDragState() {
+    if (!routineCartBuilderList) {
+      return;
+    }
+    routineCartBuilderList.querySelectorAll(".is-dragging, .is-drop-target").forEach((element) => {
+      element.classList.remove("is-dragging", "is-drop-target");
+    });
+  }
+
+  function positionRoutineTouchGhost(ghost, point) {
+    if (!ghost || !point) {
+      return;
+    }
+    const isTouch = routineTouchDrag && routineTouchDrag.pointerType === "touch";
+    const isStack = ghost.classList.contains("routine-cart__touch-ghost--stack");
+    const offsetX = isTouch ? -ghost.offsetWidth / 2 : isStack ? -22 : -24;
+    const offsetY = isTouch ? -28 : isStack ? -18 : -24;
+    const x = Math.max(12, Math.min(window.innerWidth - ghost.offsetWidth - 12, point.x + offsetX));
+    const y = Math.max(12, Math.min(window.innerHeight - ghost.offsetHeight - 12, point.y + offsetY));
+    ghost.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+  }
+
+  function routineTouchScrollContainer() {
+    return routineCartPanel && routineCartPanel.scrollHeight > routineCartPanel.clientHeight
+      ? routineCartPanel
+      : document.scrollingElement;
+  }
+
+  function updateRoutineTouchAutoScroll(point) {
+    if (!routineTouchDrag || !routineTouchDrag.active || !point) {
+      return;
+    }
+    const container = routineTouchScrollContainer();
+    if (!container) {
+      return;
+    }
+    const rect = container === document.scrollingElement
+      ? { top: 0, bottom: window.innerHeight }
+      : container.getBoundingClientRect();
+    const edge = 72;
+    const maxSpeed = 18;
+    let speed = 0;
+    if (point.y < rect.top + edge) {
+      speed = -Math.ceil(((rect.top + edge - point.y) / edge) * maxSpeed);
+    } else if (point.y > rect.bottom - edge) {
+      speed = Math.ceil(((point.y - (rect.bottom - edge)) / edge) * maxSpeed);
+    }
+    routineTouchDrag.scrollSpeed = speed;
+    routineTouchDrag.lastPoint = point;
+    if (!speed || routineTouchDrag.scrollFrame) {
+      return;
+    }
+    const tick = () => {
+      if (!routineTouchDrag || !routineTouchDrag.active || !routineTouchDrag.scrollSpeed) {
+        if (routineTouchDrag) {
+          routineTouchDrag.scrollFrame = 0;
+        }
+        return;
+      }
+      container.scrollTop += routineTouchDrag.scrollSpeed;
+      markRoutineTouchDropTarget(routineTouchDrag.lastPoint);
+      routineTouchDrag.scrollFrame = window.requestAnimationFrame(tick);
+    };
+    routineTouchDrag.scrollFrame = window.requestAnimationFrame(tick);
+  }
+
+  function routineDropGroupFromPoint(point) {
+    if (!point) {
+      return null;
+    }
+    const ghost = routineTouchDrag && routineTouchDrag.ghost;
+    const ghostRect = ghost ? ghost.getBoundingClientRect() : null;
+
+    let bestGroup = null;
+    let bestArea = 0;
+    const groups = routineCartBuilderList
+      ? Array.from(routineCartBuilderList.querySelectorAll("[data-routine-day-drop]")).filter((group) => group.dataset.routineDayDrop)
+      : [];
+
+    groups.forEach((group) => {
+      const rect = group.getBoundingClientRect();
+      const pointInside =
+        point.x >= rect.left &&
+        point.x <= rect.right &&
+        point.y >= rect.top &&
+        point.y <= rect.bottom;
+
+      let area = pointInside ? 1 : 0;
+      if (ghostRect && ghostRect.width && ghostRect.height) {
+        const xOverlap = Math.max(0, Math.min(rect.right, ghostRect.right) - Math.max(rect.left, ghostRect.left));
+        const yOverlap = Math.max(0, Math.min(rect.bottom, ghostRect.bottom) - Math.max(rect.top, ghostRect.top));
+        area = Math.max(area, xOverlap * yOverlap);
+      }
+
+      if (area > bestArea) {
+        bestArea = area;
+        bestGroup = group;
+      }
+    });
+
+    return bestGroup;
+  }
+
+  function markRoutineTouchDropTarget(point) {
+    if (!routineCartBuilderList) {
+      return null;
+    }
+    const group = routineDropGroupFromPoint(point);
+    routineCartBuilderList.querySelectorAll("[data-routine-day-drop]").forEach((element) => {
+      element.classList.toggle("is-drop-target", element === group);
+    });
+    return group;
+  }
+
+  function startRoutineTouchDrag(handle, point) {
+    if (!routineTouchDrag) {
+      return;
+    }
+    const ids = routineDragIds(handle.dataset.routineDragId);
+    const sourceRow = handle.closest("[data-routine-builder-id]");
+    routineTouchDrag.active = true;
+    routineTouchDrag.ids = ids;
+    routineTouchDrag.ghost = createRoutineTouchGhost(ids, point, sourceRow);
+    document.body.classList.add("is-routine-touch-dragging");
+    positionRoutineTouchGhost(routineTouchDrag.ghost, point);
+    if (routineCartBuilderList) {
+      routineCartBuilderList.querySelectorAll("[data-routine-builder-id]").forEach((row) => {
+        row.classList.toggle("is-touch-dragging", ids.includes(row.dataset.routineBuilderId));
+      });
+    }
+    markRoutineTouchDropTarget(point);
+  }
+
+  function finishRoutineTouchDrag(point) {
+    if (!routineTouchDrag) {
+      return;
+    }
+    const wasActive = routineTouchDrag.active;
+    const ids = routineTouchDrag.ids;
+    const group = wasActive ? routineDropGroupFromPoint(point) : null;
+    cleanupRoutineTouchDrag();
+    if (wasActive && group) {
+      moveRoutineCartItemsToDay(ids, group.dataset.routineDayDrop, "");
+    } else if (wasActive) {
+      routineCartSelectedIds.clear();
+      renderRoutineCartBuilder();
+    }
+  }
+
+  function handleRoutinePointerMove(event) {
+    if (!routineTouchDrag || routineTouchDrag.pointerId !== event.pointerId) {
+      return;
+    }
+    const point = routinePointerPoint(event);
+    const distance = Math.hypot(point.x - routineTouchDrag.startX, point.y - routineTouchDrag.startY);
+    if (!routineTouchDrag.active && routineTouchDrag.pointerType !== "touch" && distance > 2) {
+      window.clearTimeout(routineTouchDrag.timer);
+      startRoutineTouchDrag(routineTouchDrag.handle, routineTouchDrag.lastPoint);
+    } else if (!routineTouchDrag.active && distance > 22) {
+      cleanupRoutineTouchDrag();
+      return;
+    }
+    if (!routineTouchDrag.active) {
+      return;
+    }
+    event.preventDefault();
+    positionRoutineTouchGhost(routineTouchDrag.ghost, point);
+    markRoutineTouchDropTarget(point);
+    updateRoutineTouchAutoScroll(point);
+  }
+
+  function finishPointerRoutineTouchDrag(event) {
+    if (!routineTouchDrag || routineTouchDrag.pointerId !== event.pointerId) {
+      return;
+    }
+    finishRoutineTouchDrag(routinePointerPoint(event));
+  }
+
+  function cancelPointerRoutineTouchDrag(event) {
+    if (!routineTouchDrag || routineTouchDrag.pointerId !== event.pointerId) {
+      return;
+    }
+    const wasActive = routineTouchDrag.active;
+    cleanupRoutineTouchDrag();
+    if (wasActive) {
+      routineCartSelectedIds.clear();
+      renderRoutineCartBuilder();
+    }
+  }
+
+  function moveRoutineCartItemsToDay(ids, day, targetId) {
+    const normalizedDay = normalizeRoutineDay(day);
+    const uniqueIds = Array.from(new Set(ids)).filter((id) => routineCartItems.some((item) => item.id === id));
+    if (uniqueIds.length === 0) {
+      return;
+    }
+    const isSameDayDrop = !targetId && uniqueIds.every((id) => {
+      const item = getRoutineCartItem(id);
+      return item && normalizeRoutineDay(item.day) === normalizedDay;
+    });
+    if (isSameDayDrop) {
+      routineCartSelectedIds.clear();
+      renderRoutineCartBuilder();
+      return;
+    }
+    const movingIds = new Set(uniqueIds);
+    const movingItems = routineCartItems.filter((item) => movingIds.has(item.id)).map((item) => ({ ...item, day: normalizedDay }));
+    routineCartItems = routineCartItems.filter((item) => !movingIds.has(item.id));
+
+    const targetIndex = targetId && !movingIds.has(targetId) ? routineCartItems.findIndex((entry) => entry.id === targetId) : -1;
+    if (targetIndex !== -1) {
+      routineCartItems.splice(targetIndex, 0, ...movingItems);
+    } else {
+      const lastInDay = routineCartItems
+        .map((entry, entryIndex) => ({ entry, entryIndex }))
+        .filter(({ entry }) => normalizeRoutineDay(entry.day) === normalizedDay)
+        .pop();
+      routineCartItems.splice(lastInDay ? lastInDay.entryIndex + 1 : routineCartItems.length, 0, ...movingItems);
+    }
+
+    routineCartSelectedIds.clear();
+    clearRoutineCartValidation();
+    renderRoutineCartWithReorderAnimation(uniqueIds);
     if (routineCartResult) {
       routineCartResult.hidden = true;
     }
@@ -485,7 +1062,13 @@
     if (isInRoutineCart(id) || !getExerciseById(id)) {
       return;
     }
-    routineCartItems.push({ id, series: "", reps: "", rest: "" });
+    routineCartItems.push({
+      id,
+      series: ROUTINE_DEFAULT_SERIES,
+      reps: ROUTINE_DEFAULT_REPS,
+      rest: ROUTINE_DEFAULT_REST,
+      day: ROUTINE_UNASSIGNED_DAY,
+    });
     if (routineCartResult) {
       routineCartResult.hidden = true;
     }
@@ -494,6 +1077,7 @@
   }
 
   function removeRoutineCartItem(id) {
+    routineCartSelectedIds.delete(id);
     routineCartItems = routineCartItems.filter((item) => item.id !== id);
     if (routineCartResult) {
       routineCartResult.hidden = true;
@@ -525,7 +1109,29 @@
     setRoutineCartBuilderOpen(!routineCartBuilder || routineCartBuilder.hidden);
   }
 
-  const routineCartDefaultTitle = "Rutina de El Tablero Sport Club";
+  const routineCartDefaultTitle = "Rutina semanal";
+
+  function routineDaysForEntries(entries, days) {
+    const valid = new Set(WEEK_DAYS.map((day) => day.id));
+    const selected = normalizeRoutineCartDays(days && days.length ? days : entries.map((item) => item.day).filter(Boolean));
+    entries.forEach((entry) => {
+      if (valid.has(entry.day) && !selected.includes(entry.day)) {
+        selected.push(entry.day);
+      }
+    });
+    return selected;
+  }
+
+  function routineEntryDay(entry, days) {
+    return days.includes(entry.day) ? entry.day : days[0];
+  }
+
+  function groupRoutineEntries(entries, days) {
+    return days.map((day) => ({
+      day,
+      entries: entries.filter((entry) => routineEntryDay(entry, days) === day),
+    }));
+  }
 
   function getRoutineCartTitle() {
     return routineCartTitleInput && routineCartTitleInput.value.trim()
@@ -542,7 +1148,8 @@
       t: getRoutineCartTitle(),
       n: getRoutineCartNote(),
       e: routineCartItems.map((item) => item.id),
-      items: routineCartItems,
+      items: routineCartItems.map((item) => ({ ...item, day: normalizeRoutineDay(item.day) })),
+      days: routineCartDays,
     };
     const hash = window.Routines.encode(routine);
     return { routine, url: `${location.origin}${location.pathname}${hash}` };
@@ -569,52 +1176,177 @@
   }
 
   function prepareRoutineCartPoster(routine, url) {
-    if (!routineCartPoster || !routineCartPosterTitle || !routineCartPosterList) {
+    if (!routineCartPoster) {
       return;
     }
+    const routineDays = routineDaysForEntries(routine.items, routine.days || []);
+    const posterGroups = groupRoutineEntries(routine.items, routineDays)
+      .map((group) => ({
+        ...group,
+        entries: group.entries.filter((entry) => Boolean(getExerciseById(entry.id))),
+      }))
+      .filter((group) => group.entries.length > 0);
 
-    if (routine.t === routineCartDefaultTitle) {
-      routineCartPosterTitle.innerHTML = "Rutina de<br>El Tablero<br>Sport Club";
-    } else {
-      routineCartPosterTitle.textContent = routine.t;
-    }
-    if (routineCartPosterCount) {
-      const count = routine.items.length;
-      routineCartPosterCount.textContent = count === 1 ? "1 ejercicio" : `${count} ejercicios`;
-    }
-    if (routineCartPosterDate) {
-      routineCartPosterDate.textContent = new Intl.DateTimeFormat("es-ES", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      }).format(new Date());
-    }
-    if (routineCartPosterNote) {
-      routineCartPosterNote.textContent = routine.n || "";
-    }
-    routineCartPosterList.innerHTML = routine.items
-      .map((entry, index) => ({ entry, exercise: getExerciseById(entry.id), index }))
-      .filter(({ exercise }) => Boolean(exercise))
-      .map(({ entry, exercise, index }) => {
-        const prescription = formatPrescription(entry);
-        const media = exercise.imagenInicial
+    const dateLabel = new Intl.DateTimeFormat("es-ES", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }).format(new Date());
+    const title = routine.t || routineCartDefaultTitle;
+    const subtitle = routine.t === routineCartDefaultTitle ? "Fuerza y acondicionamiento" : "Plan de entrenamiento";
+    const daysCount = posterGroups.length;
+    const exerciseCount = posterGroups.reduce((total, group) => total + group.entries.length, 0);
+    const seriesTotal = posterGroups.reduce((total, group) => (
+      total + group.entries.reduce((groupTotal, entry) => groupTotal + parseRoutineNumber(entry.series), 0)
+    ), 0);
+    const averageMinutes = daysCount
+      ? Math.round(
+        posterGroups.reduce((total, group) => (
+          total + Math.round(group.entries.reduce((groupTotal, entry) => groupTotal + routineItemSeconds(entry), 0) / 60)
+        ), 0) / daysCount
+      )
+      : 0;
+    const pageCount = Math.max(1, posterGroups.length + 1);
+    const notes = routine.n
+      ? routine.n.split(/\n+/).map((line) => line.trim()).filter(Boolean)
+      : ["Ajusta las cargas según el nivel y prioriza la técnica en cada repetición."];
+
+    const icon = (name) => {
+      const icons = {
+        calendar: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3v4M17 3v4M4.5 9h15M6 5h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+        dumbbell: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 8v8M18 8v8M3.5 10v4M20.5 10v4M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+        stack: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 4 8 4-8 4-8-4 8-4ZM4 12l8 4 8-4M4 16l8 4 8-4" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+        clock: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+      };
+      return icons[name] || "";
+    };
+    const footer = (pageNumber) => `
+      <footer class="routine-poster__page-footer">
+        <span>https://eltablerosportclub.com</span>
+        <span>${escapeHtml(dateLabel)}</span>
+        <span>Página ${pageNumber} de ${pageCount}</span>
+      </footer>
+    `;
+    const dayDuration = (entries) => Math.round(entries.reduce((total, entry) => total + routineItemSeconds(entry), 0) / 60);
+    const formatPosterGroups = (entries) => {
+      const groups = Array.from(new Set(
+        entries
+          .map((entry) => getExerciseById(entry.id))
+          .filter(Boolean)
+          .map((exercise) => exercise.grupoMuscular)
+      ));
+      if (groups.length === 0) {
+        return "Trabajo general";
+      }
+      if (groups.length === 1) {
+        return groups[0];
+      }
+      if (groups.length === 2) {
+        return `${groups[0]} y ${groups[1]}`;
+      }
+      return `${groups.slice(0, -1).join(", ")} y ${groups[groups.length - 1]}`;
+    };
+    const coverRows = posterGroups.map((group, index) => {
+      return `
+        <li>
+          <span>${index + 1}</span>
+          <strong>Día ${index + 1}</strong>
+          <em>${escapeHtml(formatPosterGroups(group.entries))}</em>
+          <small>≈ ${dayDuration(group.entries)} min</small>
+        </li>
+      `;
+    }).join("");
+    const dayPages = posterGroups.map((group, groupIndex) => {
+      const label = routineDayMeta(group.day).label;
+      const rows = group.entries.map((entry, entryIndex) => {
+        const exercise = getExerciseById(entry.id);
+        const media = exercise && exercise.imagenInicial
           ? `<img src="${escapeHtml(exercise.imagenInicial)}" alt="" decoding="async" width="512" height="512">`
           : "";
         return `
-          <li>
-            <span class="routine-poster__item-index">${String(index + 1).padStart(2, "0")}</span>
-            <span class="routine-poster__item-media">${media}</span>
-            <span class="routine-poster__item-copy">
+          <tr>
+            <td class="routine-poster__table-index">${entryIndex + 1}</td>
+            <td class="routine-poster__table-exercise">
+              <span>${media}</span>
               <strong>${escapeHtml(exercise.nombre)}</strong>
-              <span>${escapeHtml(exercise.grupoMuscular)}</span>
+              <em>${escapeHtml(exercise.grupoMuscular)}</em>
               <small>${escapeHtml(exercise.equipamiento[0] || "Peso corporal")}</small>
-            </span>
-            <span class="routine-poster__item-prescription">${prescription ? escapeHtml(prescription) : "Sin configurar"}</span>
-          </li>
+            </td>
+            <td>${escapeHtml(entry.series || "No definido")}</td>
+            <td>${escapeHtml(entry.reps || "No definido")}</td>
+            <td>${entry.rest ? `${escapeHtml(entry.rest)} min` : "No definido"}</td>
+          </tr>
         `;
-      })
-      .join("");
-    renderQr(routineCartPosterQr, url, 920, window.QRCode && window.QRCode.CorrectLevel.L);
+      }).join("");
+      const duration = dayDuration(group.entries);
+      const daySeries = group.entries.reduce((total, entry) => total + parseRoutineNumber(entry.series), 0);
+      return `
+        <article class="routine-poster__page routine-poster__day-page">
+          <header class="routine-poster__page-header">
+            <img class="routine-poster__page-logo" src="../assets/images/brand/site-logo-header-white-700.webp" alt="El Tablero Sport Club" width="700" height="265">
+          </header>
+          <h2><span>Día ${groupIndex + 1}</span> · ${escapeHtml(label)}</h2>
+          <dl class="routine-poster__stats routine-poster__stats--day">
+            <div>${icon("dumbbell")}<dt>${group.entries.length}</dt><dd>ejercicios</dd></div>
+            <div>${icon("stack")}<dt>${daySeries}</dt><dd>series</dd></div>
+            <div>${icon("clock")}<dt>≈ ${duration} min</dt><dd>tiempo estimado</dd></div>
+          </dl>
+          <table class="routine-poster__table">
+            <colgroup>
+              <col class="routine-poster__col-index">
+              <col class="routine-poster__col-exercise">
+              <col class="routine-poster__col-series">
+              <col class="routine-poster__col-reps">
+              <col class="routine-poster__col-rest">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Ejercicio</th>
+                <th>Series</th>
+                <th>Reps</th>
+                <th>Descanso</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+          ${footer(groupIndex + 2)}
+        </article>
+      `;
+    }).join("");
+
+    routineCartPoster.innerHTML = `
+      <article class="routine-poster__page routine-poster__cover">
+        <header class="routine-poster__cover-header">
+          <img class="routine-poster__cover-logo" src="../assets/images/brand/site-logo-header-white-700.webp" alt="El Tablero Sport Club" width="700" height="265">
+          <aside class="routine-poster__cover-qr">
+            <strong>Escanea para abrir la rutina</strong>
+            <div data-routine-cart-poster-qr></div>
+          </aside>
+        </header>
+        <section class="routine-poster__cover-title">
+          <h1>${escapeHtml(title)}</h1>
+          <p>${escapeHtml(subtitle)}</p>
+        </section>
+        <dl class="routine-poster__stats">
+          <div>${icon("calendar")}<dt>${daysCount}</dt><dd>${daysCount === 1 ? "día" : "días"}</dd></div>
+          <div>${icon("dumbbell")}<dt>${exerciseCount}</dt><dd>ejercicios</dd></div>
+          <div>${icon("stack")}<dt>${seriesTotal}</dt><dd>series</dd></div>
+          <div>${icon("clock")}<dt>≈ ${averageMinutes} min</dt><dd>media diaria</dd></div>
+        </dl>
+        <section class="routine-poster__notes">
+          <h2>Notas</h2>
+          <ul>${notes.map((note) => `<li>${escapeHtml(note)}</li>`).join("")}</ul>
+        </section>
+        <section class="routine-poster__weekly">
+          <h2>Resumen semanal</h2>
+          <ol>${coverRows}</ol>
+        </section>
+        ${footer(1)}
+      </article>
+      ${dayPages}
+    `;
+    renderQr(routineCartPoster.querySelector("[data-routine-cart-poster-qr]"), url, 620, window.QRCode && window.QRCode.CorrectLevel.L);
     initLazyImages(routineCartPoster);
   }
 
@@ -632,10 +1364,30 @@
     }, 50);
   }
 
+  function validateRoutineCartBeforeGenerate() {
+    const withoutDay = routineCartItems.filter((item) => !normalizeRoutineDay(item.day)).length;
+    const incomplete = routineCartItems.filter((item) => !hasCompleteRoutinePrescription(item)).length;
+    const messages = [];
+    if (withoutDay) {
+      messages.push(`${withoutDay} ${withoutDay === 1 ? "ejercicio no tiene día asignado" : "ejercicios no tienen día asignado"}`);
+    }
+    if (incomplete) {
+      messages.push(`${incomplete} ${incomplete === 1 ? "ejercicio no tiene series, repeticiones y descanso completos" : "ejercicios no tienen series, repeticiones y descanso completos"}`);
+    }
+    return messages;
+  }
+
   function generateRoutineCart() {
     if (!window.Routines || routineCartItems.length === 0 || !routineCartLink) {
       return;
     }
+    const validationMessages = validateRoutineCartBeforeGenerate();
+    if (validationMessages.length) {
+      setRoutineCartValidation(`Antes de generar la rutina: ${validationMessages.join(" y ")}.`);
+      renderRoutineCartBuilder();
+      return;
+    }
+    clearRoutineCartValidation();
     const { routine, url } = buildRoutineCartUrl();
     routineCartLink.value = url;
     renderQr(routineCartQr, url, 180);
@@ -684,8 +1436,20 @@
   }
 
   function printRoutineCart() {
-    if (!routineCartLink || !routineCartLink.value) {
-      generateRoutineCart();
+    const validationMessages = validateRoutineCartBeforeGenerate();
+    if (validationMessages.length) {
+      setRoutineCartValidation(`Antes de imprimir la rutina: ${validationMessages.join(" y ")}.`);
+      renderRoutineCartBuilder();
+      return;
+    }
+    const { routine, url } = buildRoutineCartUrl();
+    if (routineCartLink) {
+      routineCartLink.value = url;
+    }
+    renderQr(routineCartQr, url, 180);
+    prepareRoutineCartPoster(routine, url);
+    if (routineCartResult) {
+      routineCartResult.hidden = false;
     }
     document.body.classList.add("is-printing-routine-cart");
     window.setTimeout(() => {
@@ -705,44 +1469,62 @@
     {
       selector: ".routine-cart__panel",
       placement: "center",
-      title: "Crea rutinas desde el catálogo",
+      title: "Prepara rutinas completas",
       text: "Los ejercicios añadidos quedan en este panel. Desde aquí puedes revisar la selección y preparar una rutina para entrenar o entregársela a un cliente.",
     },
     {
       selector: "[data-routine-cart-title]",
       placement: "bottom",
-      title: "Identifica la rutina",
-      text: "Usa el título para nombrar el objetivo, el día o la persona: por ejemplo «Pierna - lunes», «Fuerza tren superior» o el nombre del cliente.",
+      title: "Nombra la rutina",
+      text: "Usa el título para identificar el objetivo, la semana o la persona. Las notas sirven para añadir indicaciones generales para quien vaya a recibir la rutina.",
     },
     {
-      selector: ".routine-cart__quick-values",
+      selector: ".routine-cart__week-planner",
       placement: "bottom",
-      title: "Acelera con valores rápidos",
-      text: "Define series, repeticiones y descanso una vez y aplícalos a todos los ejercicios. Después puedes ajustar cualquier ejercicio de forma individual.",
+      title: "Define el plan semanal",
+      text: "Activa los días de entrenamiento que necesites. Cada día crea su propia caja y el resumen calcula ejercicios, series y duración estimada por día.",
     },
     {
-      selector: "[data-routine-cart-builder-list]",
+      selector: ".routine-cart__day-group--unassigned",
       placement: "left",
-      title: "Revisa y ordena",
-      text: "Los ejercicios aparecen en el orden de la rutina. Usa las flechas para subir o bajar cada ejercicio, o la × para quitarlo.",
+      title: "Asigna cada ejercicio a un día",
+      text: "Los ejercicios nuevos entran en “Sin día definido”. Antes de generar la rutina, todos deben estar dentro de un día activo.",
+    },
+    {
+      selector: "[data-routine-select]",
+      placement: "left",
+      title: "Marca varios a la vez",
+      text: "Puedes seleccionar varios ejercicios para moverlos juntos. Los ejercicios marcados quedan resaltados para que sepas qué bloque estás organizando.",
+    },
+    {
+      selector: "[data-routine-drag-id]",
+      placement: "left",
+      title: "Arrastra para ordenar",
+      text: "Arrastra desde el icono de puntos para mover uno o varios ejercicios a otro día. En móvil, mantén pulsado medio segundo y mueve el ejercicio con el dedo.",
     },
     {
       selector: "[data-routine-info]",
       placement: "left",
-      title: "Consulta los detalles",
-      text: "Pulsa la i de cualquier ejercicio para ver su explicación, posiciones, músculos implicados y consejos sin perder la configuración de la rutina.",
+      title: "Revisa la técnica",
+      text: "Pulsa la i para consultar la ficha del ejercicio: explicación, posiciones, músculos implicados, instrucciones y consejos.",
+    },
+    {
+      selector: ".routine-cart__quick-values",
+      placement: "bottom",
+      title: "Usa valores rápidos",
+      text: "Configura series, repeticiones y descanso una vez y aplícalos a todos. Después puedes ajustar cada ejercicio de forma individual.",
     },
     {
       selector: ".routine-cart__prescription",
       placement: "bottom",
-      title: "Configura cada ejercicio",
-      text: "Cada ejercicio puede tener sus propias series, repeticiones y descanso. Estos datos se guardan en el enlace, el QR y la versión impresa.",
+      title: "Completa los parámetros",
+      text: "Series, repeticiones y descanso son obligatorios. Estos datos se guardan en el enlace, el QR y la versión impresa.",
     },
     {
       selector: "[data-routine-cart-generate]",
       placement: "top",
-      title: "Genera enlace y QR",
-      text: "Cuando la rutina esté lista, genera el enlace y el código QR. Después podrás copiarlo, descargar el QR o imprimir una versión preparada para entregar.",
+      title: "Genera y comparte",
+      text: "Si falta un día o algún parámetro, el asistente te avisará. Cuando todo esté completo, podrás copiar el enlace, descargar el QR o imprimir la rutina.",
     },
     {
       selector: "[data-routine-cart-tour]",
@@ -1294,7 +2076,7 @@
       </button>
       <button type="button" class="exercise-card__add" data-routine-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isInRoutineCart(exercise.id)}" aria-label="${isInRoutineCart(exercise.id) ? "Quitar" : "Añadir"} ${escapeHtml(exercise.nombre)} ${isInRoutineCart(exercise.id) ? "de" : "a"} la rutina">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
-        <span data-routine-toggle-label>${isInRoutineCart(exercise.id) ? "Añadida" : "Añadir a rutina"}</span>
+        <span data-routine-toggle-label>${isInRoutineCart(exercise.id) ? "Añadido" : "Añadir a rutina"}</span>
       </button>
     `;
 
@@ -1535,7 +2317,7 @@
             </button>
             <button type="button" class="exercise-detail__add" data-routine-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isInRoutineCart(exercise.id)}" aria-label="${isInRoutineCart(exercise.id) ? "Quitar" : "Añadir"} ${escapeHtml(exercise.nombre)} ${isInRoutineCart(exercise.id) ? "de" : "a"} la rutina">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
-              <span data-routine-toggle-label>${isInRoutineCart(exercise.id) ? "Añadida" : "Añadir a rutina"}</span>
+              <span data-routine-toggle-label>${isInRoutineCart(exercise.id) ? "Añadido" : "Añadir a rutina"}</span>
             </button>
             <button type="button" class="exercise-detail__close" data-exercise-back aria-label="Cerrar ficha de ejercicio">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
@@ -1607,17 +2389,17 @@
   }
 
   function closeRoutineExercisePreview() {
-    if (!routineCartPanel) {
+    if (!routineCart) {
       return;
     }
-    const preview = routineCartPanel.querySelector("[data-routine-exercise-preview]");
+    const preview = routineCart.querySelector("[data-routine-exercise-preview]");
     if (preview) {
       preview.remove();
     }
   }
 
   function openRoutineExercisePreview(id) {
-    if (!routineCartPanel) {
+    if (!routineCart) {
       return;
     }
     const exercise = getExerciseById(id);
@@ -1635,59 +2417,72 @@
     preview.setAttribute("aria-labelledby", "routine-exercise-preview-title");
     preview.innerHTML = `
       <button type="button" class="routine-cart__exercise-preview-backdrop" data-routine-info-close aria-label="Cerrar detalles del ejercicio"></button>
-      <article class="routine-cart__exercise-preview-panel">
-        <div class="routine-cart__exercise-preview-topbar">
-          <div>
-            <p>Ficha del ejercicio</p>
-            <h2 id="routine-exercise-preview-title">${escapeHtml(exercise.nombre)}</h2>
-            <span>${escapeHtml(exercise.grupoMuscular)}${exercise.nombreAlternativo ? ` - ${escapeHtml(exercise.nombreAlternativo)}` : ""}</span>
+      <article class="routine-cart__exercise-preview-panel exercise-detail" aria-labelledby="routine-exercise-preview-title">
+        <div class="exercise-detail__topbar">
+          <h1 id="routine-exercise-preview-title">${escapeHtml(exercise.nombre)}</h1>
+          <div class="exercise-detail__actions">
+            <button type="button" class="exercise-detail__close" data-routine-info-close aria-label="Cerrar detalles del ejercicio">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+            </button>
           </div>
-          <button type="button" data-routine-info-close aria-label="Cerrar detalles del ejercicio">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
-          </button>
         </div>
-        <div class="routine-cart__exercise-preview-body">
-          ${exercise.descripcion ? `<p class="routine-cart__exercise-preview-description">${escapeHtml(exercise.descripcion)}</p>` : ""}
-          ${
-            exercise.musculosPrincipales.length || exercise.musculosSecundarios.length
-              ? `<section class="routine-cart__exercise-preview-muscles">
-                  ${
-                    exercise.musculosPrincipales.length
-                      ? `<div><span>Músculos principales</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--primary">${renderList(exercise.musculosPrincipales)}</ul></div>`
-                      : ""
-                  }
-                  ${
-                    exercise.musculosSecundarios.length
-                      ? `<div><span>Músculos secundarios</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--secondary">${renderList(exercise.musculosSecundarios)}</ul></div>`
-                      : ""
-                  }
-                </section>`
-              : ""
-          }
-          ${renderMedia(exercise)}
+
+        <header class="exercise-detail__header">
+          <div class="exercise-detail__meta-line">
+            <p class="exercise-detail__eyebrow">${escapeHtml(exercise.grupoMuscular)}</p>
+            ${exercise.nombreAlternativo ? `<p class="exercise-detail__alt-name">${escapeHtml(exercise.nombreAlternativo)}</p>` : ""}
+          </div>
+        </header>
+
+        ${exercise.descripcion ? `<p class="exercise-detail__description">${escapeHtml(exercise.descripcion)}</p>` : ""}
+
+        <div class="exercise-detail__info">
+          <div class="exercise-detail__copy">
+            ${
+              exercise.musculosPrincipales.length || exercise.musculosSecundarios.length
+                ? `<section class="exercise-detail__muscles">
+                    ${
+                      exercise.musculosPrincipales.length
+                        ? `<div class="exercise-detail__muscle-group"><span>Músculos principales</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--primary">${renderList(exercise.musculosPrincipales)}</ul></div>`
+                        : ""
+                    }
+                    ${
+                      exercise.musculosSecundarios.length
+                        ? `<div class="exercise-detail__muscle-group"><span>Músculos secundarios</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--secondary">${renderList(exercise.musculosSecundarios)}</ul></div>`
+                        : ""
+                    }
+                  </section>`
+                : ""
+            }
+          </div>
           ${
             anatomyImage
-              ? `<figure class="routine-cart__exercise-preview-anatomy"><img src="${escapeHtml(anatomyImage)}" alt="" loading="lazy" decoding="async"></figure>`
+              ? `<figure class="exercise-detail__anatomy"><img src="${escapeHtml(anatomyImage)}" alt="" loading="lazy" decoding="async"></figure>`
               : ""
           }
-          <div class="routine-cart__exercise-preview-guidance">
-            ${
-              exercise.instrucciones.length
-                ? `<section><h3>Instrucciones</h3><ol class="exercise-detail__steps">${renderSteps(exercise.instrucciones)}</ol></section>`
-                : ""
-            }
-            ${
-              exercise.consejos.length
-                ? `<section><h3>Consejos</h3><ul class="exercise-detail__tips">${renderList(exercise.consejos)}</ul></section>`
-                : ""
-            }
-          </div>
         </div>
+
+        ${renderMedia(exercise)}
+
+        <div class="exercise-detail__guidance">
+          ${
+            exercise.instrucciones.length
+              ? `<section class="exercise-detail__section"><h2>Instrucciones</h2><ol class="exercise-detail__steps">${renderSteps(exercise.instrucciones)}</ol></section>`
+              : ""
+          }
+          ${
+            exercise.consejos.length
+              ? `<section class="exercise-detail__section"><h2>Consejos</h2><ul class="exercise-detail__tips">${renderList(exercise.consejos)}</ul></section>`
+              : ""
+          }
+        </div>
+
+        ${renderSimilar(exercise)}
       </article>
     `;
-    routineCartPanel.appendChild(preview);
+    routineCart.appendChild(preview);
     initLazyImages(preview);
-    const closeButton = preview.querySelector(".routine-cart__exercise-preview-topbar [data-routine-info-close]");
+    const closeButton = preview.querySelector(".exercise-detail__close[data-routine-info-close]");
     if (closeButton) {
       closeButton.focus({ preventScroll: true });
     }
@@ -1916,6 +2711,9 @@
 
     if (!routine || routineCards.length === 0) {
       routineView.hidden = true;
+      if (routineGrid) {
+        routineGrid.classList.remove("routine-view__grid--weekly");
+      }
       if (!location.hash.startsWith("#ejercicio/") && !currentExercise) {
         setCatalogToolsPlacement("intro");
         exercisesIntro.hidden = false;
@@ -1950,9 +2748,25 @@
     }
 
     routineGrid.innerHTML = "";
-    const fragment = document.createDocumentFragment();
-    routineCards.forEach((card) => fragment.appendChild(card));
-    routineGrid.appendChild(fragment);
+    const routineDays = routineDaysForEntries(routineItems, routine.days || []);
+    const useWeeklyLayout = routineDays.length > 1;
+    routineGrid.classList.toggle("routine-view__grid--weekly", useWeeklyLayout);
+    if (useWeeklyLayout) {
+      groupRoutineEntries(routineItems, routineDays).forEach((group) => {
+        const section = document.createElement("section");
+        section.className = "routine-view__day";
+        section.innerHTML = `<h2>${escapeHtml(routineDayMeta(group.day).label)}</h2><div class="exercises-grid routine-view__day-grid"></div>`;
+        const dayGrid = section.querySelector(".routine-view__day-grid");
+        group.entries.map(renderRoutineCard).filter(Boolean).forEach((card) => dayGrid.appendChild(card));
+        if (dayGrid.children.length) {
+          routineGrid.appendChild(section);
+        }
+      });
+    } else {
+      const fragment = document.createDocumentFragment();
+      routineCards.forEach((card) => fragment.appendChild(card));
+      routineGrid.appendChild(fragment);
+    }
     initLazyImages(routineGrid);
 
     window.scrollTo(0, 0);
@@ -2199,6 +3013,11 @@
           closeRoutineExercisePreview();
           return;
         }
+        const similarCard = event.target.closest(".routine-cart__exercise-preview [data-similar-id]");
+        if (similarCard) {
+          openRoutineExercisePreview(similarCard.dataset.similarId);
+          return;
+        }
         if (routineCart.dataset.mode !== "builder" || event.target !== routineCart) {
           return;
         }
@@ -2241,6 +3060,16 @@
         }
       });
       resizeRoutineCartNote();
+    }
+
+    if (routineWeekDaysWrap) {
+      routineWeekDaysWrap.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-routine-week-day]");
+        if (!button) {
+          return;
+        }
+        setRoutineWeekDay(button.dataset.routineWeekDay, button.getAttribute("aria-pressed") !== "true");
+      });
     }
 
     if (routineQuickApply) {
@@ -2287,7 +3116,26 @@
         updateRoutineCartSetting(row.dataset.routinePrescription, input.dataset.routineSetting, input.value);
       });
 
+      routineCartBuilderList.addEventListener("change", (event) => {
+        const checkbox = event.target.closest("[data-routine-select]");
+        if (checkbox) {
+          if (checkbox.checked) {
+            routineCartSelectedIds.add(checkbox.dataset.routineSelect);
+          } else {
+            routineCartSelectedIds.delete(checkbox.dataset.routineSelect);
+          }
+          renderRoutineCartBuilder();
+          return;
+        }
+      });
+
       routineCartBuilderList.addEventListener("click", (event) => {
+        const moveSelectedButton = event.target.closest("[data-routine-move-selected-day]");
+        if (moveSelectedButton) {
+          moveRoutineCartItemsToDay(Array.from(routineCartSelectedIds), moveSelectedButton.dataset.routineMoveSelectedDay, "");
+          return;
+        }
+
         const infoButton = event.target.closest("[data-routine-info]");
         if (infoButton) {
           openRoutineExercisePreview(infoButton.dataset.routineInfo);
@@ -2305,7 +3153,103 @@
           removeRoutineCartItem(removeButton.dataset.routineRemove);
         }
       });
+
+      if (window.PointerEvent) {
+        routineCartBuilderList.addEventListener("pointerdown", (event) => {
+          const handle = event.target.closest("[data-routine-drag-id]");
+          if (!handle || event.button > 0) {
+            return;
+          }
+          event.preventDefault();
+          const point = routinePointerPoint(event);
+          cleanupRoutineTouchDrag();
+          try {
+            handle.setPointerCapture(event.pointerId);
+          } catch (error) {
+            /* Algunos navegadores liberan la captura si el nodo cambia durante el gesto. */
+          }
+          const isTouch = event.pointerType === "touch";
+          routineTouchDrag = {
+            active: false,
+            handle,
+            pointerId: event.pointerId,
+            pointerType: event.pointerType,
+            ids: [],
+            startX: point.x,
+            startY: point.y,
+            ghost: null,
+            scrollFrame: 0,
+            scrollSpeed: 0,
+            lastPoint: point,
+            timer: window.setTimeout(() => startRoutineTouchDrag(handle, point), isTouch ? 500 : 0),
+          };
+          document.addEventListener("pointermove", handleRoutinePointerMove, { passive: false });
+          document.addEventListener("pointerup", finishPointerRoutineTouchDrag);
+          document.addEventListener("pointercancel", cancelPointerRoutineTouchDrag);
+        });
+      } else {
+        routineCartBuilderList.addEventListener("touchstart", (event) => {
+          const handle = event.target.closest("[data-routine-drag-id]");
+          if (!handle || event.touches.length !== 1) {
+            return;
+          }
+          const point = routineTouchPoint(event);
+          if (!point) {
+            return;
+          }
+          cleanupRoutineTouchDrag();
+          routineTouchDrag = {
+            active: false,
+            handle,
+            ids: [],
+            startX: point.x,
+            startY: point.y,
+            ghost: null,
+            scrollFrame: 0,
+            scrollSpeed: 0,
+            lastPoint: point,
+            timer: window.setTimeout(() => startRoutineTouchDrag(handle, point), 500),
+          };
+        }, { passive: true });
+
+        routineCartBuilderList.addEventListener("touchmove", (event) => {
+          if (!routineTouchDrag) {
+            return;
+          }
+          const point = routineTouchPoint(event);
+          if (!point) {
+            return;
+          }
+          const distance = Math.hypot(point.x - routineTouchDrag.startX, point.y - routineTouchDrag.startY);
+          if (!routineTouchDrag.active && distance > 10) {
+            cleanupRoutineTouchDrag();
+            return;
+          }
+          if (!routineTouchDrag.active) {
+            return;
+          }
+          event.preventDefault();
+          positionRoutineTouchGhost(routineTouchDrag.ghost, point);
+          markRoutineTouchDropTarget(point);
+          updateRoutineTouchAutoScroll(point);
+        }, { passive: false });
+
+        routineCartBuilderList.addEventListener("touchend", (event) => {
+          finishRoutineTouchDrag(routineTouchPoint(event));
+        });
+
+        routineCartBuilderList.addEventListener("touchcancel", cleanupRoutineTouchDrag);
+      }
     }
+
+    document.addEventListener("dragend", clearRoutineHtmlDragState);
+    document.addEventListener("drop", clearRoutineHtmlDragState);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        clearRoutineHtmlDragState();
+        cleanupRoutineTouchDrag();
+      }
+    });
 
     if (printFavoritesButton) {
       printFavoritesButton.addEventListener("click", () => {
