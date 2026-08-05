@@ -33,6 +33,10 @@
   const exercisesMain = document.querySelector(".exercises-main");
   const exercisesIntro = document.querySelector(".exercises-intro");
   const exercisesCatalog = document.querySelector(".exercises-catalog");
+  const exercisesIntroTools = document.querySelector("[data-exercises-intro-tools]");
+  const exercisesCatalogInner = document.querySelector(".exercises-catalog__inner");
+  const exercisesSearchbar = document.querySelector(".exercises-searchbar");
+  const exercisesResultsBar = document.querySelector(".exercises-results-bar");
   const routineCart = document.querySelector("[data-routine-cart]");
   const routineCartToggle = document.querySelector("[data-routine-cart-toggle]");
   const routineCartPanel = document.querySelector("[data-routine-cart-panel]");
@@ -52,7 +56,14 @@
   const routineCartLink = document.querySelector("[data-routine-cart-link]");
   const routineCartCopy = document.querySelector("[data-routine-cart-copy]");
   const routineCartQr = document.querySelector("[data-routine-cart-qr]");
+  const routineCartDownloadQr = document.querySelector("[data-routine-cart-download-qr]");
   const routineCartPrint = document.querySelector("[data-routine-cart-print]");
+  const routineCartNoteCount = document.querySelector("[data-routine-cart-note-count]");
+  const routineQuickApply = document.querySelector("[data-routine-quick-apply]");
+  const routineCartAddMore = document.querySelector("[data-routine-cart-add-more]");
+  const routineSummaryExercises = document.querySelector("[data-routine-summary-exercises]");
+  const routineSummarySeries = document.querySelector("[data-routine-summary-series]");
+  const routineSummaryDuration = document.querySelector("[data-routine-summary-duration]");
   const routineCartPoster = document.querySelector("[data-routine-cart-poster]");
   const routineCartPosterCount = document.querySelector("[data-routine-cart-poster-count]");
   const routineCartPosterDate = document.querySelector("[data-routine-cart-poster-date]");
@@ -67,6 +78,8 @@
 
   let exercises = [];
   let searchDebounce = null;
+  let lastWindowScrollY = window.scrollY;
+  let catalogToolsScrollTicking = false;
   let currentExercise = null;
   let routineCartTourAutoStarted = false;
   let routineCartTourBuilt = false;
@@ -175,9 +188,70 @@
     }
     item[key] = sanitizeRoutineValue(value);
     saveRoutineCart();
+    updateRoutineCartBuilderSummary();
     if (routineCartResult) {
       routineCartResult.hidden = true;
     }
+  }
+
+  function parseRoutineNumber(value) {
+    const match = String(value || "").replace(",", ".").match(/\d+(?:\.\d+)?/);
+    return match ? Number(match[0]) : 0;
+  }
+
+  function updateRoutineCartBuilderSummary() {
+    const exerciseCount = routineCartItems.length;
+    const seriesTotal = routineCartItems.reduce((total, item) => total + parseRoutineNumber(item.series), 0);
+    const restSeconds = routineCartItems.reduce((total, item) => {
+      const series = parseRoutineNumber(item.series);
+      const restMinutes = parseRoutineNumber(item.rest);
+      return total + series * restMinutes * 60 * 1.2;
+    }, 0);
+    const activeSeconds = routineCartItems.reduce((total, item) => {
+      const series = parseRoutineNumber(item.series);
+      const reps = parseRoutineNumber(item.reps);
+      return total + series * reps * 2.5;
+    }, 0);
+    const duration = Math.max(0, Math.round((activeSeconds + restSeconds) / 60));
+
+    if (routineSummaryExercises) {
+      routineSummaryExercises.textContent = String(exerciseCount);
+    }
+    if (routineSummarySeries) {
+      routineSummarySeries.textContent = String(seriesTotal);
+    }
+    if (routineSummaryDuration) {
+      routineSummaryDuration.textContent = `≈ ${duration} min`;
+    }
+    if (routineCartNoteCount && routineCartNoteInput) {
+      routineCartNoteCount.textContent = String(routineCartNoteInput.value.trim().length);
+    }
+  }
+
+  function resizeRoutineCartNote() {
+    if (!routineCartNoteInput) {
+      return;
+    }
+    routineCartNoteInput.style.height = "auto";
+    routineCartNoteInput.style.height = `${routineCartNoteInput.scrollHeight}px`;
+  }
+
+  function applyRoutineQuickValues() {
+    const values = {};
+    document.querySelectorAll("[data-routine-quick-setting]").forEach((input) => {
+      values[input.dataset.routineQuickSetting] = sanitizeRoutineValue(input.value);
+    });
+    routineCartItems = routineCartItems.map((item) => ({
+      ...item,
+      series: values.series || item.series,
+      reps: values.reps || item.reps,
+      rest: values.rest || item.rest,
+    }));
+    saveRoutineCart();
+    if (routineCartResult) {
+      routineCartResult.hidden = true;
+    }
+    renderRoutineCart();
   }
 
   function isFavorite(id) {
@@ -253,6 +327,7 @@
     }
     if (!isOpen) {
       endRoutineCartTour();
+      closeRoutineExercisePreview();
     }
     routineCart.dataset.mode = isOpen ? "builder" : "summary";
     routineCartBuilder.hidden = !isOpen;
@@ -261,6 +336,7 @@
       routineCartView.textContent = "Crear rutina";
     }
     if (isOpen) {
+      window.setTimeout(resizeRoutineCartNote, 0);
       window.setTimeout(maybeAutoStartRoutineCartTour, 260);
     }
   }
@@ -282,26 +358,30 @@
       const li = document.createElement("li");
       li.className = "routine-cart__builder-item";
       li.innerHTML = `
+        <span class="routine-cart__drag" aria-hidden="true">⋮⋮</span>
         <span class="routine-cart__index">${index + 1}</span>
         <span class="routine-cart__builder-copy">
-          <strong>${escapeHtml(exercise.nombre)}</strong>
+          <span class="routine-cart__builder-title-row">
+            <strong>${escapeHtml(exercise.nombre)}</strong>
+            </span>
           <span>${escapeHtml(exercise.grupoMuscular)}</span>
-          <span class="routine-cart__prescription" data-routine-prescription="${escapeHtml(exercise.id)}">
-            <label>
-              <span>Series</span>
-              <input type="text" inputmode="numeric" autocomplete="off" maxlength="24" value="${escapeHtml(item.series)}" data-routine-setting="series" aria-label="Series de ${escapeHtml(exercise.nombre)}">
-            </label>
-            <label>
-              <span>Reps</span>
-              <input type="text" inputmode="text" autocomplete="off" maxlength="24" value="${escapeHtml(item.reps)}" data-routine-setting="reps" aria-label="Repeticiones de ${escapeHtml(exercise.nombre)}">
-            </label>
-            <label>
-              <span>Descanso</span>
-              <input type="text" inputmode="text" autocomplete="off" maxlength="24" value="${escapeHtml(item.rest)}" data-routine-setting="rest" aria-label="Descanso de ${escapeHtml(exercise.nombre)}">
-            </label>
-          </span>
+        </span>
+        <span class="routine-cart__prescription" data-routine-prescription="${escapeHtml(exercise.id)}">
+          <label>
+            <span>Series</span>
+            <input type="text" inputmode="numeric" autocomplete="off" maxlength="24" value="${escapeHtml(item.series)}" data-routine-setting="series" aria-label="Series de ${escapeHtml(exercise.nombre)}">
+          </label>
+          <label>
+            <span>Repeticiones</span>
+            <input type="text" inputmode="text" autocomplete="off" maxlength="24" value="${escapeHtml(item.reps)}" data-routine-setting="reps" aria-label="Repeticiones de ${escapeHtml(exercise.nombre)}">
+          </label>
+          <label>
+            <span>Descanso</span>
+            <input type="text" inputmode="text" autocomplete="off" maxlength="24" value="${escapeHtml(item.rest)}" data-routine-setting="rest" aria-label="Descanso de ${escapeHtml(exercise.nombre)}">
+          </label>
         </span>
         <span class="routine-cart__builder-controls">
+          <button type="button" data-routine-info="${escapeHtml(exercise.id)}" aria-label="Ver detalles de ${escapeHtml(exercise.nombre)}">i</button>
           <button type="button" data-routine-move="-1" data-routine-move-id="${escapeHtml(exercise.id)}" ${index === 0 ? "disabled" : ""} aria-label="Subir ${escapeHtml(exercise.nombre)}">↑</button>
           <button type="button" data-routine-move="1" data-routine-move-id="${escapeHtml(exercise.id)}" ${index === routineCartItems.length - 1 ? "disabled" : ""} aria-label="Bajar ${escapeHtml(exercise.nombre)}">↓</button>
           <button type="button" data-routine-remove="${escapeHtml(exercise.id)}" aria-label="Quitar ${escapeHtml(exercise.nombre)}">×</button>
@@ -311,6 +391,7 @@
     });
 
     routineCartBuilderList.appendChild(fragment);
+    updateRoutineCartBuilderSummary();
   }
 
   function moveRoutineCartItem(id, direction) {
@@ -341,7 +422,7 @@
     }
     if (routineCartSummary) {
       routineCartSummary.textContent =
-        count === 0 ? "Selecciona ejercicios del catálogo." : `${label} en el orden de la rutina.`;
+        count === 0 ? "Selecciona ejercicios del catálogo." : `${label} · Completa los datos para generar tu rutina.`;
     }
     if (routineCartEmpty) {
       routineCartEmpty.hidden = count > 0;
@@ -444,10 +525,12 @@
     setRoutineCartBuilderOpen(!routineCartBuilder || routineCartBuilder.hidden);
   }
 
+  const routineCartDefaultTitle = "Rutina de El Tablero Sport Club";
+
   function getRoutineCartTitle() {
     return routineCartTitleInput && routineCartTitleInput.value.trim()
       ? routineCartTitleInput.value.trim()
-      : "Rutina de El Tablero";
+      : routineCartDefaultTitle;
   }
 
   function getRoutineCartNote() {
@@ -490,7 +573,11 @@
       return;
     }
 
-    routineCartPosterTitle.textContent = routine.t;
+    if (routine.t === routineCartDefaultTitle) {
+      routineCartPosterTitle.innerHTML = "Rutina de<br>El Tablero<br>Sport Club";
+    } else {
+      routineCartPosterTitle.textContent = routine.t;
+    }
     if (routineCartPosterCount) {
       const count = routine.items.length;
       routineCartPosterCount.textContent = count === 1 ? "1 ejercicio" : `${count} ejercicios`;
@@ -527,8 +614,22 @@
         `;
       })
       .join("");
-    renderQr(routineCartPosterQr, url, 680, window.QRCode && window.QRCode.CorrectLevel.L);
+    renderQr(routineCartPosterQr, url, 920, window.QRCode && window.QRCode.CorrectLevel.L);
     initLazyImages(routineCartPoster);
+  }
+
+  function revealRoutineCartResult() {
+    if (!routineCartResult) {
+      return;
+    }
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(() => {
+      routineCartResult.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "center",
+        inline: "nearest",
+      });
+    }, 50);
   }
 
   function generateRoutineCart() {
@@ -541,6 +642,7 @@
     prepareRoutineCartPoster(routine, url);
     if (routineCartResult) {
       routineCartResult.hidden = false;
+      revealRoutineCartResult();
     }
   }
 
@@ -549,10 +651,10 @@
       return;
     }
     const done = () => {
-      const original = routineCartCopy.textContent;
+      const original = routineCartCopy.innerHTML;
       routineCartCopy.textContent = "¡Copiado!";
       window.setTimeout(() => {
-        routineCartCopy.textContent = original;
+        routineCartCopy.innerHTML = original;
       }, 1600);
     };
 
@@ -561,6 +663,24 @@
     } else {
       fallbackCopy(routineCartLink.value, done);
     }
+  }
+
+  function downloadRoutineCartQr() {
+    if (!routineCartQr) {
+      return;
+    }
+    const canvas = routineCartQr.querySelector("canvas");
+    const image = routineCartQr.querySelector("img");
+    const source = canvas ? canvas.toDataURL("image/png") : image ? image.src : "";
+    if (!source) {
+      return;
+    }
+    const link = document.createElement("a");
+    link.href = source;
+    link.download = "rutina-el-tablero-qr.png";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   }
 
   function printRoutineCart() {
@@ -585,14 +705,20 @@
     {
       selector: ".routine-cart__panel",
       placement: "center",
-      title: "Crea una rutina sin salir del catálogo",
-      text: "Los ejercicios añadidos quedan en este panel. Desde aquí puedes configurar la rutina y compartirla sin abrir otra página.",
+      title: "Crea rutinas desde el catálogo",
+      text: "Los ejercicios añadidos quedan en este panel. Desde aquí puedes revisar la selección y preparar una rutina para entrenar o entregársela a un cliente.",
     },
     {
       selector: "[data-routine-cart-title]",
       placement: "bottom",
-      title: "Ponle nombre",
-      text: "Usa un título corto y claro, por ejemplo «Piernas — Lunes». También puedes añadir una nota para quien reciba la rutina.",
+      title: "Identifica la rutina",
+      text: "Usa el título para nombrar el objetivo, el día o la persona: por ejemplo «Pierna - lunes», «Fuerza tren superior» o el nombre del cliente.",
+    },
+    {
+      selector: ".routine-cart__quick-values",
+      placement: "bottom",
+      title: "Acelera con valores rápidos",
+      text: "Define series, repeticiones y descanso una vez y aplícalos a todos los ejercicios. Después puedes ajustar cualquier ejercicio de forma individual.",
     },
     {
       selector: "[data-routine-cart-builder-list]",
@@ -601,16 +727,22 @@
       text: "Los ejercicios aparecen en el orden de la rutina. Usa las flechas para subir o bajar cada ejercicio, o la × para quitarlo.",
     },
     {
-      selector: "[data-routine-setting]",
+      selector: "[data-routine-info]",
+      placement: "left",
+      title: "Consulta los detalles",
+      text: "Pulsa la i de cualquier ejercicio para ver su explicación, posiciones, músculos implicados y consejos sin perder la configuración de la rutina.",
+    },
+    {
+      selector: ".routine-cart__prescription",
       placement: "bottom",
       title: "Configura cada ejercicio",
-      text: "Añade series, repeticiones y descanso si quieres. Estos datos viajarán en el enlace compartido y en el póster impreso.",
+      text: "Cada ejercicio puede tener sus propias series, repeticiones y descanso. Estos datos se guardan en el enlace, el QR y la versión impresa.",
     },
     {
       selector: "[data-routine-cart-generate]",
       placement: "top",
       title: "Genera enlace y QR",
-      text: "Cuando la rutina esté lista, genera el enlace y el código QR. Después podrás copiarlo o imprimirlo como rutina del día.",
+      text: "Cuando la rutina esté lista, genera el enlace y el código QR. Después podrás copiarlo, descargar el QR o imprimir una versión preparada para entregar.",
     },
     {
       selector: "[data-routine-cart-tour]",
@@ -1191,7 +1323,9 @@
       parts.push(`${settings.reps} reps`);
     }
     if (settings.rest) {
-      parts.push(`Descanso ${settings.rest}`);
+      const rest = String(settings.rest).trim();
+      const restLabel = /^\d+(?:[.,]\d+)?$/.test(rest) ? `${rest} min` : rest;
+      parts.push(`Descanso ${restLabel}`);
     }
     return parts.join(" · ");
   }
@@ -1389,19 +1523,12 @@
       return;
     }
 
-    const chips = [
-      exercise.parteCuerpo,
-      exercise.categoria,
-      exercise.dificultad,
-      exercise.equipamiento[0] || "Peso corporal",
-      exercise.mecanica,
-    ].filter(Boolean);
-
     const anatomyImage = exercise.imagenAnatomia || exercise.imagenAnatomica || "";
 
     exercisePageContent.innerHTML = `
       <article class="exercise-detail" aria-labelledby="exercise-page-title">
         <div class="exercise-detail__topbar">
+          <h1 id="exercise-page-title">${escapeHtml(exercise.nombre)}</h1>
           <div class="exercise-detail__actions">
             <button type="button" class="exercise-detail__favorite" data-favorite-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isFavorite(exercise.id)}" aria-label="Guardar ${escapeHtml(exercise.nombre)} en favoritos">
               ${HEART_ICON}
@@ -1410,22 +1537,18 @@
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
               <span data-routine-toggle-label>${isInRoutineCart(exercise.id) ? "Añadida" : "Añadir a rutina"}</span>
             </button>
+            <button type="button" class="exercise-detail__close" data-exercise-back aria-label="Cerrar ficha de ejercicio">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+            </button>
           </div>
-          <button type="button" class="exercise-detail__close" data-exercise-back aria-label="Cerrar ficha de ejercicio">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
-          </button>
         </div>
 
         <header class="exercise-detail__header">
-          <p class="exercise-detail__eyebrow">${escapeHtml(exercise.grupoMuscular)}</p>
-          <h1 id="exercise-page-title">${escapeHtml(exercise.nombre)}</h1>
-          ${exercise.nombreAlternativo ? `<p class="exercise-detail__alt-name">${escapeHtml(exercise.nombreAlternativo)}</p>` : ""}
-          <ul class="exercise-detail__chips" aria-label="Datos del ejercicio">
-            ${chips.map((chip) => `<li>${escapeHtml(chip)}</li>`).join("")}
-          </ul>
+          <div class="exercise-detail__meta-line">
+            <p class="exercise-detail__eyebrow">${escapeHtml(exercise.grupoMuscular)}</p>
+            ${exercise.nombreAlternativo ? `<p class="exercise-detail__alt-name">${escapeHtml(exercise.nombreAlternativo)}</p>` : ""}
+          </div>
         </header>
-
-        ${renderMedia(exercise)}
 
         ${exercise.descripcion ? `<p class="exercise-detail__description">${escapeHtml(exercise.descripcion)}</p>` : ""}
 
@@ -1434,15 +1557,14 @@
             ${
               exercise.musculosPrincipales.length || exercise.musculosSecundarios.length
                 ? `<section class="exercise-detail__muscles">
-                    <h2>Músculos implicados</h2>
                     ${
                       exercise.musculosPrincipales.length
-                        ? `<div class="exercise-detail__muscle-group"><span>Principales</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--primary">${renderList(exercise.musculosPrincipales)}</ul></div>`
+                        ? `<div class="exercise-detail__muscle-group"><span>Músculos principales</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--primary">${renderList(exercise.musculosPrincipales)}</ul></div>`
                         : ""
                     }
                     ${
                       exercise.musculosSecundarios.length
-                        ? `<div class="exercise-detail__muscle-group"><span>Secundarios</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--secondary">${renderList(exercise.musculosSecundarios)}</ul></div>`
+                        ? `<div class="exercise-detail__muscle-group"><span>Músculos secundarios</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--secondary">${renderList(exercise.musculosSecundarios)}</ul></div>`
                         : ""
                     }
                   </section>`
@@ -1455,6 +1577,8 @@
               : ""
           }
         </div>
+
+        ${renderMedia(exercise)}
 
         <div class="exercise-detail__guidance">
           ${
@@ -1482,6 +1606,93 @@
     initLazyImages(exercisePageContent);
   }
 
+  function closeRoutineExercisePreview() {
+    if (!routineCartPanel) {
+      return;
+    }
+    const preview = routineCartPanel.querySelector("[data-routine-exercise-preview]");
+    if (preview) {
+      preview.remove();
+    }
+  }
+
+  function openRoutineExercisePreview(id) {
+    if (!routineCartPanel) {
+      return;
+    }
+    const exercise = getExerciseById(id);
+    if (!exercise) {
+      return;
+    }
+    closeRoutineExercisePreview();
+
+    const anatomyImage = exercise.imagenAnatomia || exercise.imagenAnatomica || "";
+    const preview = document.createElement("div");
+    preview.className = "routine-cart__exercise-preview";
+    preview.dataset.routineExercisePreview = "";
+    preview.setAttribute("role", "dialog");
+    preview.setAttribute("aria-modal", "false");
+    preview.setAttribute("aria-labelledby", "routine-exercise-preview-title");
+    preview.innerHTML = `
+      <button type="button" class="routine-cart__exercise-preview-backdrop" data-routine-info-close aria-label="Cerrar detalles del ejercicio"></button>
+      <article class="routine-cart__exercise-preview-panel">
+        <div class="routine-cart__exercise-preview-topbar">
+          <div>
+            <p>Ficha del ejercicio</p>
+            <h2 id="routine-exercise-preview-title">${escapeHtml(exercise.nombre)}</h2>
+            <span>${escapeHtml(exercise.grupoMuscular)}${exercise.nombreAlternativo ? ` - ${escapeHtml(exercise.nombreAlternativo)}` : ""}</span>
+          </div>
+          <button type="button" data-routine-info-close aria-label="Cerrar detalles del ejercicio">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+          </button>
+        </div>
+        <div class="routine-cart__exercise-preview-body">
+          ${exercise.descripcion ? `<p class="routine-cart__exercise-preview-description">${escapeHtml(exercise.descripcion)}</p>` : ""}
+          ${
+            exercise.musculosPrincipales.length || exercise.musculosSecundarios.length
+              ? `<section class="routine-cart__exercise-preview-muscles">
+                  ${
+                    exercise.musculosPrincipales.length
+                      ? `<div><span>Músculos principales</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--primary">${renderList(exercise.musculosPrincipales)}</ul></div>`
+                      : ""
+                  }
+                  ${
+                    exercise.musculosSecundarios.length
+                      ? `<div><span>Músculos secundarios</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--secondary">${renderList(exercise.musculosSecundarios)}</ul></div>`
+                      : ""
+                  }
+                </section>`
+              : ""
+          }
+          ${renderMedia(exercise)}
+          ${
+            anatomyImage
+              ? `<figure class="routine-cart__exercise-preview-anatomy"><img src="${escapeHtml(anatomyImage)}" alt="" loading="lazy" decoding="async"></figure>`
+              : ""
+          }
+          <div class="routine-cart__exercise-preview-guidance">
+            ${
+              exercise.instrucciones.length
+                ? `<section><h3>Instrucciones</h3><ol class="exercise-detail__steps">${renderSteps(exercise.instrucciones)}</ol></section>`
+                : ""
+            }
+            ${
+              exercise.consejos.length
+                ? `<section><h3>Consejos</h3><ul class="exercise-detail__tips">${renderList(exercise.consejos)}</ul></section>`
+                : ""
+            }
+          </div>
+        </div>
+      </article>
+    `;
+    routineCartPanel.appendChild(preview);
+    initLazyImages(preview);
+    const closeButton = preview.querySelector(".routine-cart__exercise-preview-topbar [data-routine-info-close]");
+    if (closeButton) {
+      closeButton.focus({ preventScroll: true });
+    }
+  }
+
   function getFilteredList() {
     return exercises.filter(matchesFilters);
   }
@@ -1502,26 +1713,136 @@
     document.body.removeChild(textarea);
   }
 
+  function setCatalogToolsPlacement(target) {
+    if (!exercisesSearchbar || !exercisesResultsBar) {
+      return;
+    }
+
+    if (target === "catalog" && exercisesCatalogInner) {
+      exercisesCatalogInner.insertBefore(exercisesResultsBar, exercisesCatalogInner.firstElementChild);
+      if (filtersSummary) {
+        exercisesCatalogInner.insertBefore(filtersSummary, exercisesResultsBar);
+      }
+      exercisesCatalogInner.insertBefore(exercisesSearchbar, filtersSummary || exercisesResultsBar);
+      return;
+    }
+
+    if (exercisesIntroTools) {
+      exercisesIntroTools.appendChild(exercisesSearchbar);
+      if (filtersSummary) {
+        exercisesIntroTools.appendChild(filtersSummary);
+      }
+      exercisesIntroTools.appendChild(exercisesResultsBar);
+    }
+  }
+
+  function usesExerciseOverlay() {
+    return window.matchMedia("(max-width: 56rem)").matches;
+  }
+
+  function setCatalogToolsReveal(isVisible) {
+    if (!exercisesSearchbar) {
+      return;
+    }
+
+    if (isVisible) {
+      if (exercisesSearchbar.parentElement !== document.body) {
+        document.body.appendChild(exercisesSearchbar);
+      }
+      document.body.classList.add("is-catalog-tools-revealed");
+      return;
+    }
+
+    document.body.classList.remove("is-catalog-tools-revealed");
+    if (!currentExercise && exercisesIntroTools && exercisesSearchbar.parentElement === document.body) {
+      exercisesIntroTools.insertBefore(exercisesSearchbar, filtersSummary || exercisesResultsBar || null);
+    }
+  }
+
+  function updateCatalogToolsReveal() {
+    catalogToolsScrollTicking = false;
+    const currentY = window.scrollY;
+    const isScrollingUp = currentY < lastWindowScrollY;
+    const isScrollingDown = currentY > lastWindowScrollY;
+    const headerHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--exercises-header-h")) || 72;
+    const catalogRect = exercisesCatalog ? exercisesCatalog.getBoundingClientRect() : null;
+    const toolsArePastHeader = catalogRect ? catalogRect.top < headerHeight + 12 : currentY > headerHeight;
+    const canReveal =
+      !currentExercise &&
+      (!routineView || routineView.hidden) &&
+      exercisesIntro &&
+      !exercisesIntro.hidden &&
+      toolsArePastHeader &&
+      currentY > headerHeight + 48;
+
+    if (!canReveal || isScrollingDown) {
+      setCatalogToolsReveal(false);
+    } else if (isScrollingUp) {
+      setCatalogToolsReveal(true);
+    }
+
+    lastWindowScrollY = currentY;
+  }
+
+  function onCatalogToolsScroll() {
+    if (catalogToolsScrollTicking) {
+      return;
+    }
+    catalogToolsScrollTicking = true;
+    window.requestAnimationFrame(updateCatalogToolsReveal);
+  }
+
+  function alignExerciseLayout(exercise) {
+    if (!exercisesMain) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      const headerHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--exercises-header-h")) || 72;
+      const top = exercisesMain.getBoundingClientRect().top + window.scrollY - headerHeight - 12;
+      window.scrollTo({ top: Math.max(0, top), behavior: "auto" });
+
+      if (window.matchMedia("(min-width: 56.01rem)").matches && exercisesCatalog) {
+        const selectedCard = Array.from(grid.querySelectorAll("[data-exercise-id]"))
+          .find((card) => card.dataset.exerciseId === exercise.id);
+        if (selectedCard) {
+          const catalogRect = exercisesCatalog.getBoundingClientRect();
+          const cardRect = selectedCard.getBoundingClientRect();
+          const targetScroll =
+            exercisesCatalog.scrollTop +
+            cardRect.top -
+            catalogRect.top -
+            (catalogRect.height - cardRect.height) / 2;
+          exercisesCatalog.scrollTop = Math.max(0, targetScroll);
+        }
+      }
+    });
+  }
+
   function showExercise(exercise) {
+    const useOverlay = usesExerciseOverlay();
+    setCatalogToolsReveal(false);
     currentExercise = exercise;
     renderExerciseDetail(exercise);
     syncCurrentCard();
+    setCatalogToolsPlacement(useOverlay ? "intro" : "catalog");
     if (exercisePage) {
       exercisePage.hidden = false;
     }
     if (exercisesMain) {
       exercisesMain.classList.add("is-exercise-open");
     }
+    document.body.classList.toggle("has-exercise-overlay", useOverlay);
     if (routineView) {
       routineView.hidden = true;
     }
-    exercisesIntro.hidden = true;
+    exercisesIntro.hidden = !useOverlay;
     exercisesCatalog.hidden = false;
     if (backToTopButton) {
       backToTopButton.classList.remove("is-visible");
     }
-    if (window.matchMedia("(max-width: 56rem)").matches && exercisePage) {
-      exercisePage.scrollIntoView({ block: "start", behavior: prefersReducedMotion ? "auto" : "smooth" });
+    if (!useOverlay) {
+      alignExerciseLayout(exercise);
     }
   }
 
@@ -1534,6 +1855,7 @@
 
   function closeExercise(updateHash) {
     currentExercise = null;
+    lastWindowScrollY = window.scrollY;
     if (exercisePage) {
       exercisePage.hidden = true;
     }
@@ -1543,7 +1865,9 @@
     if (exercisesMain) {
       exercisesMain.classList.remove("is-exercise-open");
     }
+    document.body.classList.remove("has-exercise-overlay");
     syncCurrentCard();
+    setCatalogToolsPlacement("intro");
     exercisesIntro.hidden = false;
     exercisesCatalog.hidden = false;
     if (backToTopButton) {
@@ -1567,6 +1891,8 @@
         if (exercisesMain) {
           exercisesMain.classList.remove("is-exercise-open");
         }
+        document.body.classList.remove("has-exercise-overlay");
+        setCatalogToolsPlacement("intro");
         exercisesIntro.hidden = false;
         exercisesCatalog.hidden = false;
       }
@@ -1591,6 +1917,7 @@
     if (!routine || routineCards.length === 0) {
       routineView.hidden = true;
       if (!location.hash.startsWith("#ejercicio/") && !currentExercise) {
+        setCatalogToolsPlacement("intro");
         exercisesIntro.hidden = false;
         exercisesCatalog.hidden = false;
       }
@@ -1598,6 +1925,7 @@
     }
 
     currentExercise = null;
+    setCatalogToolsPlacement("intro");
     if (exercisePage) {
       exercisePage.hidden = true;
     }
@@ -1607,6 +1935,7 @@
     if (exercisesMain) {
       exercisesMain.classList.remove("is-exercise-open");
     }
+    document.body.classList.remove("has-exercise-overlay");
     exercisesIntro.hidden = true;
     exercisesCatalog.hidden = true;
     routineView.hidden = false;
@@ -1866,6 +2195,10 @@
 
     if (routineCart) {
       routineCart.addEventListener("click", (event) => {
+        if (event.target.closest("[data-routine-info-close]")) {
+          closeRoutineExercisePreview();
+          return;
+        }
         if (routineCart.dataset.mode !== "builder" || event.target !== routineCart) {
           return;
         }
@@ -1901,10 +2234,21 @@
 
     if (routineCartNoteInput) {
       routineCartNoteInput.addEventListener("input", () => {
+        resizeRoutineCartNote();
+        updateRoutineCartBuilderSummary();
         if (routineCartResult) {
           routineCartResult.hidden = true;
         }
       });
+      resizeRoutineCartNote();
+    }
+
+    if (routineQuickApply) {
+      routineQuickApply.addEventListener("click", applyRoutineQuickValues);
+    }
+
+    if (routineCartAddMore) {
+      routineCartAddMore.addEventListener("click", () => setRoutineCartOpen(false));
     }
 
     if (routineCartGenerate) {
@@ -1913,6 +2257,10 @@
 
     if (routineCartCopy) {
       routineCartCopy.addEventListener("click", copyRoutineCartLink);
+    }
+
+    if (routineCartDownloadQr) {
+      routineCartDownloadQr.addEventListener("click", downloadRoutineCartQr);
     }
 
     if (routineCartPrint) {
@@ -1940,6 +2288,12 @@
       });
 
       routineCartBuilderList.addEventListener("click", (event) => {
+        const infoButton = event.target.closest("[data-routine-info]");
+        if (infoButton) {
+          openRoutineExercisePreview(infoButton.dataset.routineInfo);
+          return;
+        }
+
         const moveButton = event.target.closest("[data-routine-move]");
         if (moveButton) {
           moveRoutineCartItem(moveButton.dataset.routineMoveId, Number(moveButton.dataset.routineMove));
@@ -2023,6 +2377,7 @@
       syncRoute();
     });
     window.addEventListener("resize", updateHeaderHeightVar);
+    window.addEventListener("scroll", onCatalogToolsScroll, { passive: true });
 
     if (routineSaveButton) {
       routineSaveButton.addEventListener("click", saveRoutineToFavorites);
