@@ -2,6 +2,10 @@
   padding: clamp(3rem, 6vw, 6rem) 0 clamp(4.5rem, 8vw, 8rem);
 }
 
+.home-page {
+  --home-section-gap: clamp(3.5rem, 10vw, 5rem);
+}
+
 .hero--immersive {
   position: relative;
   padding: 0;
@@ -124,11 +128,10 @@
 
 .hero__hotspot-layer {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 0;
-  z-index: 4;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 30;
   pointer-events: none;
 }
 
@@ -155,9 +158,9 @@
 
 .hero__fitness-progress-track {
   position: absolute;
-  left: 40.962%;
-  top: 59.85%;
-  width: 16.895%;
+  left: 41.562%;
+  top: 55.15%;
+  width: 16.395%;
   z-index: 5;
   background: rgba(255, 143, 56, 0.12);
   box-shadow:
@@ -192,8 +195,8 @@
 .hero__padel-progress-track {
   position: absolute;
   left: 57.75%;
-  top: 59.2%;
-  width: 13.25%;
+  top: 54.5%;
+  width: 12.25%;
   z-index: 5;
   background: rgba(255, 143, 56, 0.12);
   box-shadow:
@@ -227,9 +230,9 @@
 
 .hero__crossfit-progress-track {
   position: absolute;
-  left: 70.85%;
-  top: 59.25%;
-  width: 9.25%;
+  left: 69.95%;
+  top: 54.55%;
+  width: 9%;
   z-index: 5;
   background: rgba(255, 143, 56, 0.12);
   box-shadow:
@@ -263,9 +266,9 @@
 
 .hero__hybrid-progress-track {
   position: absolute;
-  left: 71.1%;
-  top: 68.95%;
-  width: 9.25%;
+  left: 70.4%;
+  top: 63.75%;
+  width: 8.85%;
   z-index: 5;
   background: rgba(255, 143, 56, 0.12);
   box-shadow:
@@ -308,37 +311,37 @@
 
 .hotspot--fitness {
   clip-path: polygon(
-    40.462% 46.444%,
-    57.837% 51.36%,
-    57.837% 64.121%,
-    40.462% 59.623%
+    42.262% 45%,
+    57.837% 52%,
+    57.837% 58%,
+    42.200% 52%
   );
 }
 
 .hotspot--padel {
   clip-path: polygon(
-    57.898% 47.071%,
-    70.96% 50.837%,
-    70.96% 62.134%,
-    57.898% 58.577%
+    57.898% 45.8%,
+    70% 51.5%,
+    70.3% 57%,
+    57.898% 52%
   );
 }
 
 .hotspot--crossfit {
   clip-path: polygon(
-    71.021% 48.431%,
-    80.498% 51.255%,
-    80.498% 59.728%,
-    71.021% 57.322%
+    70% 47%,
+    78.498% 52%,
+    79% 57%,
+    70% 53%
   );
 }
 
 .hotspot--hybrid {
   clip-path: polygon(
-    71.081% 59.833%,
-    79.891% 62.343%,
-    79.891% 69.874%,
-    71.081% 67.573%
+    70.2% 57%,
+    79% 60.4%,
+    79% 64.874%,
+    71% 62.573%
   );
 }
 
@@ -1371,12 +1374,12 @@
   position: relative;
   background: rgb(3, 7, 10);
   border-top: 1px solid rgba(255, 255, 255, 0.075);
-  padding: clamp(0.9rem, 2vw, 1.25rem) 0 clamp(4rem, 7vw, 6rem);
+  padding-block: var(--home-section-gap);
   overflow: hidden;
 }
 
-.club-ticker-section--before-zones {
-  padding-block: clamp(1.75rem, 3vw, 2.35rem);
+.hero--immersive + .club-ticker-section {
+  margin-top: 0;
 }
 
 .club-ticker__viewport::before,
@@ -1493,12 +1496,14 @@
 }
 
 @media (min-width: 48rem) {
-  .club-ticker-section {
-    padding-block: 1.15rem clamp(5rem, 7vw, 7rem);
+  .home-page {
+    --home-section-gap: clamp(4.25rem, 6.5vw, 6rem);
   }
+}
 
-  .club-ticker-section--before-zones {
-    padding-block: clamp(2rem, 3vw, 2.5rem);
+@media (max-width: 47.98rem) {
+  .hero--immersive + .club-ticker-section {
+    margin-top: var(--home-section-gap);
   }
 }
 
@@ -1507,7 +1512,7 @@
   background: rgb(3, 7, 10);
   border-top: 1px solid rgba(255, 255, 255, 0.075);
   color: var(--color-paper-bright);
-  padding: clamp(2.5rem, 5vw, 4rem) 0 clamp(4rem, 7vw, 6rem);
+  padding-block: var(--home-section-gap);
   overflow: hidden;
 }
 

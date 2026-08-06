@@ -3168,7 +3168,6 @@
           } catch (error) {
             /* Algunos navegadores liberan la captura si el nodo cambia durante el gesto. */
           }
-          const isTouch = event.pointerType === "touch";
           routineTouchDrag = {
             active: false,
             handle,
@@ -3181,8 +3180,9 @@
             scrollFrame: 0,
             scrollSpeed: 0,
             lastPoint: point,
-            timer: window.setTimeout(() => startRoutineTouchDrag(handle, point), isTouch ? 500 : 0),
+            timer: 0,
           };
+          startRoutineTouchDrag(handle, point);
           document.addEventListener("pointermove", handleRoutinePointerMove, { passive: false });
           document.addEventListener("pointerup", finishPointerRoutineTouchDrag);
           document.addEventListener("pointercancel", cancelPointerRoutineTouchDrag);
@@ -3208,8 +3208,9 @@
             scrollFrame: 0,
             scrollSpeed: 0,
             lastPoint: point,
-            timer: window.setTimeout(() => startRoutineTouchDrag(handle, point), 500),
+            timer: 0,
           };
+          startRoutineTouchDrag(handle, point);
         }, { passive: true });
 
         routineCartBuilderList.addEventListener("touchmove", (event) => {

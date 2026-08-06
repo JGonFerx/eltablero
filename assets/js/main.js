@@ -560,8 +560,8 @@
       ...homeStories,
       { label: "Fitness", src: "vidfitness-720.mp4" },
       { label: "Pádel", src: "padel-720.mp4" },
-      { label: "CrossFit", src: "vidcrossfit2-720.mp4" },
-      { label: "Hybrid", src: "vidcrossfit1-720.mp4" },
+      { label: "Hybrid", src: "vidhybrid1-720.mp4" },
+      { label: "Funcional", src: "vidfuncional-720.mp4" },
       { label: "Instagram", type: "instagram" }
     ];
 
@@ -714,6 +714,7 @@
       video.pause();
 
       if (story.type === "instagram") {
+        markStoriesAsSeen();
         video.hidden = true;
         video.removeAttribute("src");
         video.load();
@@ -1050,7 +1051,7 @@
 
       let targetScale = 2.3;
       let targetShiftX = viewportWidth * -0.185;
-      let targetShiftY = viewportHeight * -0.18;
+      let targetShiftY = viewportHeight * -0.08;
       let targetRotate = -7.5;
 
       if (viewportWidth < 1024) {
@@ -1350,7 +1351,7 @@
     const filterClassNames = classFilterButtons.map((button) => button.dataset.calendarClass).filter(Boolean);
     const classNames = filterClassNames.length || configuredClassNames.length
       ? Array.from(new Set([...filterClassNames, ...configuredClassNames]))
-      : ["Hybrid", "CrossFit"];
+      : ["Hybrid"];
     const defaultClassName = calendar.dataset.calendarDefaultClass;
     const visibleClasses = new Set(classNames.includes(defaultClassName) ? [defaultClassName] : classNames);
     const weekdayNames = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
@@ -1820,8 +1821,8 @@
       const trigger = activeGalleryItems[activeGalleryIndex];
       const isVideo = trigger.dataset.lightboxType === "video";
       const mediaNode = trigger.querySelector("img, video");
-      const mediaWidth = Number(mediaNode?.getAttribute("width")) || mediaNode?.videoWidth || mediaNode?.naturalWidth || 9;
-      const mediaHeight = Number(mediaNode?.getAttribute("height")) || mediaNode?.videoHeight || mediaNode?.naturalHeight || 16;
+      const mediaWidth = Number(trigger.dataset.lightboxWidth) || Number(mediaNode?.getAttribute("width")) || mediaNode?.videoWidth || mediaNode?.naturalWidth || 9;
+      const mediaHeight = Number(trigger.dataset.lightboxHeight) || Number(mediaNode?.getAttribute("height")) || mediaNode?.videoHeight || mediaNode?.naturalHeight || 16;
       const mediaRatio = mediaWidth / mediaHeight;
       const frameWidth = isVideo || mediaRatio < 0.9
         ? "min(92vw, 30rem)"
@@ -1861,6 +1862,7 @@
       if (image) {
         image.removeAttribute("src");
         image.alt = "";
+        image.style.removeProperty("object-position");
         image.hidden = isVideo;
       }
 
@@ -1874,6 +1876,7 @@
           video.play().catch(() => {});
         }
       } else if (image) {
+        image.style.objectPosition = trigger.dataset.lightboxPosition || "";
         image.src = trigger.dataset.lightboxSrc;
         image.alt = trigger.dataset.lightboxAlt || "";
       }

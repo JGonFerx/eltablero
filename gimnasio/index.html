@@ -4,14 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Gimnasio en Ponte Caldelas | El Tablero Sport Club</title>
-    <meta name="description" content="Gimnasio en Ponte Caldelas con sala fitness, zona CrossFit + Hybrid, entrenamiento funcional, clases de Hybrid y cuotas de El Tablero Sport Club.">
+    <meta name="description" content="Gimnasio en Ponte Caldelas con sala fitness, zona Hybrid, entrenamiento funcional, clases de Hybrid y cuotas de El Tablero Sport Club.">
     <link rel="canonical" href="https://eltablerosportclub.com/gimnasio/">
     <meta name="theme-color" content="#05070a">
     <meta property="og:locale" content="es_ES">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="El Tablero Sport Club">
     <meta property="og:title" content="Gimnasio en Ponte Caldelas | El Tablero Sport Club">
-    <meta property="og:description" content="Gimnasio en Ponte Caldelas con sala fitness, zona CrossFit + Hybrid, entrenamiento funcional, clases de Hybrid y cuotas.">
+    <meta property="og:description" content="Gimnasio en Ponte Caldelas con sala fitness, zona Hybrid, entrenamiento funcional, clases de Hybrid y cuotas.">
     <meta property="og:url" content="https://eltablerosportclub.com/gimnasio/">
     <meta property="og:image" content="https://eltablerosportclub.com/assets/images/brand/og-cover.png">
     <meta property="og:image:width" content="1254">
@@ -19,7 +19,7 @@
     <meta property="og:image:alt" content="El Tablero Sport Club, gimnasio y pádel en Ponte Caldelas">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Gimnasio en Ponte Caldelas | El Tablero Sport Club">
-    <meta name="twitter:description" content="Gimnasio en Ponte Caldelas con sala fitness, zona CrossFit + Hybrid, entrenamiento funcional, clases de Hybrid y cuotas.">
+    <meta name="twitter:description" content="Gimnasio en Ponte Caldelas con sala fitness, zona Hybrid, entrenamiento funcional, clases de Hybrid y cuotas.">
     <meta name="twitter:image" content="https://eltablerosportclub.com/assets/images/brand/og-cover.png">
     <meta name="twitter:image:alt" content="El Tablero Sport Club, gimnasio y pádel en Ponte Caldelas">
     <script type="application/ld+json">
@@ -31,7 +31,7 @@
             "@id": "https://eltablerosportclub.com/gimnasio/#webpage",
             "url": "https://eltablerosportclub.com/gimnasio/",
             "name": "Gimnasio en Ponte Caldelas | El Tablero Sport Club",
-            "description": "Gimnasio en Ponte Caldelas con sala fitness, zona CrossFit + Hybrid, entrenamiento funcional, clases de Hybrid y cuotas de El Tablero Sport Club.",
+            "description": "Gimnasio en Ponte Caldelas con sala fitness, zona Hybrid, entrenamiento funcional, clases de Hybrid y cuotas de El Tablero Sport Club.",
             "isPartOf": {
               "@id": "https://eltablerosportclub.com/#website"
             },
@@ -69,7 +69,7 @@
                   "@type": "Offer",
                   "itemOffered": {
                     "@type": "Service",
-                    "name": "CrossFit + Hybrid"
+                    "name": "Hybrid"
                   }
                 },
                 {
@@ -927,6 +927,196 @@
         border-radius: 0.35rem;
       }
 
+      .gym-routine-access {
+        --routine-orange: #c9825c;
+        --routine-orange-deep: #a95732;
+        --routine-ink: #120f0c;
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        margin-top: 0;
+        border-color: rgba(18, 15, 12, 0.16);
+        background:
+          radial-gradient(circle at 82% 14%, rgba(251, 250, 246, 0.32), transparent 21rem),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 42%),
+          linear-gradient(135deg, var(--routine-orange), var(--routine-orange-deep));
+        color: var(--routine-ink);
+      }
+
+      .gym-routine-access::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background-image:
+          linear-gradient(rgba(18, 15, 12, 0.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(18, 15, 12, 0.055) 1px, transparent 1px);
+        background-size: clamp(3.75rem, 8vw, 6rem) clamp(3.75rem, 8vw, 6rem);
+        opacity: 0.42;
+        pointer-events: none;
+      }
+
+      .gym-routine-access > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      .gym-routine-access__grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.08fr) minmax(18rem, 0.92fr);
+        align-items: end;
+        gap: clamp(1.25rem, 4vw, 4.5rem);
+      }
+
+      .gym-routine-access .concept-section__head {
+        gap: clamp(0.8rem, 1.5vw, 1rem);
+      }
+
+      .concept-section .gym-routine-access .concept-kicker {
+        color: #120f0c;
+        font-size: clamp(0.82rem, 0.74rem + 0.22vw, 0.96rem);
+        font-weight: 950;
+        text-shadow: none;
+      }
+
+      .concept-section .gym-routine-access .concept-kicker::before {
+        background: rgba(18, 15, 12, 0.62);
+      }
+
+      .gym-routine-access .concept-section__head h2 {
+        max-width: 13ch;
+        color: #fff;
+        text-shadow: 0 1px 0 rgba(18, 15, 12, 0.18);
+      }
+
+      .gym-routine-access .concept-section__head p:not(.concept-kicker) {
+        max-width: 44rem;
+        color: rgba(18, 15, 12, 0.74);
+        font-weight: 560;
+      }
+
+      .gym-routine-access__actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: clamp(0.2rem, 1vw, 0.8rem);
+      }
+
+      .gym-routine-access__button,
+      .gym-routine-access__link {
+        min-height: 3.35rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        font-size: var(--text-sm);
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .gym-routine-access__button {
+        gap: 0.55rem;
+        padding: 0.95rem 1.35rem;
+        border: 1px solid rgba(5, 7, 10, 0.88);
+        background: #05070a;
+        color: #fbfaf6;
+        box-shadow: 0 18px 40px rgba(18, 15, 12, 0.18);
+        transition:
+          background-color 180ms var(--ease-standard),
+          color 180ms var(--ease-standard),
+          transform 180ms var(--ease-standard);
+      }
+
+      .gym-routine-access__button svg {
+        width: 1.05rem;
+        height: 1.05rem;
+      }
+
+      .gym-routine-access__button:hover,
+      .gym-routine-access__button:focus-visible {
+        background: #171816;
+        transform: translateY(-2px);
+      }
+
+      .gym-routine-access__link {
+        padding: 0.9rem 1.05rem;
+        color: rgba(18, 15, 12, 0.82);
+        text-decoration: underline;
+        text-decoration-color: rgba(18, 15, 12, 0.3);
+        text-underline-offset: 0.28rem;
+      }
+
+      .gym-routine-access__link:hover,
+      .gym-routine-access__link:focus-visible {
+        color: #05070a;
+        text-decoration-color: #05070a;
+      }
+
+      .gym-routine-access__button:focus-visible,
+      .gym-routine-access__link:focus-visible {
+        outline: 3px solid rgba(251, 250, 246, 0.5);
+        outline-offset: 3px;
+      }
+
+      .gym-routine-access__panel {
+        display: grid;
+        gap: 0.72rem;
+        padding: clamp(0.85rem, 1.6vw, 1.15rem);
+        border: 1px solid rgba(18, 15, 12, 0.18);
+        border-radius: clamp(1.05rem, 2vw, 1.45rem);
+        background: rgba(251, 250, 246, 0.16);
+        box-shadow: inset 0 1px 0 rgba(251, 250, 246, 0.18);
+      }
+
+      .gym-routine-access__item {
+        display: grid;
+        grid-template-columns: 2.5rem minmax(0, 1fr);
+        align-items: start;
+        gap: 0.8rem;
+        padding: 0.82rem;
+        border: 1px solid rgba(18, 15, 12, 0.14);
+        border-radius: 1rem;
+        background: rgba(251, 250, 246, 0.16);
+      }
+
+      .gym-routine-access__icon {
+        display: inline-grid;
+        place-items: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 999px;
+        background: rgba(5, 7, 10, 0.88);
+        color: #f0b08b;
+      }
+
+      .gym-routine-access__icon svg {
+        width: 1.2rem;
+        height: 1.2rem;
+      }
+
+      .gym-routine-access__copy {
+        display: block;
+        min-width: 0;
+      }
+
+      .gym-routine-access__copy strong {
+        display: block;
+        color: #120f0c;
+        font-size: var(--text-sm);
+        font-weight: 900;
+        line-height: 1.1;
+      }
+
+      .gym-routine-access__copy span {
+        display: block;
+        margin-top: 0.2rem;
+        color: rgba(18, 15, 12, 0.72);
+        font-size: var(--text-sm);
+        font-weight: 560;
+        line-height: 1.35;
+      }
+
       @media (max-width: 63.99rem) {
         .gym-pricing__grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -935,6 +1125,11 @@
         .gym-pricing__grid > .gym-price-card,
         .gym-pricing__grid > .gym-price-card:nth-child(n + 4) {
           grid-column: auto;
+        }
+
+        .gym-routine-access__grid {
+          grid-template-columns: 1fr;
+          align-items: start;
         }
       }
 
@@ -955,18 +1150,47 @@
           grid-template-columns: 1fr;
         }
 
+        .gym-routine-access {
+          padding-block: clamp(2.6rem, 10vw, 3.6rem);
+        }
+
+        .gym-routine-access .concept-section__head h2 {
+          max-width: 12ch;
+        }
+
+        .gym-routine-access__actions {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .gym-routine-access__button,
+        .gym-routine-access__link {
+          width: 100%;
+        }
+
+        .gym-routine-access__item {
+          grid-template-columns: 2.25rem minmax(0, 1fr);
+          padding: 0.75rem;
+        }
+
+        .gym-routine-access__icon {
+          width: 2.25rem;
+          height: 2.25rem;
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
         .gym-price-card,
         .gym-price-card::after,
-        .gym-pricing-close a {
+        .gym-pricing-close a,
+        .gym-routine-access__button {
           transition: none;
         }
 
         .gym-price-card:hover,
         .gym-price-card--featured,
-        .gym-price-card--featured:hover {
+        .gym-price-card--featured:hover,
+        .gym-routine-access__button:hover {
           transform: none;
         }
       }
@@ -1892,7 +2116,7 @@
           <nav class="site-nav" aria-label="Principal">
             <ul class="site-nav__list">
               <li class="site-nav__item"><a class="site-nav__link" href="../index.html">Inicio</a></li>
-              <li class="site-nav__item nav-dropdown" data-dropdown><button class="site-nav__button" type="button" data-dropdown-button aria-controls="nav-services-concept" aria-expanded="false">Servicios y tarifas</button><div class="nav-dropdown__panel" id="nav-services-concept"><a href="../gimnasio/index.html" aria-current="page">Gimnasio</a><a href="../padel/index.html">Pádel</a></div></li>
+              <li class="site-nav__item nav-dropdown" data-dropdown><button class="site-nav__button" type="button" data-dropdown-button aria-controls="nav-services-concept" aria-expanded="false">Servicios y tarifas</button><div class="nav-dropdown__panel" id="nav-services-concept"><a href="../gimnasio/index.html" aria-current="page">Sala fitness</a><a href="../padel/index.html">Pádel</a></div></li>
               <li class="site-nav__item"><a class="site-nav__link" href="../horarios/index.html">Horario</a></li>
               <li class="site-nav__item"><a class="site-nav__link" href="../contacto/index.html">Contacto</a></li>
               <li class="site-nav__item"><a class="site-nav__link site-nav__link--cta" href="../contacto/index.html" data-booking-trigger>Reserva pista</a></li>
@@ -1923,7 +2147,7 @@
               <li class="mobile-nav__accordion" data-mobile-accordion>
                 <button type="button" data-accordion-button aria-expanded="true" aria-controls="mobile-services">Servicios y tarifas</button>
                 <ul class="mobile-subnav" id="mobile-services" role="list" data-accordion-panel>
-                  <li><a href="../gimnasio/index.html" aria-current="page">Gimnasio</a></li>
+                  <li><a href="../gimnasio/index.html" aria-current="page">Sala fitness</a></li>
                   <li><a href="../padel/index.html">Pádel</a></li>
                 </ul>
               </li>
@@ -1953,14 +2177,14 @@
                   <img class="concept-zone__media-img--fitness" src="../imagenes/carruselgym/IMG_6024.webp" srcset="../imagenes/carruselgym/thumbs/IMG_6024.webp 960w, ../imagenes/carruselgym/IMG_6024.webp 1800w" sizes="(max-width: 860px) calc(100vw - 2rem), 33vw" alt="Sala Fitness de El Tablero Sport Club en Ponte Caldelas" width="1800" height="1200" fetchpriority="high" decoding="async">
                 </div>
               </a>
-              <a class="concept-zone concept-zone--dark" id="crossfit-hybrid" href="#galeria-crossfit-hybrid" data-reveal style="--reveal-delay: 140ms;">
+              <a class="concept-zone concept-zone--dark" id="hybrid" href="#galeria-hybrid" data-reveal style="--reveal-delay: 140ms;">
                 <div class="concept-zone__copy">
                   <div class="concept-zone__meta"><span>300m²</span></div>
-                  <h3>CrossFit + Hybrid</h3>
+                  <h3>Hybrid</h3>
                   <span class="concept-zone__link">Ver galería</span>
                 </div>
                 <div class="concept-zone__media">
-                  <img src="../imagenes/carruselgym/IMG_6005.webp" srcset="../imagenes/carruselgym/thumbs/IMG_6005.webp 960w, ../imagenes/carruselgym/IMG_6005.webp 1800w" sizes="(max-width: 860px) calc(100vw - 2rem), 33vw" alt="Zona CrossFit + Hybrid de El Tablero Sport Club" width="1800" height="1200" loading="lazy" decoding="async">
+                  <img src="../imagenes/carruselgym/IMG_6005.webp" srcset="../imagenes/carruselgym/thumbs/IMG_6005.webp 960w, ../imagenes/carruselgym/IMG_6005.webp 1800w" sizes="(max-width: 860px) calc(100vw - 2rem), 33vw" alt="Zona Hybrid de El Tablero Sport Club" width="1800" height="1200" loading="lazy" decoding="async">
                 </div>
               </a>
               <a class="concept-zone" id="funcional" href="#galeria-funcional" data-reveal style="--reveal-delay: 200ms;">
@@ -2026,17 +2250,17 @@
                 <button class="concept-gallery-more" type="button" data-gallery-more aria-expanded="false">Ver más</button>
               </section>
 
-              <section class="concept-gallery-group" id="galeria-crossfit-hybrid" data-reveal style="--reveal-delay: 120ms;">
-                <div class="concept-gallery-group__head"><h3>CrossFit + Hybrid</h3><span>300m²</span></div>
+              <section class="concept-gallery-group" id="galeria-hybrid" data-reveal style="--reveal-delay: 120ms;">
+                <div class="concept-gallery-group__head"><h3>Hybrid</h3><span>300m²</span></div>
                 <div class="concept-gallery">
-                  <button type="button" data-gallery-set="crossfit-hybrid" data-lightbox-src="../imagenes/carruselgym/IMG_6003.webp" data-lightbox-alt="Zona CrossFit y Hybrid con césped técnico" data-lightbox-caption="CrossFit + Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_6003.webp" alt="Zona CrossFit y Hybrid con césped técnico" width="1800" height="1200" loading="lazy" decoding="async"><span>CrossFit + Hybrid</span></button>
-                  <button type="button" data-gallery-set="crossfit-hybrid" data-lightbox-src="../imagenes/carruselgym/IMG_5998.webp" data-lightbox-alt="Zona CrossFit y Hybrid con remos" data-lightbox-caption="CrossFit + Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_5998.webp" alt="Zona CrossFit y Hybrid con remos" width="1800" height="1200" loading="lazy" decoding="async"><span>CrossFit + Hybrid</span></button>
-                  <button type="button" data-gallery-set="crossfit-hybrid" data-lightbox-src="../assets/videos/vidcrossfit2-720.mp4" data-lightbox-type="video" data-lightbox-caption="CrossFit + Hybrid"><video data-lazy-video-src="../assets/videos/vidcrossfit2-720.mp4" autoplay muted loop playsinline preload="none" aria-label="Vídeo de CrossFit + Hybrid"></video><span>CrossFit + Hybrid</span></button>
-                  <button type="button" data-gallery-set="crossfit-hybrid" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_5994.webp" data-lightbox-alt="Rack y zona de trabajo CrossFit + Hybrid" data-lightbox-caption="CrossFit + Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_5994.webp" alt="Rack y zona de trabajo CrossFit + Hybrid" width="1800" height="1200" loading="lazy" decoding="async"><span>CrossFit + Hybrid</span></button>
-                  <button type="button" data-gallery-set="crossfit-hybrid" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_6004.webp" data-lightbox-alt="Material de entrenamiento en zona CrossFit + Hybrid" data-lightbox-caption="CrossFit + Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_6004.webp" alt="Material de entrenamiento en zona CrossFit + Hybrid" width="1800" height="1200" loading="lazy" decoding="async"><span>CrossFit + Hybrid</span></button>
-                  <button type="button" data-gallery-set="crossfit-hybrid" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_6005.webp" data-lightbox-alt="Estructura de entrenamiento CrossFit + Hybrid" data-lightbox-caption="CrossFit + Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_6005.webp" alt="Estructura de entrenamiento CrossFit + Hybrid" width="1800" height="1200" loading="lazy" decoding="async"><span>CrossFit + Hybrid</span></button>
-                  <button type="button" data-gallery-set="crossfit-hybrid" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_6013.webp" data-lightbox-alt="Zona CrossFit + Hybrid con equipamiento funcional" data-lightbox-caption="CrossFit + Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_6013.webp" alt="Zona CrossFit + Hybrid con equipamiento funcional" width="1800" height="1200" loading="lazy" decoding="async"><span>CrossFit + Hybrid</span></button>
-                  <button type="button" data-gallery-set="crossfit-hybrid" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_6022.webp" data-lightbox-alt="Vista general de la zona CrossFit + Hybrid" data-lightbox-caption="CrossFit + Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_6022.webp" alt="Vista general de la zona CrossFit + Hybrid" width="1800" height="1200" loading="lazy" decoding="async"><span>CrossFit + Hybrid</span></button>
+                  <button type="button" data-gallery-set="hybrid" data-lightbox-src="../imagenes/carruselgym/IMG_6003.webp" data-lightbox-alt="Zona Hybrid con césped técnico" data-lightbox-caption="Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_6003.webp" alt="Zona Hybrid con césped técnico" width="1800" height="1200" loading="lazy" decoding="async"><span>Hybrid</span></button>
+                  <button type="button" data-gallery-set="hybrid" data-lightbox-src="../imagenes/carruselgym/IMG_5998.webp" data-lightbox-alt="Zona Hybrid con remos" data-lightbox-caption="Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_5998.webp" alt="Zona Hybrid con remos" width="1800" height="1200" loading="lazy" decoding="async"><span>Hybrid</span></button>
+                  <button type="button" data-gallery-set="hybrid" data-lightbox-src="../assets/videos/vidcrossfit2-720.mp4" data-lightbox-type="video" data-lightbox-caption="Hybrid"><video data-lazy-video-src="../assets/videos/vidcrossfit2-720.mp4" autoplay muted loop playsinline preload="none" aria-label="Vídeo de Hybrid"></video><span>Hybrid</span></button>
+                  <button type="button" data-gallery-set="hybrid" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_5994.webp" data-lightbox-alt="Rack y zona de trabajo Hybrid" data-lightbox-caption="Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_5994.webp" alt="Rack y zona de trabajo Hybrid" width="1800" height="1200" loading="lazy" decoding="async"><span>Hybrid</span></button>
+                  <button type="button" data-gallery-set="hybrid" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_6004.webp" data-lightbox-alt="Material de entrenamiento en zona Hybrid" data-lightbox-caption="Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_6004.webp" alt="Material de entrenamiento en zona Hybrid" width="1800" height="1200" loading="lazy" decoding="async"><span>Hybrid</span></button>
+                  <button type="button" data-gallery-set="hybrid" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_6005.webp" data-lightbox-alt="Estructura de entrenamiento Hybrid" data-lightbox-caption="Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_6005.webp" alt="Estructura de entrenamiento Hybrid" width="1800" height="1200" loading="lazy" decoding="async"><span>Hybrid</span></button>
+                  <button type="button" data-gallery-set="hybrid" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_6013.webp" data-lightbox-alt="Zona Hybrid con equipamiento funcional" data-lightbox-caption="Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_6013.webp" alt="Zona Hybrid con equipamiento funcional" width="1800" height="1200" loading="lazy" decoding="async"><span>Hybrid</span></button>
+                  <button type="button" data-gallery-set="hybrid" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_6022.webp" data-lightbox-alt="Vista general de la zona Hybrid" data-lightbox-caption="Hybrid"><img src="../imagenes/carruselgym/thumbs/IMG_6022.webp" alt="Vista general de la zona Hybrid" width="1800" height="1200" loading="lazy" decoding="async"><span>Hybrid</span></button>
                 </div>
                 <button class="concept-gallery-more" type="button" data-gallery-more aria-expanded="false">Ver más</button>
               </section>
@@ -2046,8 +2270,10 @@
                 <div class="concept-gallery">
                   <button type="button" data-gallery-set="funcional" data-lightbox-src="../imagenes/carruselgym/IMG_5986.webp" data-lightbox-alt="Zona funcional con césped y material de entrenamiento" data-lightbox-caption="Funcional"><img src="../imagenes/carruselgym/thumbs/IMG_5986.webp" alt="Zona funcional con césped y material de entrenamiento" width="1800" height="1200" loading="lazy" decoding="async"><span>Funcional</span></button>
                   <button type="button" data-gallery-set="funcional" data-lightbox-src="../imagenes/carruselgym/IMG_5987.webp" data-lightbox-alt="Zona funcional con césped y equipamiento" data-lightbox-caption="Funcional"><img src="../imagenes/carruselgym/thumbs/IMG_5987.webp" alt="Zona funcional con césped y equipamiento" width="1800" height="1200" loading="lazy" decoding="async"><span>Funcional</span></button>
-                  <button type="button" data-gallery-set="funcional" data-lightbox-src="../imagenes/carruselgym/IMG_5995.webp" data-lightbox-alt="Zona funcional con césped y estructura" data-lightbox-caption="Funcional"><img src="../imagenes/carruselgym/thumbs/IMG_5995.webp" alt="Zona funcional con césped y estructura" width="1200" height="1800" loading="lazy" decoding="async"><span>Funcional</span></button>
+                  <button type="button" data-gallery-set="funcional" data-lightbox-src="../assets/videos/vidfuncional-720.mp4" data-lightbox-type="video" data-lightbox-caption="Funcional"><video data-lazy-video-src="../assets/videos/vidfuncional-720.mp4" autoplay muted loop playsinline preload="none" aria-label="Vídeo de funcional"></video><span>Funcional</span></button>
+                  <button type="button" data-gallery-set="funcional" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_5995.webp" data-lightbox-alt="Zona funcional con césped y estructura" data-lightbox-caption="Funcional"><img src="../imagenes/carruselgym/thumbs/IMG_5995.webp" alt="Zona funcional con césped y estructura" width="1200" height="1800" loading="lazy" decoding="async"><span>Funcional</span></button>
                 </div>
+                <button class="concept-gallery-more" type="button" data-gallery-more aria-expanded="false">Ver más</button>
               </section>
             </div>
             <section class="concept-inline-section gym-pricing" id="tarifas" data-reveal>
@@ -2072,7 +2298,7 @@
                       <p class="gym-price-card__hint">Incluye acceso general y 2 clases por semana.</p>
                     </div>
                     <ul class="gym-feature-list">
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness, Zona Cross y Zona Funcional durante todo el horario de apertura.</span></li>
+                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness, Sala Hybrid y Zona Funcional durante todo el horario de apertura.</span></li>
                       <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Dos clases semanales incluidas.</span></li>
                       <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
                     </ul>
@@ -2092,7 +2318,7 @@
                       <p class="gym-price-card__hint">Acceso general al gimnasio.</p>
                     </div>
                     <ul class="gym-feature-list">
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness, Zona Cross y Zona Funcional durante todo el horario de apertura.</span></li>
+                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness, Sala Hybrid y Zona Funcional durante todo el horario de apertura.</span></li>
                       <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
                     </ul>
                   </div>
@@ -2111,7 +2337,7 @@
                       <p class="gym-price-card__hint">52 €/mes en total · 26 € por persona</p>
                     </div>
                     <ul class="gym-feature-list">
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness, Zona Cross y Zona Funcional durante todo el horario de apertura.</span></li>
+                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness, Sala Hybrid y Zona Funcional durante todo el horario de apertura.</span></li>
                       <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Para matrimonio o pareja de hecho.</span></li>
                       <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Hijos entre 18 y 24 años con plus de 8 €.</span></li>
                       <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
@@ -2132,7 +2358,7 @@
                       <p class="gym-price-card__hint">Para menores de 25 años.</p>
                     </div>
                     <ul class="gym-feature-list">
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness, Zona Cross y Zona Funcional durante todo el horario de apertura.</span></li>
+                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness, Sala Hybrid y Zona Funcional durante todo el horario de apertura.</span></li>
                       <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Condicionada a ser menor de 25 años.</span></li>
                       <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
                     </ul>
@@ -2192,9 +2418,53 @@
                 <a href="../contacto/index.html">Ver información de contacto</a>
               </div>
             </section>
+            <section class="concept-inline-section gym-routine-access" id="rutinas" data-reveal>
+              <div class="gym-routine-access__grid">
+                <div class="concept-section__head">
+                  <p class="concept-kicker">Rutinas y ejercicios</p>
+                  <h2>Entrena con un plan claro</h2>
+                  <p>Los monitores pueden preparar rutinas a medida y ayudarte a organizar el entrenamiento. También puedes explorar el catálogo de ejercicios, consultar la técnica y crear tus propias rutinas para imprimirlas o compartirlas.</p>
+                  <div class="gym-routine-access__actions">
+                    <a class="gym-routine-access__button" href="../ejercicios/index.html">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M6 12h12M12 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                      </svg>
+                      Abrir catálogo de ejercicios
+                    </a>
+                    <a class="gym-routine-access__link" href="../contacto/index.html">Pedir asesoramiento</a>
+                  </div>
+                </div>
+                <div class="gym-routine-access__panel" aria-label="Opciones del catálogo de ejercicios">
+                  <div class="gym-routine-access__item">
+                    <span class="gym-routine-access__icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M5 18V6m14 12V6M8 8h8M8 16h8M3 9v6m18-6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                      </svg>
+                    </span>
+                    <span class="gym-routine-access__copy"><strong>Catálogo guiado</strong><span>Ejercicios con ilustraciones, músculos implicados y material necesario.</span></span>
+                  </div>
+                  <div class="gym-routine-access__item">
+                    <span class="gym-routine-access__icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M8 6h11M8 12h11M8 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                      </svg>
+                    </span>
+                    <span class="gym-routine-access__copy"><strong>Rutinas semanales</strong><span>Organiza ejercicios por día, series, repeticiones y descanso.</span></span>
+                  </div>
+                  <div class="gym-routine-access__item">
+                    <span class="gym-routine-access__icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M7 7h3v3H7V7Zm7 0h3v3h-3V7ZM7 14h3v3H7v-3Zm7 0h3v3h-3v-3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+                      </svg>
+                    </span>
+                    <span class="gym-routine-access__copy"><strong>QR y versión impresa</strong><span>Genera un enlace, código QR o imprime la rutina.</span></span>
+                  </div>
+                </div>
+              </div>
+            </section>
             <div class="concept-cta" data-reveal>
               <div>
-                <h2>Gimnasio, CrossFit, Hybrid y funcional en El Tablero</h2>
+                <h2>Gimnasio, Hybrid, Hybrid y funcional en El Tablero</h2>
                 <p>Consulta tarifas o contacta con el club para resolver cualquier duda.</p>
               </div>
               <div class="concept-actions">
@@ -2244,13 +2514,6 @@
                           </div>
                         </article>
                         <article class="club-ticker__item">
-                          <img class="club-ticker__icon" src="../imagenes/types/crossfit.webp" alt="" width="320" height="320" loading="lazy" decoding="async">
-                          <div class="club-ticker__copy">
-                            <span class="club-ticker__label">Sala CrossFit</span>
-                            <strong class="club-ticker__value">300m²</strong>
-                          </div>
-                        </article>
-                        <article class="club-ticker__item">
                           <img class="club-ticker__icon" src="../imagenes/types/hybrid.webp" alt="" width="320" height="320" loading="lazy" decoding="async">
                           <div class="club-ticker__copy">
                             <span class="club-ticker__label">Sala Hybrid</span>
@@ -2286,13 +2549,6 @@
                           <div class="club-ticker__copy">
                             <span class="club-ticker__label">Sala Fitness</span>
                             <strong class="club-ticker__value">500m²</strong>
-                          </div>
-                        </article>
-                        <article class="club-ticker__item">
-                          <img class="club-ticker__icon" src="../imagenes/types/crossfit.webp" alt="" width="320" height="320" loading="lazy" decoding="async">
-                          <div class="club-ticker__copy">
-                            <span class="club-ticker__label">Sala CrossFit</span>
-                            <strong class="club-ticker__value">300m²</strong>
                           </div>
                         </article>
                         <article class="club-ticker__item">

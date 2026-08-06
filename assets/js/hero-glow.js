@@ -65,11 +65,12 @@
   };
 
   const updateHotspotLayout = () => {
-    const mediaRect = media.getBoundingClientRect();
+    const mediaWidth = media.clientWidth;
+    const mediaHeight = media.clientHeight;
     const naturalWidth = heroImage.naturalWidth || 1646;
     const naturalHeight = heroImage.naturalHeight || 956;
 
-    if (!mediaRect.width || !mediaRect.height || !naturalWidth || !naturalHeight) {
+    if (!mediaWidth || !mediaHeight || !naturalWidth || !naturalHeight) {
       return;
     }
 
@@ -77,11 +78,11 @@
     const objectPosition = imageStyles.objectPosition.split(/\s+/);
     const posX = parseObjectPositionValue(objectPosition[0] || "50%", "x");
     const posY = parseObjectPositionValue(objectPosition[1] || objectPosition[0] || "50%", "y");
-    const scale = Math.max(mediaRect.width / naturalWidth, mediaRect.height / naturalHeight);
+    const scale = Math.max(mediaWidth / naturalWidth, mediaHeight / naturalHeight);
     const renderedWidth = naturalWidth * scale;
     const renderedHeight = naturalHeight * scale;
-    const offsetX = (mediaRect.width - renderedWidth) * posX;
-    const offsetY = (mediaRect.height - renderedHeight) * posY;
+    const offsetX = (mediaWidth - renderedWidth) * posX;
+    const offsetY = (mediaHeight - renderedHeight) * posY;
 
     hotspotLayer.style.left = `${offsetX}px`;
     hotspotLayer.style.top = `${offsetY}px`;
