@@ -104,14 +104,43 @@
       <main class="exercises-main" id="main-content">
         <section class="routine-view" data-routine-view hidden>
           <div class="routine-view__inner">
-            <p class="exercises-intro__eyebrow">Rutina compartida</p>
-            <h1 class="routine-view__title" data-routine-title></h1>
-            <p class="routine-view__note" data-routine-note hidden></p>
-            <div class="routine-view__actions">
-              <button type="button" class="routine-view__save" data-routine-save-favorites>Guardar rutina en Favoritos</button>
-              <button type="button" class="routine-view__dismiss" data-routine-dismiss>Ver catálogo completo</button>
+            <div class="routine-view__head">
+              <div class="routine-view__copy">
+                <p class="exercises-intro__eyebrow">Rutina compartida</p>
+                <h1 class="routine-view__title" data-routine-title></h1>
+                <p class="routine-view__note" data-routine-note hidden></p>
+              </div>
+              <div class="routine-view__tools">
+                <div class="exercises-searchbar routine-view__searchbar">
+                  <div class="exercises-field exercises-search">
+                    <label for="routine-exercise-search" class="visually-hidden">Buscar dentro de la rutina</label>
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle><path d="m20 20-3.2-3.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+                    <input type="search" id="routine-exercise-search" name="routine-q" placeholder="Buscar en esta rutina…" autocomplete="off" data-routine-search>
+                  </div>
+                  <button type="button" class="exercises-filters-btn" data-routine-filters-open aria-haspopup="dialog">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M8 12h8M11 18h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+                    <span>Filtros</span>
+                    <span class="exercises-filters-btn__badge" data-routine-filters-badge hidden>0</span>
+                  </button>
+                </div>
+                <div class="routine-view__control-row">
+                  <div class="routine-view__day-filters" data-routine-day-filters hidden></div>
+                  <div class="routine-view__actions">
+                    <button type="button" class="routine-view__edit" data-routine-edit>Editar rutina</button>
+                    <button type="button" class="routine-view__save" data-routine-save-favorites>Guardar rutina en Favoritos</button>
+                    <button type="button" class="routine-view__dismiss" data-routine-dismiss>Ver catálogo completo</button>
+                  </div>
+                </div>
+              </div>
             </div>
+            <p class="exercises-filters-summary routine-view__filters-summary" data-routine-filters-summary hidden>
+              <span data-routine-filters-summary-text></span>
+              <button type="button" data-routine-filters-clear>Limpiar</button>
+            </p>
             <div class="exercises-grid routine-view__grid" data-routine-grid></div>
+            <p class="exercises-empty routine-view__empty" data-routine-empty hidden>
+              No hay ejercicios de esta rutina que coincidan con estos filtros.
+            </p>
           </div>
         </section>
 
@@ -132,7 +161,7 @@
                 </p>
               </div>
               <div class="exercises-intro__tools" data-exercises-intro-tools>
-                <div class="exercises-searchbar">
+                <div class="exercises-searchbar" data-catalog-searchbar>
                   <div class="exercises-field exercises-search">
                     <label for="exercise-search" class="visually-hidden">Buscar ejercicio</label>
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle><path d="m20 20-3.2-3.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
@@ -182,15 +211,37 @@
       </main>
 
       <aside class="routine-cart" data-routine-cart aria-label="Rutina en preparación">
-        <button type="button" class="routine-cart__toggle" data-routine-cart-toggle aria-expanded="false" aria-controls="routine-cart-panel">
-          <span class="routine-cart__toggle-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M7 7h10M7 12h10M7 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 18.5v-13Z" stroke="currentColor" stroke-width="1.8"></path></svg>
-          </span>
-          <span class="routine-cart__toggle-copy">
-            <span>Asistente de rutinas</span>
-            <strong data-routine-cart-count>0 ejercicios</strong>
-          </span>
-        </button>
+        <div class="routine-cart__floating-actions">
+          <button type="button" class="routine-cart__toggle" data-routine-cart-toggle aria-expanded="false" aria-controls="routine-cart-panel">
+            <span class="routine-cart__toggle-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M7 7h10M7 12h10M7 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 18.5v-13Z" stroke="currentColor" stroke-width="1.8"></path></svg>
+            </span>
+            <span class="routine-cart__toggle-copy">
+              <span>Asistente de rutinas</span>
+              <strong data-routine-cart-count>0 ejercicios</strong>
+            </span>
+          </button>
+          <button type="button" class="routine-favorites__toggle" data-routine-favorites-toggle aria-expanded="false" aria-controls="routine-favorites-panel" hidden>
+            <span aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M5.5 6.5A2.5 2.5 0 0 1 8 4h8a2.5 2.5 0 0 1 2.5 2.5v12.2l-6.5-3.4-6.5 3.4V6.5Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"></path></svg>
+            </span>
+            <span>Rutinas guardadas</span>
+            <strong data-routine-favorites-count>0</strong>
+          </button>
+        </div>
+
+        <section class="routine-favorites" id="routine-favorites-panel" data-routine-favorites hidden>
+          <div class="routine-favorites__inner">
+            <div class="routine-favorites__head">
+              <h2>Rutinas guardadas</h2>
+              <button type="button" data-routine-favorites-close aria-label="Cerrar rutinas guardadas">×</button>
+            </div>
+            <p class="routine-favorites__local-note">
+              Las rutinas guardadas se conservan solo en este dispositivo y navegador. Guarda siempre el enlace o el QR para no perderlas y poder compartirlas.
+            </p>
+            <div class="routine-favorites__list" data-routine-favorites-list></div>
+          </div>
+        </section>
 
         <section class="routine-cart__panel" id="routine-cart-panel" data-routine-cart-panel hidden>
           <div class="routine-cart__head">
@@ -421,6 +472,9 @@
                   <span class="filter-switch__track" aria-hidden="true"></span>
                 </span>
               </label>
+              <p class="filter-panel__local-note">
+                Los favoritos se guardan solo en este dispositivo y navegador. Si quieres conservar una rutina, guarda también su enlace o QR.
+              </p>
             </div>
 
             <div class="filter-panel__section">
@@ -487,7 +541,7 @@
                           </div>
                         </article>
                         <article class="club-ticker__item">
-                          <img class="club-ticker__icon" src="../imagenes/types/logo_negro_grises_transparente.webp" alt="" width="320" height="320" loading="lazy" decoding="async">
+                          <img class="club-ticker__icon" src="../imagenes/types/parking.webp" alt="" width="320" height="320" loading="lazy" decoding="async">
                           <div class="club-ticker__copy">
                             <span class="club-ticker__label">Parking</span>
                             <strong class="club-ticker__value">+1000m²</strong>
@@ -525,7 +579,7 @@
                           </div>
                         </article>
                         <article class="club-ticker__item">
-                          <img class="club-ticker__icon" src="../imagenes/types/logo_negro_grises_transparente.webp" alt="" width="320" height="320" loading="lazy" decoding="async">
+                          <img class="club-ticker__icon" src="../imagenes/types/parking.webp" alt="" width="320" height="320" loading="lazy" decoding="async">
                           <div class="club-ticker__copy">
                             <span class="club-ticker__label">Parking</span>
                             <strong class="club-ticker__value">+1000m²</strong>

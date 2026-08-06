@@ -1458,6 +1458,11 @@
   height: clamp(3.9rem, 5.7vw, 5.5rem);
 }
 
+.club-ticker__icon[src$="parking.webp"] {
+  width: clamp(2.925rem, 4.275vw, 4.125rem);
+  height: clamp(2.925rem, 4.275vw, 4.125rem);
+}
+
 .club-ticker__copy {
   display: grid;
   gap: 0.2rem;

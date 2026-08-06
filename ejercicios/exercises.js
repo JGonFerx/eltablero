@@ -26,16 +26,32 @@
   const routineTitle = document.querySelector("[data-routine-title]");
   const routineNote = document.querySelector("[data-routine-note]");
   const routineGrid = document.querySelector("[data-routine-grid]");
+  const routineDayFilters = document.querySelector("[data-routine-day-filters]");
+  const routineSearchInput = document.querySelector("[data-routine-search]");
+  const routineFiltersOpenButton = document.querySelector("[data-routine-filters-open]");
+  const routineFiltersBadge = document.querySelector("[data-routine-filters-badge]");
+  const routineFiltersSummary = document.querySelector("[data-routine-filters-summary]");
+  const routineFiltersSummaryText = document.querySelector("[data-routine-filters-summary-text]");
+  const routineFiltersClearInline = document.querySelector("[data-routine-filters-clear]");
+  const routineEmpty = document.querySelector("[data-routine-empty]");
+  const routineEditButton = document.querySelector("[data-routine-edit]");
   const routineSaveButton = document.querySelector("[data-routine-save-favorites]");
   const routineDismissButton = document.querySelector("[data-routine-dismiss]");
+  const routineFavoritesSection = document.querySelector("[data-routine-favorites]");
+  const routineFavoritesList = document.querySelector("[data-routine-favorites-list]");
+  const routineFavoritesToggle = document.querySelector("[data-routine-favorites-toggle]");
+  const routineFavoritesClose = document.querySelector("[data-routine-favorites-close]");
+  const routineFavoritesCount = document.querySelector("[data-routine-favorites-count]");
   const exercisePage = document.querySelector("[data-exercise-page]");
   const exercisePageContent = document.querySelector("[data-exercise-page-content]");
+  const exercisePageOriginalParent = exercisePage ? exercisePage.parentElement : null;
+  const exercisePageOriginalNext = exercisePage ? exercisePage.nextElementSibling : null;
   const exercisesMain = document.querySelector(".exercises-main");
   const exercisesIntro = document.querySelector(".exercises-intro");
   const exercisesCatalog = document.querySelector(".exercises-catalog");
   const exercisesIntroTools = document.querySelector("[data-exercises-intro-tools]");
   const exercisesCatalogInner = document.querySelector(".exercises-catalog__inner");
-  const exercisesSearchbar = document.querySelector(".exercises-searchbar");
+  const exercisesSearchbar = document.querySelector("[data-catalog-searchbar]");
   const exercisesResultsBar = document.querySelector(".exercises-results-bar");
   const routineCart = document.querySelector("[data-routine-cart]");
   const routineCartToggle = document.querySelector("[data-routine-cart-toggle]");
@@ -86,6 +102,11 @@
   let lastWindowScrollY = window.scrollY;
   let catalogToolsScrollTicking = false;
   let currentExercise = null;
+  let exerciseReturnContext = "catalog";
+  let routineViewDayFilter = "";
+  let routineViewItems = [];
+  let filterPanelMode = "catalog";
+  let routineFavoritesOpen = false;
   let routineCartTourAutoStarted = false;
   let routineCartTourBuilt = false;
   let routineCartTourActive = false;
@@ -109,8 +130,15 @@
     equipamiento: "",
     favoritos: false,
   };
+  const routineFilterState = {
+    q: "",
+    grupo: "",
+    equipamiento: "",
+    favoritos: false,
+  };
 
   const FAVORITES_KEY = "eltablero:ejercicios:favoritos";
+  const ROUTINE_FAVORITES_KEY = "eltablero:ejercicios:rutinas-favoritas";
   const ROUTINE_CART_KEY = "eltablero:ejercicios:rutina-carrito";
   const ROUTINE_CART_DAYS_KEY = "eltablero:ejercicios:rutina-dias";
   const ROUTINE_CART_TOUR_KEY = "eltablero:ejercicios:rutina-carrito-tour-dismissed";
@@ -149,6 +177,24 @@
       window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(Array.from(favorites)));
     } catch (error) {
       /* almacenamiento no disponible (navegación privada, cuota, etc.) */
+    }
+  }
+
+  function loadRoutineFavorites() {
+    try {
+      const raw = window.localStorage.getItem(ROUTINE_FAVORITES_KEY);
+      const routines = raw ? JSON.parse(raw) : [];
+      return Array.isArray(routines) ? routines : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function saveRoutineFavorites(routines) {
+    try {
+      window.localStorage.setItem(ROUTINE_FAVORITES_KEY, JSON.stringify(routines));
+    } catch (error) {
+      /* almacenamiento no disponible */
     }
   }
 
@@ -191,6 +237,49 @@
       rest: item && (item.rest || item.d) ? item.rest || item.d : ROUTINE_DEFAULT_REST,
       day: normalizeRoutineDay(item && (item.day || item.w) ? item.day || item.w : ROUTINE_UNASSIGNED_DAY),
     };
+  }
+
+  function normalizeRoutineEntry(item) {
+    if (typeof item === "string") {
+      return {
+        id: item,
+        series: ROUTINE_DEFAULT_SERIES,
+        reps: ROUTINE_DEFAULT_REPS,
+        rest: ROUTINE_DEFAULT_REST,
+        day: ROUTINE_UNASSIGNED_DAY,
+      };
+    }
+
+    const day = item && (item.day || item.w) ? item.day || item.w : ROUTINE_UNASSIGNED_DAY;
+    const isValidDay = WEEK_DAYS.some((entry) => entry.id === day);
+    return {
+      id: item && (item.id || item.i) ? item.id || item.i : "",
+      series: item && (item.series || item.s) ? item.series || item.s : ROUTINE_DEFAULT_SERIES,
+      reps: item && (item.reps || item.r) ? item.reps || item.r : ROUTINE_DEFAULT_REPS,
+      rest: item && (item.rest || item.d) ? item.rest || item.d : ROUTINE_DEFAULT_REST,
+      day: isValidDay ? day : ROUTINE_UNASSIGNED_DAY,
+    };
+  }
+
+  function routineEntriesFromRoutine(routine) {
+    if (!routine) {
+      return [];
+    }
+    const source = Array.isArray(routine.items)
+      ? routine.items
+      : Array.isArray(routine.e)
+        ? routine.e.map((id) => ({ id }))
+        : [];
+    const seen = new Set();
+    return source
+      .map(normalizeRoutineEntry)
+      .filter((item) => {
+        if (!item.id || seen.has(item.id) || !getExerciseById(item.id)) {
+          return false;
+        }
+        seen.add(item.id);
+        return true;
+      });
   }
 
   function loadRoutineCartDays() {
@@ -412,6 +501,9 @@
     if (state.favoritos) {
       renderGrid();
     }
+    if (routineFilterState.favoritos && routineView && !routineView.hidden) {
+      checkRoutineView({ scrollToTop: false });
+    }
   }
 
   function syncFavoriteButtons(id) {
@@ -459,12 +551,28 @@
     if (!routineCart || !routineCartPanel || !routineCartToggle) {
       return;
     }
+    if (isOpen) {
+      setRoutineFavoritesOpen(false);
+    }
     if (!isOpen) {
       setRoutineCartBuilderOpen(false);
     }
     routineCart.dataset.open = String(isOpen);
     routineCartPanel.hidden = !isOpen;
     routineCartToggle.setAttribute("aria-expanded", String(isOpen));
+  }
+
+  function setRoutineFavoritesOpen(isOpen) {
+    if (!routineFavoritesSection || !routineFavoritesToggle) {
+      return;
+    }
+    const routines = loadRoutineFavorites();
+    routineFavoritesOpen = Boolean(isOpen && routines.length);
+    routineFavoritesSection.hidden = !routineFavoritesOpen;
+    routineFavoritesToggle.setAttribute("aria-expanded", String(routineFavoritesOpen));
+    if (routineFavoritesOpen) {
+      setRoutineCartOpen(false);
+    }
   }
 
   function setRoutineCartBuilderOpen(isOpen) {
@@ -1131,6 +1239,143 @@
       day,
       entries: entries.filter((entry) => routineEntryDay(entry, days) === day),
     }));
+  }
+
+  function routineMusclesForEntries(entries) {
+    const seen = new Set();
+    const muscles = [];
+    entries.forEach((entry) => {
+      const exercise = getExerciseById(entry.id);
+      const names = exercise && exercise.musculosPrincipales.length ? exercise.musculosPrincipales : exercise ? [exercise.grupoMuscular] : [];
+      names.forEach((name) => {
+        const normalized = normalize(name);
+        if (name && !seen.has(normalized)) {
+          seen.add(normalized);
+          muscles.push(name);
+        }
+      });
+    });
+    return muscles.join(", ");
+  }
+
+  function routineSummaryLabel(routine) {
+    const items = Array.isArray(routine.items) ? routine.items : [];
+    const days = Array.isArray(routine.days) ? routine.days : routineDaysForEntries(items, []);
+    const seriesTotal = items.reduce((total, item) => total + parseRoutineNumber(item.series || item.s), 0);
+    const dayLabel = days.length === 1 ? "1 día" : `${days.length} días`;
+    const exerciseLabel = items.length === 1 ? "1 ejercicio" : `${items.length} ejercicios`;
+    return `${dayLabel} · ${exerciseLabel} · ${seriesTotal} series`;
+  }
+
+  function renderRoutineFavorites() {
+    if (!routineFavoritesSection || !routineFavoritesList || !window.Routines) {
+      return;
+    }
+    const routines = loadRoutineFavorites();
+    if (routineFavoritesToggle) {
+      routineFavoritesToggle.hidden = routines.length === 0;
+    }
+    if (routineFavoritesCount) {
+      routineFavoritesCount.textContent = String(routines.length);
+    }
+    if (routines.length === 0) {
+      routineFavoritesOpen = false;
+    }
+    routineFavoritesSection.hidden = !routineFavoritesOpen || routines.length === 0;
+    if (routineFavoritesToggle) {
+      routineFavoritesToggle.setAttribute("aria-expanded", String(!routineFavoritesSection.hidden));
+    }
+    if (routines.length === 0) {
+      routineFavoritesList.innerHTML = "";
+      return;
+    }
+
+    routineFavoritesList.innerHTML = routines
+      .map((routine, index) => {
+        const items = Array.isArray(routine.items) ? routine.items : [];
+        const days = Array.isArray(routine.days) ? routine.days : routineDaysForEntries(items, []);
+        const dayPreview = groupRoutineEntries(items, days)
+          .filter((group) => group.entries.length)
+          .map((group) => {
+            const muscles = routineMusclesForEntries(group.entries);
+            return `<span><strong>${escapeHtml(routineDayMeta(group.day).short)}</strong>${muscles ? ` ${escapeHtml(muscles)}` : ""}</span>`;
+          })
+          .join("");
+        return `
+          <article class="routine-favorites__card">
+            <div>
+              <h3>${escapeHtml(routine.title || "Rutina guardada")}</h3>
+              <p>${escapeHtml(routineSummaryLabel(routine))}</p>
+              ${dayPreview ? `<div class="routine-favorites__days">${dayPreview}</div>` : ""}
+            </div>
+            <div class="routine-favorites__actions">
+              <button type="button" data-routine-favorite-remove="${index}" aria-label="Eliminar ${escapeHtml(routine.title || "rutina guardada")}">×</button>
+              <button type="button" data-routine-favorite-open="${index}">Abrir</button>
+              <button type="button" data-routine-favorite-edit="${index}">Editar</button>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  function openRoutineFavorite(index) {
+    const routines = loadRoutineFavorites();
+    const routine = routines[index];
+    if (!routine || !routine.id) {
+      return;
+    }
+    setRoutineFavoritesOpen(false);
+    location.hash = routine.id;
+  }
+
+  function editRoutineFavorite(index) {
+    const routines = loadRoutineFavorites();
+    const routine = routines[index];
+    if (!routine || !routine.id || !window.Routines) {
+      return;
+    }
+    const decoded = window.Routines.decode(routine.id);
+    loadRoutineIntoBuilder(decoded || routine);
+  }
+
+  function removeRoutineFavorite(index) {
+    const routines = loadRoutineFavorites();
+    if (!routines[index]) {
+      return;
+    }
+    routines.splice(index, 1);
+    saveRoutineFavorites(routines);
+    renderRoutineFavorites();
+    if (isRoutineHash(location.hash)) {
+      updateRoutineSaveButton(window.Routines.decode(location.hash));
+    }
+  }
+
+  function renderRoutineDayFilters(days) {
+    if (!routineDayFilters) {
+      return;
+    }
+    if (days.length <= 1) {
+      routineDayFilters.hidden = true;
+      routineDayFilters.innerHTML = "";
+      routineViewDayFilter = "";
+      return;
+    }
+
+    if (routineViewDayFilter && !days.includes(routineViewDayFilter)) {
+      routineViewDayFilter = "";
+    }
+
+    const buttons = [
+      `<button type="button" data-routine-day-filter="" aria-pressed="${routineViewDayFilter === ""}">Todos</button>`,
+      ...days.map((day) => {
+        const meta = routineDayMeta(day);
+        return `<button type="button" data-routine-day-filter="${escapeHtml(day)}" aria-pressed="${routineViewDayFilter === day}">${escapeHtml(meta.label)}</button>`;
+      }),
+    ];
+    routineDayFilters.innerHTML = buttons.join("");
+    routineDayFilters.hidden = false;
   }
 
   function getRoutineCartTitle() {
@@ -1837,17 +2082,34 @@
   const expandedAggregateGroups = new Set();
   let previousFocusedElement = null;
 
+  function routineFilterSourceExercises() {
+    const seen = new Set();
+    return routineViewItems
+      .map((entry) => exercises.find((exercise) => exercise.id === entry.id))
+      .filter((exercise) => {
+        if (!exercise || seen.has(exercise.id)) {
+          return false;
+        }
+        seen.add(exercise.id);
+        return true;
+      });
+  }
+
+  function filterSourceExercises() {
+    return filterPanelMode === "routine" ? routineFilterSourceExercises() : exercises;
+  }
+
   function groupValuesFor(value) {
     return GROUP_AGGREGATES[value] ? GROUP_AGGREGATES[value].values : [value];
   }
 
   function countForGroupValue(value) {
     const values = groupValuesFor(value);
-    return exercises.filter((exercise) => values.some((item) => exercise.gruposMusculares.includes(item))).length;
+    return filterSourceExercises().filter((exercise) => values.some((item) => exercise.gruposMusculares.includes(item))).length;
   }
 
   function countForEquipmentValue(value) {
-    return exercises.filter((exercise) => exercise.equipamiento.includes(value)).length;
+    return filterSourceExercises().filter((exercise) => exercise.equipamiento.includes(value)).length;
   }
 
   function createRadioRow({ name, value, label, count, checked }) {
@@ -1920,7 +2182,10 @@
 
   function buildGroupList() {
     filterGroupList.innerHTML = "";
-    const muscleGroups = payloadGrupos.filter((group) => !EXERCISE_TYPE_VALUES.includes(group));
+    const sourceGroups = filterPanelMode === "routine"
+      ? Array.from(new Set(filterSourceExercises().flatMap((exercise) => exercise.gruposMusculares || [])))
+      : payloadGrupos;
+    const muscleGroups = sourceGroups.filter((group) => !EXERCISE_TYPE_VALUES.includes(group));
 
     filterGroupList.appendChild(
       createRadioRow({ name: "filter-grupo", value: "", label: "Todos", checked: draftState.grupo === "" })
@@ -1948,7 +2213,7 @@
 
   function buildEquipmentList() {
     const equipmentSet = new Set();
-    exercises.forEach((exercise) => exercise.equipamiento.forEach((item) => equipmentSet.add(item)));
+    filterSourceExercises().forEach((exercise) => exercise.equipamiento.forEach((item) => equipmentSet.add(item)));
     const equipmentValues = Array.from(equipmentSet).sort((a, b) => a.localeCompare(b, "es"));
 
     filterEquipmentList.innerHTML = "";
@@ -2046,13 +2311,15 @@
   }
 
   function countMatchesForDraft() {
-    const candidate = { q: state.q, grupo: draftState.grupo, equipamiento: draftState.equipamiento, favoritos: draftState.favoritos };
-    return exercises.filter((exercise) => matchesFiltersWith(exercise, candidate)).length;
+    const baseState = filterPanelMode === "routine" ? routineFilterState : state;
+    const candidate = { q: baseState.q, grupo: draftState.grupo, equipamiento: draftState.equipamiento, favoritos: draftState.favoritos };
+    return filterSourceExercises().filter((exercise) => matchesFiltersWith(exercise, candidate)).length;
   }
 
-  function renderCard(exercise) {
+  function renderCard(exercise, options = {}) {
+    const isRoutineCard = options.context === "routine";
     const card = document.createElement("div");
-    card.className = "exercise-card";
+    card.className = isRoutineCard ? "exercise-card exercise-card--routine" : "exercise-card";
     card.dataset.exerciseId = exercise.id;
     card.dataset.current = String(currentExercise && currentExercise.id === exercise.id);
 
@@ -2074,17 +2341,24 @@
       <button type="button" class="exercise-card__favorite" data-favorite-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isFavorite(exercise.id)}" aria-label="Guardar ${escapeHtml(exercise.nombre)} en favoritos">
         ${HEART_ICON}
       </button>
-      <button type="button" class="exercise-card__add" data-routine-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isInRoutineCart(exercise.id)}" aria-label="${isInRoutineCart(exercise.id) ? "Quitar" : "Añadir"} ${escapeHtml(exercise.nombre)} ${isInRoutineCart(exercise.id) ? "de" : "a"} la rutina">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
-        <span data-routine-toggle-label>${isInRoutineCart(exercise.id) ? "Añadido" : "Añadir a rutina"}</span>
-      </button>
+      ${
+        isRoutineCard
+          ? ""
+          : `<button type="button" class="exercise-card__add" data-routine-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isInRoutineCart(exercise.id)}" aria-label="${isInRoutineCart(exercise.id) ? "Quitar" : "Añadir"} ${escapeHtml(exercise.nombre)} ${isInRoutineCart(exercise.id) ? "de" : "a"} la rutina">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
+              <span data-routine-toggle-label>${isInRoutineCart(exercise.id) ? "Añadido" : "Añadir a rutina"}</span>
+            </button>`
+      }
     `;
 
     card
       .querySelector(".exercise-card__open")
-      .addEventListener("click", () => openExercise(exercise, true));
+      .addEventListener("click", () => (isRoutineCard ? openExerciseFromRoutine(exercise) : openExercise(exercise, true)));
     card.querySelector(".exercise-card__favorite").addEventListener("click", () => toggleFavorite(exercise.id));
-    card.querySelector(".exercise-card__add").addEventListener("click", () => toggleRoutineCartItem(exercise.id));
+    const addButton = card.querySelector(".exercise-card__add");
+    if (addButton) {
+      addButton.addEventListener("click", () => toggleRoutineCartItem(exercise.id));
+    }
 
     return card;
   }
@@ -2118,7 +2392,7 @@
       return null;
     }
 
-    const card = renderCard(exercise);
+    const card = renderCard(exercise, { context: "routine" });
     const prescription = formatPrescription(entry);
     if (prescription) {
       const body = card.querySelector(".exercise-card__body");
@@ -2129,6 +2403,11 @@
       body.insertBefore(prescriptionEl, footer);
     }
     return card;
+  }
+
+  function routineEntryMatches(entry) {
+    const exercise = exercises.find((item) => item.id === entry.id);
+    return Boolean(exercise && matchesFiltersWith(exercise, routineFilterState));
   }
 
   function groupLabelFor(value) {
@@ -2149,8 +2428,26 @@
     return labels;
   }
 
+  function activeRoutineFilterLabels() {
+    const labels = [];
+    if (routineFilterState.grupo) {
+      labels.push(groupLabelFor(routineFilterState.grupo));
+    }
+    if (routineFilterState.equipamiento) {
+      labels.push(routineFilterState.equipamiento);
+    }
+    if (routineFilterState.favoritos) {
+      labels.push("Solo favoritos");
+    }
+    return labels;
+  }
+
   function activeFilterCount() {
     return activeFilterLabels().length;
+  }
+
+  function activeRoutineFilterCount() {
+    return activeRoutineFilterLabels().length;
   }
 
   function resetFilters() {
@@ -2158,6 +2455,13 @@
     state.equipamiento = "";
     state.favoritos = false;
     renderGrid();
+  }
+
+  function resetRoutineFilters() {
+    routineFilterState.grupo = "";
+    routineFilterState.equipamiento = "";
+    routineFilterState.favoritos = false;
+    checkRoutineView({ scrollToTop: false });
   }
 
   function updateFiltersButton() {
@@ -2168,6 +2472,17 @@
     }
     if (filtersOpenButton) {
       filtersOpenButton.classList.toggle("is-active", count > 0);
+    }
+  }
+
+  function updateRoutineFiltersButton() {
+    const count = activeRoutineFilterCount();
+    if (routineFiltersBadge) {
+      routineFiltersBadge.hidden = count === 0;
+      routineFiltersBadge.textContent = String(count);
+    }
+    if (routineFiltersOpenButton) {
+      routineFiltersOpenButton.classList.toggle("is-active", count > 0);
     }
   }
 
@@ -2182,6 +2497,19 @@
     }
     filtersSummary.hidden = false;
     filtersSummaryText.textContent = `Filtros: ${labels.join(" · ")}`;
+  }
+
+  function renderRoutineFiltersSummary() {
+    const labels = activeRoutineFilterLabels();
+    if (!routineFiltersSummary) {
+      return;
+    }
+    if (labels.length === 0) {
+      routineFiltersSummary.hidden = true;
+      return;
+    }
+    routineFiltersSummary.hidden = false;
+    routineFiltersSummaryText.textContent = `Filtros: ${labels.join(" · ")}`;
   }
 
   function initLazyImages(container) {
@@ -2300,25 +2628,30 @@
     `;
   }
 
-  function renderExerciseDetail(exercise) {
+  function renderExerciseDetail(exercise, options = {}) {
     if (!exercisePageContent) {
       return;
     }
 
     const anatomyImage = exercise.imagenAnatomia || exercise.imagenAnatomica || "";
+    const showRoutineActions = !options.readOnlyRoutine;
 
     exercisePageContent.innerHTML = `
       <article class="exercise-detail" aria-labelledby="exercise-page-title">
         <div class="exercise-detail__topbar">
           <h1 id="exercise-page-title">${escapeHtml(exercise.nombre)}</h1>
           <div class="exercise-detail__actions">
-            <button type="button" class="exercise-detail__favorite" data-favorite-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isFavorite(exercise.id)}" aria-label="Guardar ${escapeHtml(exercise.nombre)} en favoritos">
-              ${HEART_ICON}
-            </button>
-            <button type="button" class="exercise-detail__add" data-routine-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isInRoutineCart(exercise.id)}" aria-label="${isInRoutineCart(exercise.id) ? "Quitar" : "Añadir"} ${escapeHtml(exercise.nombre)} ${isInRoutineCart(exercise.id) ? "de" : "a"} la rutina">
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
-              <span data-routine-toggle-label>${isInRoutineCart(exercise.id) ? "Añadido" : "Añadir a rutina"}</span>
-            </button>
+            ${
+              showRoutineActions
+                ? `<button type="button" class="exercise-detail__favorite" data-favorite-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isFavorite(exercise.id)}" aria-label="Guardar ${escapeHtml(exercise.nombre)} en favoritos">
+                    ${HEART_ICON}
+                  </button>
+                  <button type="button" class="exercise-detail__add" data-routine-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isInRoutineCart(exercise.id)}" aria-label="${isInRoutineCart(exercise.id) ? "Quitar" : "Añadir"} ${escapeHtml(exercise.nombre)} ${isInRoutineCart(exercise.id) ? "de" : "a"} la rutina">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
+                    <span data-routine-toggle-label>${isInRoutineCart(exercise.id) ? "Añadido" : "Añadir a rutina"}</span>
+                  </button>`
+                : ""
+            }
             <button type="button" class="exercise-detail__close" data-exercise-back aria-label="Cerrar ficha de ejercicio">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
             </button>
@@ -2614,29 +2947,70 @@
     });
   }
 
-  function showExercise(exercise) {
+  function moveExercisePageToBody() {
+    if (!exercisePage || exercisePage.parentElement === document.body) {
+      return;
+    }
+    document.body.appendChild(exercisePage);
+  }
+
+  function restoreExercisePagePlacement() {
+    if (!exercisePage || !exercisePageOriginalParent || exercisePage.parentElement === exercisePageOriginalParent) {
+      return;
+    }
+    exercisePageOriginalParent.insertBefore(exercisePage, exercisePageOriginalNext);
+  }
+
+  function resetExercisePageScroll() {
+    if (!exercisePage) {
+      return;
+    }
+    exercisePage.scrollTop = 0;
+    if (exercisePageContent) {
+      exercisePageContent.scrollTop = 0;
+    }
+    window.requestAnimationFrame(() => {
+      exercisePage.scrollTop = 0;
+      if (exercisePageContent) {
+        exercisePageContent.scrollTop = 0;
+      }
+    });
+  }
+
+  function showExercise(exercise, options = {}) {
     const useOverlay = usesExerciseOverlay();
+    const fromRoutine = options.fromRoutine === true;
     setCatalogToolsReveal(false);
     currentExercise = exercise;
-    renderExerciseDetail(exercise);
+    exerciseReturnContext = fromRoutine ? "routine" : "catalog";
+    if (fromRoutine) {
+      moveExercisePageToBody();
+    } else {
+      restoreExercisePagePlacement();
+    }
+    renderExerciseDetail(exercise, { readOnlyRoutine: fromRoutine });
     syncCurrentCard();
-    setCatalogToolsPlacement(useOverlay ? "intro" : "catalog");
+    setCatalogToolsPlacement(!fromRoutine && useOverlay ? "intro" : "catalog");
     if (exercisePage) {
       exercisePage.hidden = false;
+      resetExercisePageScroll();
     }
     if (exercisesMain) {
-      exercisesMain.classList.add("is-exercise-open");
+      exercisesMain.classList.toggle("is-exercise-open", !fromRoutine);
+      exercisesMain.classList.toggle("is-routine-exercise-open", fromRoutine);
     }
-    document.body.classList.toggle("has-exercise-overlay", useOverlay);
+    document.body.classList.toggle("has-exercise-overlay", !fromRoutine && useOverlay);
+    document.body.classList.toggle("has-routine-exercise-overlay", fromRoutine);
     if (routineView) {
-      routineView.hidden = true;
+      routineView.hidden = fromRoutine ? false : true;
     }
-    exercisesIntro.hidden = !useOverlay;
-    exercisesCatalog.hidden = false;
+    exercisesIntro.hidden = fromRoutine ? true : !useOverlay;
+    exercisesCatalog.hidden = fromRoutine ? true : false;
+    setRoutineFavoritesOpen(false);
     if (backToTopButton) {
       backToTopButton.classList.remove("is-visible");
     }
-    if (!useOverlay) {
+    if (!fromRoutine && !useOverlay) {
       alignExerciseLayout(exercise);
     }
   }
@@ -2648,8 +3022,14 @@
     }
   }
 
+  function openExerciseFromRoutine(exercise) {
+    showExercise(exercise, { fromRoutine: true });
+  }
+
   function closeExercise(updateHash) {
+    const shouldReturnToRoutine = exerciseReturnContext === "routine" && isRoutineHash(location.hash);
     currentExercise = null;
+    exerciseReturnContext = "catalog";
     lastWindowScrollY = window.scrollY;
     if (exercisePage) {
       exercisePage.hidden = true;
@@ -2659,12 +3039,22 @@
     }
     if (exercisesMain) {
       exercisesMain.classList.remove("is-exercise-open");
+      exercisesMain.classList.remove("is-routine-exercise-open");
     }
     document.body.classList.remove("has-exercise-overlay");
+    document.body.classList.remove("has-routine-exercise-overlay");
     syncCurrentCard();
+    restoreExercisePagePlacement();
+
+    if (shouldReturnToRoutine) {
+      checkRoutineView({ scrollToTop: false });
+      return;
+    }
+
     setCatalogToolsPlacement("intro");
     exercisesIntro.hidden = false;
     exercisesCatalog.hidden = false;
+    renderRoutineFavorites();
     if (backToTopButton) {
       backToTopButton.classList.toggle("is-visible", window.scrollY > 640);
     }
@@ -2685,11 +3075,15 @@
         }
         if (exercisesMain) {
           exercisesMain.classList.remove("is-exercise-open");
+          exercisesMain.classList.remove("is-routine-exercise-open");
         }
         document.body.classList.remove("has-exercise-overlay");
+        document.body.classList.remove("has-routine-exercise-overlay");
+        restoreExercisePagePlacement();
         setCatalogToolsPlacement("intro");
         exercisesIntro.hidden = false;
         exercisesCatalog.hidden = false;
+        renderRoutineFavorites();
       }
       return;
     }
@@ -2700,24 +3094,38 @@
     }
   }
 
-  function checkRoutineView() {
+  function checkRoutineView(options = {}) {
     if (!routineView || !window.Routines) {
       return;
     }
 
     const routine = window.Routines.decode(location.hash);
-    const routineItems = routine ? routine.items || routine.e.map((id) => ({ id })) : [];
-    const routineCards = routineItems.map(renderRoutineCard).filter(Boolean);
+    const validRoutineItems = routineEntriesFromRoutine(routine);
+    routineViewItems = validRoutineItems;
+    const filteredRoutineItems = validRoutineItems.filter(routineEntryMatches);
+    const routineCards = filteredRoutineItems.map(renderRoutineCard).filter(Boolean);
 
-    if (!routine || routineCards.length === 0) {
+    if (!routine || validRoutineItems.length === 0) {
       routineView.hidden = true;
+      routineViewItems = [];
       if (routineGrid) {
         routineGrid.classList.remove("routine-view__grid--weekly");
+      }
+      if (routineDayFilters) {
+        routineDayFilters.hidden = true;
+        routineDayFilters.innerHTML = "";
+      }
+      routineViewDayFilter = "";
+      updateRoutineFiltersButton();
+      renderRoutineFiltersSummary();
+      if (exercisesMain) {
+        exercisesMain.classList.remove("is-routine-exercise-open");
       }
       if (!location.hash.startsWith("#ejercicio/") && !currentExercise) {
         setCatalogToolsPlacement("intro");
         exercisesIntro.hidden = false;
         exercisesCatalog.hidden = false;
+        renderRoutineFavorites();
       }
       return;
     }
@@ -2732,13 +3140,18 @@
     }
     if (exercisesMain) {
       exercisesMain.classList.remove("is-exercise-open");
+      exercisesMain.classList.remove("is-routine-exercise-open");
     }
     document.body.classList.remove("has-exercise-overlay");
+    document.body.classList.remove("has-routine-exercise-overlay");
+    restoreExercisePagePlacement();
     exercisesIntro.hidden = true;
     exercisesCatalog.hidden = true;
+    setRoutineFavoritesOpen(false);
     routineView.hidden = false;
 
     routineTitle.textContent = routine.t || "Rutina compartida";
+    updateRoutineSaveButton(routine);
 
     if (routine.n) {
       routineNote.textContent = routine.n;
@@ -2746,16 +3159,33 @@
     } else {
       routineNote.hidden = true;
     }
+    if (routineSearchInput && routineSearchInput.value !== routineFilterState.q) {
+      routineSearchInput.value = routineFilterState.q;
+    }
 
     routineGrid.innerHTML = "";
-    const routineDays = routineDaysForEntries(routineItems, routine.days || []);
-    const useWeeklyLayout = routineDays.length > 1;
+    if (routineEmpty) {
+      routineEmpty.hidden = true;
+    }
+    const routineDays = routineDaysForEntries(validRoutineItems, routine.days || []);
+    const hasAssignedDays = validRoutineItems.some((item) => item.day);
+    const useWeeklyLayout = routineDays.length > 1 || hasAssignedDays;
+    renderRoutineDayFilters(routineDays);
     routineGrid.classList.toggle("routine-view__grid--weekly", useWeeklyLayout);
     if (useWeeklyLayout) {
-      groupRoutineEntries(routineItems, routineDays).forEach((group) => {
+      groupRoutineEntries(filteredRoutineItems, routineDays)
+        .filter((group) => !routineViewDayFilter || group.day === routineViewDayFilter)
+        .forEach((group) => {
         const section = document.createElement("section");
         section.className = "routine-view__day";
-        section.innerHTML = `<h2>${escapeHtml(routineDayMeta(group.day).label)}</h2><div class="exercises-grid routine-view__day-grid"></div>`;
+        const muscles = routineMusclesForEntries(group.entries);
+        section.innerHTML = `
+          <div class="routine-view__day-head">
+            <h2>${escapeHtml(routineDayMeta(group.day).label)}</h2>
+            ${muscles ? `<p>${escapeHtml(muscles)}</p>` : ""}
+          </div>
+          <div class="exercises-grid routine-view__day-grid"></div>
+        `;
         const dayGrid = section.querySelector(".routine-view__day-grid");
         group.entries.map(renderRoutineCard).filter(Boolean).forEach((card) => dayGrid.appendChild(card));
         if (dayGrid.children.length) {
@@ -2768,8 +3198,15 @@
       routineGrid.appendChild(fragment);
     }
     initLazyImages(routineGrid);
+    updateRoutineFiltersButton();
+    renderRoutineFiltersSummary();
+    if (routineEmpty) {
+      routineEmpty.hidden = routineGrid.children.length > 0;
+    }
 
-    window.scrollTo(0, 0);
+    if (options.scrollToTop !== false) {
+      window.scrollTo(0, 0);
+    }
   }
 
   function isRoutineHash(hash) {
@@ -2793,29 +3230,110 @@
     checkRoutineView();
   }
 
-  function saveRoutineToFavorites() {
+  function buildSavedRoutine(routine) {
+    if (!routine || !window.Routines) {
+      return null;
+    }
+    const items = routineEntriesFromRoutine(routine);
+    if (items.length === 0) {
+      return null;
+    }
+    const days = routineDaysForEntries(items, routine.days || []);
+    return {
+      id: window.Routines.encode({ t: routine.t, n: routine.n, days, items }),
+      title: routine.t || "Rutina compartida",
+      note: routine.n || "",
+      days,
+      items,
+      savedAt: new Date().toISOString(),
+      version: 1,
+    };
+  }
+
+  function routineFavoriteIndex(routine) {
+    const savedRoutine = buildSavedRoutine(routine);
+    if (!savedRoutine) {
+      return -1;
+    }
+    return loadRoutineFavorites().findIndex((item) => item.id === savedRoutine.id);
+  }
+
+  function updateRoutineSaveButton(routine) {
+    if (!routineSaveButton) {
+      return;
+    }
+    const isSaved = routineFavoriteIndex(routine) >= 0;
+    routineSaveButton.textContent = isSaved ? "Quitar rutina de Favoritos" : "Guardar rutina en Favoritos";
+    routineSaveButton.setAttribute("aria-pressed", String(isSaved));
+    routineSaveButton.disabled = false;
+  }
+
+  function toggleRoutineFavorite() {
     const routine = window.Routines.decode(location.hash);
-    if (!routine) {
+    const savedRoutine = buildSavedRoutine(routine);
+    if (!savedRoutine) {
       return;
     }
 
-    routine.e.forEach((id) => {
-      if (!favorites.has(id)) {
-        favorites.add(id);
-      }
-    });
-    saveFavorites();
-    routine.e.forEach((id) => syncFavoriteButtons(id));
-
-    if (routineSaveButton) {
-      const original = routineSaveButton.textContent;
-      routineSaveButton.textContent = "¡Guardada en Favoritos!";
-      routineSaveButton.disabled = true;
-      window.setTimeout(() => {
-        routineSaveButton.textContent = original;
-        routineSaveButton.disabled = false;
-      }, 1800);
+    const routines = loadRoutineFavorites();
+    const existingIndex = routines.findIndex((item) => item.id === savedRoutine.id);
+    if (existingIndex >= 0) {
+      routines.splice(existingIndex, 1);
+    } else {
+      routines.unshift(savedRoutine);
     }
+    saveRoutineFavorites(routines);
+    renderRoutineFavorites();
+    updateRoutineSaveButton(routine);
+  }
+
+  function loadRoutineIntoBuilder(routine) {
+    if (!routine || !routineCart || !routineCartPanel || !routineCartBuilder) {
+      return;
+    }
+    const items = routineEntriesFromRoutine(routine);
+    if (items.length === 0) {
+      return;
+    }
+    const days = routineDaysForEntries(items, routine.days || []);
+    routineCartDays = normalizeRoutineCartDays(days);
+    routineCartItems = items.map((item) => ({
+      ...item,
+      day: routineCartDays.includes(item.day) ? item.day : ROUTINE_UNASSIGNED_DAY,
+    }));
+    routineCartSelectedIds.clear();
+    clearRoutineCartValidation();
+    saveRoutineCartDays();
+    if (routineCartTitleInput) {
+      routineCartTitleInput.value = routine.t || routineCartDefaultTitle;
+    }
+    if (routineCartNoteInput) {
+      routineCartNoteInput.value = routine.n || "";
+      resizeRoutineCartNote();
+    }
+    if (routineCartLink) {
+      routineCartLink.value = "";
+    }
+    if (routineCartQr) {
+      routineCartQr.innerHTML = "";
+    }
+    if (routineCartResult) {
+      routineCartResult.hidden = true;
+    }
+    setRoutineFavoritesOpen(false);
+    renderRoutineCart();
+    setRoutineCartOpen(true);
+    setRoutineCartBuilderOpen(true);
+    if (routineCartPanel) {
+      routineCartPanel.scrollTo({ top: 0, behavior: "auto" });
+    }
+  }
+
+  function editCurrentRoutine() {
+    if (!window.Routines || !isRoutineHash(location.hash)) {
+      return;
+    }
+    loadRoutineIntoBuilder(window.Routines.decode(location.hash));
   }
 
   function bindBackToTop() {
@@ -2871,13 +3389,15 @@
     }
   }
 
-  function openFilterPanel() {
+  function openFilterPanel(mode = "catalog") {
     if (!filterPanel) {
       return;
     }
-    draftState.grupo = state.grupo;
-    draftState.equipamiento = state.equipamiento;
-    draftState.favoritos = state.favoritos;
+    filterPanelMode = mode === "routine" ? "routine" : "catalog";
+    const sourceState = filterPanelMode === "routine" ? routineFilterState : state;
+    draftState.grupo = sourceState.grupo;
+    draftState.equipamiento = sourceState.equipamiento;
+    draftState.favoritos = sourceState.favoritos;
     if (filterFavoritesSwitch) {
       filterFavoritesSwitch.checked = draftState.favoritos;
     }
@@ -2912,18 +3432,25 @@
       window.setTimeout(finish, 260);
     }
 
-    if (filtersOpenButton) {
-      filtersOpenButton.focus();
-    } else if (previousFocusedElement) {
+    if (previousFocusedElement) {
       previousFocusedElement.focus();
+    } else if (filtersOpenButton) {
+      filtersOpenButton.focus();
     }
   }
 
   function applyFilterPanel() {
-    state.grupo = draftState.grupo;
-    state.equipamiento = draftState.equipamiento;
-    state.favoritos = draftState.favoritos;
-    renderGrid();
+    if (filterPanelMode === "routine") {
+      routineFilterState.grupo = draftState.grupo;
+      routineFilterState.equipamiento = draftState.equipamiento;
+      routineFilterState.favoritos = draftState.favoritos;
+      checkRoutineView({ scrollToTop: false });
+    } else {
+      state.grupo = draftState.grupo;
+      state.equipamiento = draftState.equipamiento;
+      state.favoritos = draftState.favoritos;
+      renderGrid();
+    }
     closeFilterPanel();
   }
 
@@ -2970,6 +3497,25 @@
   }
 
   function bindEvents() {
+    document.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (exerciseReturnContext !== "routine" || !currentExercise || !exercisePage || exercisePage.hidden) {
+          return;
+        }
+        if (exercisePage.contains(event.target)) {
+          return;
+        }
+        if (event.target.closest(".site-header, .mobile-menu, [data-menu-toggle], [data-mobile-menu]")) {
+          return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        closeExercise(false);
+      },
+      true
+    );
+
     if (exercisePageContent) {
       exercisePageContent.addEventListener("click", (event) => {
         const backButton = event.target.closest("[data-exercise-back]");
@@ -2994,7 +3540,11 @@
         if (similarCard) {
           const exercise = exercises.find((item) => item.id === similarCard.dataset.similarId);
           if (exercise) {
-            openExercise(exercise, true);
+            if (exerciseReturnContext === "routine") {
+              openExerciseFromRoutine(exercise);
+            } else {
+              openExercise(exercise, true);
+            }
           }
           return;
         }
@@ -3004,6 +3554,19 @@
     if (routineCartToggle) {
       routineCartToggle.addEventListener("click", () => {
         setRoutineCartOpen(routineCartPanel ? routineCartPanel.hidden : true);
+      });
+    }
+
+    if (routineFavoritesToggle) {
+      routineFavoritesToggle.addEventListener("click", () => {
+        renderRoutineFavorites();
+        setRoutineFavoritesOpen(!routineFavoritesOpen);
+      });
+    }
+
+    if (routineFavoritesClose) {
+      routineFavoritesClose.addEventListener("click", () => {
+        setRoutineFavoritesOpen(false);
       });
     }
 
@@ -3266,12 +3829,30 @@
       }, 130);
     });
 
+    if (routineSearchInput) {
+      routineSearchInput.addEventListener("input", () => {
+        window.clearTimeout(searchDebounce);
+        searchDebounce = window.setTimeout(() => {
+          routineFilterState.q = routineSearchInput.value.trim();
+          checkRoutineView({ scrollToTop: false });
+        }, 130);
+      });
+    }
+
     if (filtersOpenButton) {
-      filtersOpenButton.addEventListener("click", openFilterPanel);
+      filtersOpenButton.addEventListener("click", () => openFilterPanel("catalog"));
+    }
+
+    if (routineFiltersOpenButton) {
+      routineFiltersOpenButton.addEventListener("click", () => openFilterPanel("routine"));
     }
 
     if (filtersClearInline) {
       filtersClearInline.addEventListener("click", resetFilters);
+    }
+
+    if (routineFiltersClearInline) {
+      routineFiltersClearInline.addEventListener("click", resetRoutineFilters);
     }
 
     if (filterPanel) {
@@ -3324,12 +3905,48 @@
     window.addEventListener("resize", updateHeaderHeightVar);
     window.addEventListener("scroll", onCatalogToolsScroll, { passive: true });
 
+    if (routineEditButton) {
+      routineEditButton.addEventListener("click", editCurrentRoutine);
+    }
+
     if (routineSaveButton) {
-      routineSaveButton.addEventListener("click", saveRoutineToFavorites);
+      routineSaveButton.addEventListener("click", toggleRoutineFavorite);
     }
 
     if (routineDismissButton) {
       routineDismissButton.addEventListener("click", dismissRoutineView);
+    }
+
+    if (routineDayFilters) {
+      routineDayFilters.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-routine-day-filter]");
+        if (!button) {
+          return;
+        }
+        routineViewDayFilter = button.dataset.routineDayFilter || "";
+        checkRoutineView({ scrollToTop: false });
+      });
+    }
+
+    if (routineFavoritesList) {
+      routineFavoritesList.addEventListener("click", (event) => {
+        const openButton = event.target.closest("[data-routine-favorite-open]");
+        if (openButton) {
+          openRoutineFavorite(Number(openButton.dataset.routineFavoriteOpen));
+          return;
+        }
+
+        const editButton = event.target.closest("[data-routine-favorite-edit]");
+        if (editButton) {
+          editRoutineFavorite(Number(editButton.dataset.routineFavoriteEdit));
+          return;
+        }
+
+        const removeButton = event.target.closest("[data-routine-favorite-remove]");
+        if (removeButton) {
+          removeRoutineFavorite(Number(removeButton.dataset.routineFavoriteRemove));
+        }
+      });
     }
 
     bindBackToTop();
@@ -3350,6 +3967,7 @@
       populateFilters(payload);
       bindEvents();
       renderGrid();
+      renderRoutineFavorites();
       renderRoutineCart();
       syncRoute();
       updateHeaderHeightVar();
