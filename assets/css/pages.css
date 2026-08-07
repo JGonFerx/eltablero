@@ -2149,14 +2149,15 @@
 .home-member-card__benefits li {
   display: grid;
   align-content: start;
+  justify-items: center;
   gap: 0.42rem;
   min-width: 0;
   padding-inline: clamp(0.7rem, 1.4vw, 1rem);
   border-left: 1px solid rgba(18, 15, 12, 0.2);
+  text-align: center;
 }
 
 .home-member-card__benefits li:first-child {
-  padding-left: 0;
   border-left: 0;
 }
 
