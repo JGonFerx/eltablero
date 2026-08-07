@@ -9,12 +9,15 @@
   const printFavoritesButton = document.querySelector("[data-print-favorites]");
 
   const filtersOpenButton = document.querySelector("[data-filters-open]");
+  const catalogTourButton = document.querySelector("[data-catalog-tour]");
   const filtersBadge = document.querySelector("[data-filters-badge]");
   const filtersSummary = document.querySelector("[data-filters-summary]");
   const filtersSummaryText = document.querySelector("[data-filters-summary-text]");
   const filtersClearInline = document.querySelector("[data-filters-clear]");
   const filterPanel = document.querySelector("[data-filter-panel]");
   const filterPanelSheet = document.querySelector("[data-filter-panel-sheet]");
+  const filterPanelOriginalParent = filterPanel ? filterPanel.parentElement : null;
+  const filterPanelOriginalNext = filterPanel ? filterPanel.nextElementSibling : null;
   const filterFavoritesSwitch = document.querySelector("[data-filter-favorites]");
   const filterGroupList = document.querySelector("[data-filter-group-list]");
   const filterEquipmentList = document.querySelector("[data-filter-equipment-list]");
@@ -29,6 +32,7 @@
   const routineDayFilters = document.querySelector("[data-routine-day-filters]");
   const routineSearchInput = document.querySelector("[data-routine-search]");
   const routineFiltersOpenButton = document.querySelector("[data-routine-filters-open]");
+  const routineViewTourButton = document.querySelector("[data-routine-view-tour]");
   const routineFiltersBadge = document.querySelector("[data-routine-filters-badge]");
   const routineFiltersSummary = document.querySelector("[data-routine-filters-summary]");
   const routineFiltersSummaryText = document.querySelector("[data-routine-filters-summary-text]");
@@ -71,6 +75,7 @@
   const routineCartResult = document.querySelector("[data-routine-cart-result]");
   const routineCartLink = document.querySelector("[data-routine-cart-link]");
   const routineCartCopy = document.querySelector("[data-routine-cart-copy]");
+  const routineCartOpen = document.querySelector("[data-routine-cart-open]");
   const routineCartQr = document.querySelector("[data-routine-cart-qr]");
   const routineCartDownloadQr = document.querySelector("[data-routine-cart-download-qr]");
   const routineCartPrint = document.querySelector("[data-routine-cart-print]");
@@ -123,6 +128,42 @@
   let routineCartTourPrevButton;
   let routineCartTourNextButton;
   let routineCartTourCloseButton;
+  let catalogTourBuilt = false;
+  let catalogTourActive = false;
+  let catalogTourIndex = 0;
+  let catalogTourPreviousFocus = null;
+  let catalogTourRepositionHandler = null;
+  let catalogTourBackdrop;
+  let catalogTourSpot;
+  let catalogTourPopup;
+  let catalogTourStepLabel;
+  let catalogTourTitle;
+  let catalogTourText;
+  let catalogTourDismissCheckbox;
+  let catalogTourPrevButton;
+  let catalogTourNextButton;
+  let catalogTourCloseButton;
+  let catalogTourAutoStarted = false;
+  let routineViewTourBuilt = false;
+  let routineViewTourActive = false;
+  let routineViewTourIndex = 0;
+  let routineViewTourPreviousFocus = null;
+  let routineViewTourRepositionHandler = null;
+  let routineViewTourBackdrop;
+  let routineViewTourSpot;
+  let routineViewTourPopup;
+  let routineViewTourStepLabel;
+  let routineViewTourTitle;
+  let routineViewTourText;
+  let routineViewTourDismissCheckbox;
+  let routineViewTourPrevButton;
+  let routineViewTourNextButton;
+  let routineViewTourCloseButton;
+  let routineViewTourAutoStarted = false;
+  let pendingRoutineFavoriteRemoveIndex = null;
+  let pendingRoutineFavoriteRemoveTimer = 0;
+  let pendingRoutineSaveRemoveId = "";
+  let pendingRoutineSaveRemoveTimer = 0;
 
   const state = {
     q: "",
@@ -136,16 +177,26 @@
     equipamiento: "",
     favoritos: false,
   };
+  const routineExercisePickerState = {
+    q: "",
+    grupo: "",
+    equipamiento: "",
+    favoritos: false,
+  };
 
   const FAVORITES_KEY = "eltablero:ejercicios:favoritos";
   const ROUTINE_FAVORITES_KEY = "eltablero:ejercicios:rutinas-favoritas";
+  const ROUTINE_FAVORITES_DEFAULTS_KEY = "eltablero:ejercicios:rutinas-favoritas-defaults-v1";
   const ROUTINE_CART_KEY = "eltablero:ejercicios:rutina-carrito";
   const ROUTINE_CART_DAYS_KEY = "eltablero:ejercicios:rutina-dias";
   const ROUTINE_CART_TOUR_KEY = "eltablero:ejercicios:rutina-carrito-tour-dismissed";
+  const CATALOG_TOUR_KEY = "eltablero:ejercicios:catalogo-tour-dismissed";
+  const ROUTINE_VIEW_TOUR_KEY = "eltablero:ejercicios:rutina-compartida-tour-dismissed";
   const ROUTINE_UNASSIGNED_DAY = "";
   const ROUTINE_DEFAULT_SERIES = "3";
   const ROUTINE_DEFAULT_REPS = "10";
   const ROUTINE_DEFAULT_REST = "2";
+  const ROUTINE_REMOVE_CONFIRM_DELAY = 4500;
   const WEEK_DAYS = [
     { id: "lunes", label: "Lunes", short: "Lun" },
     { id: "martes", label: "Martes", short: "Mar" },
@@ -154,6 +205,41 @@
     { id: "viernes", label: "Viernes", short: "Vie" },
     { id: "sabado", label: "Sábado", short: "Sáb" },
     { id: "domingo", label: "Domingo", short: "Dom" },
+  ];
+  const DEFAULT_ROUTINE_TEMPLATES = [
+    {
+      title: "Cuerpo completo básico - 3 días",
+      note: "Rutina orientativa para principiantes. Prioriza la técnica, usa cargas cómodas y deja al menos un día de descanso entre sesiones.",
+      days: ["lunes", "miercoles", "viernes"],
+      plan: {
+        lunes: ["bodyweight-squat", "db-bench-press", "lat-pulldown", "glute-bridge", "plank"],
+        miercoles: ["lunge", "chest-press-machine", "wide-grip-seated-cable-row", "dumbbell-shoulder-press", "sit-ups"],
+        viernes: ["goblet-squat", "single-arm-db-row", "dumbbell-tricep-extension", "barbell-curl", "lying-leg-raise"],
+      },
+    },
+    {
+      title: "Cuerpo completo básico - 4 días",
+      note: "Plan semanal sencillo para ganar constancia. Mantén un ritmo controlado, sin llegar al fallo, y ajusta cargas si la técnica se degrada.",
+      days: ["lunes", "martes", "jueves", "viernes"],
+      plan: {
+        lunes: ["leg-press", "chest-press-machine", "lat-pulldown", "glute-bridge", "plank"],
+        martes: ["bodyweight-squat", "wide-grip-seated-cable-row", "dumbbell-shoulder-press", "seated-leg-curl", "sit-ups"],
+        jueves: ["goblet-squat", "db-bench-press", "single-arm-db-row", "bodyweight-good-morning", "lying-leg-raise"],
+        viernes: ["lunge", "cable-chest-press", "lat-pulldown", "dumbbell-calf-raise", "plank"],
+      },
+    },
+    {
+      title: "Cuerpo completo básico - 5 días",
+      note: "Rutina base para practicar los patrones principales con volumen moderado. Descansa lo necesario y aumenta la carga solo cuando el movimiento sea estable.",
+      days: ["lunes", "martes", "miercoles", "jueves", "viernes"],
+      plan: {
+        lunes: ["bodyweight-squat", "chest-press-machine", "wide-grip-seated-cable-row", "plank"],
+        martes: ["leg-press", "dumbbell-shoulder-press", "lat-pulldown", "sit-ups"],
+        miercoles: ["goblet-squat", "db-bench-press", "single-arm-db-row", "glute-bridge"],
+        jueves: ["lunge", "cable-chest-press", "seated-leg-curl", "lying-leg-raise"],
+        viernes: ["bodyweight-good-morning", "lat-pulldown", "dumbbell-tricep-extension", "barbell-curl"],
+      },
+    },
   ];
 
   function loadFavorites() {
@@ -171,6 +257,7 @@
   let routineCartItems = loadRoutineCart();
   let routineCartSelectedIds = new Set();
   let routineTouchDrag = null;
+  let routineDayDropTray = null;
 
   function saveFavorites() {
     try {
@@ -193,6 +280,81 @@
   function saveRoutineFavorites(routines) {
     try {
       window.localStorage.setItem(ROUTINE_FAVORITES_KEY, JSON.stringify(routines));
+    } catch (error) {
+      /* almacenamiento no disponible */
+    }
+  }
+
+  function clearRoutineFavoriteRemoveConfirmation(render = true) {
+    pendingRoutineFavoriteRemoveIndex = null;
+    if (pendingRoutineFavoriteRemoveTimer) {
+      window.clearTimeout(pendingRoutineFavoriteRemoveTimer);
+      pendingRoutineFavoriteRemoveTimer = 0;
+    }
+    if (render) {
+      renderRoutineFavorites();
+    }
+  }
+
+  function clearRoutineSaveRemoveConfirmation(update = true) {
+    pendingRoutineSaveRemoveId = "";
+    if (pendingRoutineSaveRemoveTimer) {
+      window.clearTimeout(pendingRoutineSaveRemoveTimer);
+      pendingRoutineSaveRemoveTimer = 0;
+    }
+    if (update && isRoutineHash(location.hash) && window.Routines) {
+      updateRoutineSaveButton(window.Routines.decode(location.hash));
+    }
+  }
+
+  function buildDefaultRoutine(template) {
+    const items = template.days.flatMap((day) =>
+      (template.plan[day] || []).map((id) => ({
+        id,
+        series: ROUTINE_DEFAULT_SERIES,
+        reps: ROUTINE_DEFAULT_REPS,
+        rest: ROUTINE_DEFAULT_REST,
+        day,
+      }))
+    );
+    return {
+      t: template.title,
+      n: template.note,
+      days: template.days,
+      items,
+    };
+  }
+
+  function seedDefaultRoutineFavorites() {
+    if (!window.Routines) {
+      return;
+    }
+    try {
+      if (window.localStorage.getItem(ROUTINE_FAVORITES_DEFAULTS_KEY) === "1") {
+        return;
+      }
+      const currentRoutines = loadRoutineFavorites();
+      const existingIds = new Set(currentRoutines.map((routine) => routine && routine.id).filter(Boolean));
+      const seededRoutines = DEFAULT_ROUTINE_TEMPLATES.map((template) => {
+        const routine = buildDefaultRoutine(template);
+        const items = routineEntriesFromRoutine(routine);
+        const days = routineDaysForEntries(items, routine.days);
+        return {
+          id: window.Routines.encode({ t: routine.t, n: routine.n, days, items }),
+          title: routine.t,
+          note: routine.n,
+          days,
+          items,
+          savedAt: new Date().toISOString(),
+          version: 1,
+          defaultRoutine: true,
+        };
+      }).filter((routine) => routine.items.length > 0 && !existingIds.has(routine.id));
+
+      if (seededRoutines.length) {
+        saveRoutineFavorites([...seededRoutines, ...currentRoutines]);
+      }
+      window.localStorage.setItem(ROUTINE_FAVORITES_DEFAULTS_KEY, "1");
     } catch (error) {
       /* almacenamiento no disponible */
     }
@@ -582,6 +744,7 @@
     if (!isOpen) {
       endRoutineCartTour();
       closeRoutineExercisePreview();
+      closeRoutineExercisePicker();
     }
     routineCart.dataset.mode = isOpen ? "builder" : "summary";
     routineCartBuilder.hidden = !isOpen;
@@ -790,6 +953,7 @@
     if (routineTouchDrag.ghost) {
       routineTouchDrag.ghost.remove();
     }
+    hideRoutineDayDropTray();
     if (routineTouchDrag.handle) {
       if (routineTouchDrag.previousDraggable === null) {
         routineTouchDrag.handle.removeAttribute("draggable");
@@ -872,6 +1036,73 @@
     routineCartBuilderList.querySelectorAll(".is-dragging, .is-drop-target").forEach((element) => {
       element.classList.remove("is-dragging", "is-drop-target");
     });
+    clearRoutineDayDropTrayTarget();
+  }
+
+  function showRoutineDayDropTray(ids) {
+    hideRoutineDayDropTray();
+    if (!routineCartDays.length) {
+      return;
+    }
+    const movingIds = new Set(ids || []);
+    const sourceDays = new Set(
+      routineCartItems
+        .filter((item) => movingIds.has(item.id))
+        .map((item) => normalizeRoutineDay(item.day))
+    );
+    const singleSourceDay = sourceDays.size === 1 ? Array.from(sourceDays)[0] : null;
+    const tray = document.createElement("div");
+    tray.className = "routine-cart__drop-tray";
+    tray.dataset.routineDayDropTray = "";
+    tray.setAttribute("aria-label", "Mover ejercicios a un día");
+    tray.innerHTML = `
+      <span class="routine-cart__drop-tray-label">Soltar en</span>
+      <span class="routine-cart__drop-tray-days">
+        ${routineCartDays.map((day) => {
+          const meta = routineDayMeta(day);
+          const count = routineCartItems.filter((item) => normalizeRoutineDay(item.day) === day).length;
+          const isCurrent = singleSourceDay === day;
+          return `
+            <button type="button" data-routine-day-drop="${escapeHtml(day)}" class="${isCurrent ? "is-current-day" : ""}" aria-label="Mover a ${escapeHtml(meta.label)}">
+              <strong>${escapeHtml(meta.short)}</strong>
+              <span>${count}</span>
+            </button>
+          `;
+        }).join("")}
+      </span>
+    `;
+    document.body.appendChild(tray);
+    routineDayDropTray = tray;
+    document.body.classList.add("has-routine-day-drop-tray");
+    window.requestAnimationFrame(() => tray.classList.add("is-visible"));
+  }
+
+  function hideRoutineDayDropTray() {
+    if (!routineDayDropTray) {
+      return;
+    }
+    routineDayDropTray.remove();
+    routineDayDropTray = null;
+    document.body.classList.remove("has-routine-day-drop-tray");
+  }
+
+  function clearRoutineDayDropTrayTarget() {
+    if (!routineDayDropTray) {
+      return;
+    }
+    routineDayDropTray.querySelectorAll("[data-routine-day-drop]").forEach((element) => {
+      element.classList.remove("is-drop-target");
+    });
+  }
+
+  function trayDropTargetFromPoint(point) {
+    if (!routineDayDropTray || !point) {
+      return null;
+    }
+    return Array.from(routineDayDropTray.querySelectorAll("[data-routine-day-drop]")).find((element) => {
+      const rect = element.getBoundingClientRect();
+      return point.x >= rect.left && point.x <= rect.right && point.y >= rect.top && point.y <= rect.bottom;
+    }) || null;
   }
 
   function positionRoutineTouchGhost(ghost, point) {
@@ -935,6 +1166,10 @@
     if (!point) {
       return null;
     }
+    const trayTarget = trayDropTargetFromPoint(point);
+    if (trayTarget) {
+      return trayTarget;
+    }
     const ghost = routineTouchDrag && routineTouchDrag.ghost;
     const ghostRect = ghost ? ghost.getBoundingClientRect() : null;
 
@@ -976,6 +1211,11 @@
     routineCartBuilderList.querySelectorAll("[data-routine-day-drop]").forEach((element) => {
       element.classList.toggle("is-drop-target", element === group);
     });
+    if (routineDayDropTray) {
+      routineDayDropTray.querySelectorAll("[data-routine-day-drop]").forEach((element) => {
+        element.classList.toggle("is-drop-target", element === group);
+      });
+    }
     return group;
   }
 
@@ -988,6 +1228,7 @@
     routineTouchDrag.active = true;
     routineTouchDrag.ids = ids;
     routineTouchDrag.ghost = createRoutineTouchGhost(ids, point, sourceRow);
+    showRoutineDayDropTray(ids);
     document.body.classList.add("is-routine-touch-dragging");
     positionRoutineTouchGhost(routineTouchDrag.ghost, point);
     if (routineCartBuilderList) {
@@ -1201,6 +1442,168 @@
     }
   }
 
+  function syncRoutineExercisePickerControls(picker) {
+    const search = picker.querySelector("[data-routine-exercise-picker-search]");
+    const filtersButton = picker.querySelector("[data-routine-exercise-picker-filters]");
+    const filtersBadge = picker.querySelector("[data-routine-exercise-picker-filters-badge]");
+    const filtersCount = Number(Boolean(routineExercisePickerState.grupo)) +
+      Number(Boolean(routineExercisePickerState.equipamiento)) +
+      Number(routineExercisePickerState.favoritos);
+
+    if (search && search.value !== routineExercisePickerState.q) {
+      search.value = routineExercisePickerState.q;
+    }
+    if (filtersButton) {
+      filtersButton.classList.toggle("is-active", filtersCount > 0);
+    }
+    if (filtersBadge) {
+      filtersBadge.hidden = filtersCount === 0;
+      filtersBadge.textContent = String(filtersCount);
+    }
+  }
+
+  function getRoutineExercisePickerMatches() {
+    return exercises.filter((exercise) => matchesFiltersWith(exercise, routineExercisePickerState));
+  }
+
+  function renderRoutineExercisePickerList(picker) {
+    const list = picker.querySelector("[data-routine-exercise-picker-list]");
+    const count = picker.querySelector("[data-routine-exercise-picker-count]");
+    if (!list) {
+      return;
+    }
+    syncRoutineExercisePickerControls(picker);
+    const matches = getRoutineExercisePickerMatches();
+
+    if (count) {
+      count.textContent = `${matches.length} ejercicio${matches.length === 1 ? "" : "s"}`;
+    }
+
+    list.innerHTML = matches.length
+      ? matches.map((exercise) => {
+          const isAdded = isInRoutineCart(exercise.id);
+          const media = exercise.imagenInicial
+            ? `<img src="${escapeHtml(exercise.imagenInicial)}" alt="" loading="lazy" decoding="async" width="128" height="128">`
+            : "";
+          return `
+            <article class="routine-exercise-picker__item">
+              <button type="button" class="routine-exercise-picker__open" data-routine-picker-open="${escapeHtml(exercise.id)}">
+                <span class="routine-exercise-picker__media">${media}</span>
+                <span class="routine-exercise-picker__copy">
+                  <strong>${escapeHtml(exercise.nombre)}</strong>
+                  <span>${escapeHtml(exercise.grupoMuscular)}</span>
+                  <small>${escapeHtml((exercise.equipamiento && exercise.equipamiento[0]) || "Peso corporal")}</small>
+                </span>
+              </button>
+              <button type="button" data-routine-picker-add="${escapeHtml(exercise.id)}" ${isAdded ? "disabled" : ""}>
+                ${isAdded ? "Añadido" : "Añadir"}
+              </button>
+            </article>
+          `;
+        }).join("")
+      : `<p class="routine-exercise-picker__empty">No hay ejercicios que coincidan con los filtros.</p>`;
+    initLazyImages(list);
+  }
+
+  function closeRoutineExercisePicker() {
+    const picker = document.querySelector("[data-routine-exercise-picker]");
+    if (picker) {
+      picker.remove();
+    }
+    document.removeEventListener("keydown", onRoutineExercisePickerKeydown);
+  }
+
+  function onRoutineExercisePickerKeydown(event) {
+    if (event.key === "Escape") {
+      const picker = document.querySelector("[data-routine-exercise-picker]");
+      if (picker && closeRoutineExercisePickerDetail(picker)) {
+        return;
+      }
+      closeRoutineExercisePicker();
+    }
+  }
+
+  function openRoutineExercisePicker() {
+    if (!routineCart || !routineCartBuilder || routineCartBuilder.hidden) {
+      return;
+    }
+    closeRoutineExercisePicker();
+    const picker = document.createElement("div");
+    picker.className = "routine-exercise-picker";
+    picker.dataset.routineExercisePicker = "";
+    picker.setAttribute("role", "dialog");
+    picker.setAttribute("aria-modal", "true");
+    picker.setAttribute("aria-labelledby", "routine-exercise-picker-title");
+    picker.innerHTML = `
+      <button type="button" class="routine-exercise-picker__backdrop" data-routine-exercise-picker-close aria-label="Cerrar selector de ejercicios"></button>
+      <section class="routine-exercise-picker__panel">
+        <header class="routine-exercise-picker__head">
+          <div>
+            <h2 id="routine-exercise-picker-title">Añadir ejercicios</h2>
+            <p data-routine-exercise-picker-count></p>
+          </div>
+          <button type="button" data-routine-exercise-picker-close aria-label="Cerrar selector de ejercicios">×</button>
+        </header>
+        <div class="routine-exercise-picker__tools">
+          <label class="routine-exercise-picker__search">
+            <span class="visually-hidden">Buscar ejercicio</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle><path d="m20 20-3.2-3.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+            <input type="search" placeholder="Buscar ejercicio, músculo o equipo..." autocomplete="off" data-routine-exercise-picker-search>
+          </label>
+          <button type="button" class="routine-exercise-picker__filters-btn exercises-filters-btn" data-routine-exercise-picker-filters>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+            <span>Filtros</span>
+            <span class="exercises-filters-btn__badge" data-routine-exercise-picker-filters-badge hidden>0</span>
+          </button>
+        </div>
+        <div class="routine-exercise-picker__list" data-routine-exercise-picker-list></div>
+      </section>
+    `;
+    document.body.appendChild(picker);
+    renderRoutineExercisePickerList(picker);
+
+    picker.addEventListener("click", (event) => {
+      if (event.target.closest("[data-routine-picker-detail-close]")) {
+        closeRoutineExercisePickerDetail(picker);
+        return;
+      }
+      const similarCard = event.target.closest(".routine-exercise-picker__detail [data-similar-id]");
+      if (similarCard) {
+        openRoutineExercisePickerDetail(picker, similarCard.dataset.similarId);
+        return;
+      }
+      if (event.target.closest("[data-routine-exercise-picker-close]")) {
+        closeRoutineExercisePicker();
+        return;
+      }
+      const filtersButton = event.target.closest("[data-routine-exercise-picker-filters]");
+      if (filtersButton) {
+        openFilterPanel("picker");
+        return;
+      }
+      const addButton = event.target.closest("[data-routine-picker-add]");
+      if (addButton) {
+        addRoutineCartItem(addButton.dataset.routinePickerAdd);
+        renderRoutineExercisePickerList(picker);
+        return;
+      }
+      const pickerItem = event.target.closest("[data-routine-picker-open]");
+      if (pickerItem) {
+        openRoutineExercisePickerDetail(picker, pickerItem.dataset.routinePickerOpen);
+      }
+    });
+
+    const search = picker.querySelector("[data-routine-exercise-picker-search]");
+    if (search) {
+      search.addEventListener("input", () => {
+        routineExercisePickerState.q = search.value.trim();
+        renderRoutineExercisePickerList(picker);
+      });
+      window.setTimeout(() => search.focus(), 50);
+    }
+    document.addEventListener("keydown", onRoutineExercisePickerKeydown);
+  }
+
   function clearRoutineCart() {
     routineCartItems = [];
     if (routineCartResult) {
@@ -1273,20 +1676,22 @@
     }
     const routines = loadRoutineFavorites();
     if (routineFavoritesToggle) {
-      routineFavoritesToggle.hidden = routines.length === 0;
+      routineFavoritesToggle.hidden = false;
     }
     if (routineFavoritesCount) {
       routineFavoritesCount.textContent = String(routines.length);
     }
-    if (routines.length === 0) {
-      routineFavoritesOpen = false;
-    }
-    routineFavoritesSection.hidden = !routineFavoritesOpen || routines.length === 0;
+    routineFavoritesSection.hidden = !routineFavoritesOpen;
     if (routineFavoritesToggle) {
       routineFavoritesToggle.setAttribute("aria-expanded", String(!routineFavoritesSection.hidden));
     }
     if (routines.length === 0) {
-      routineFavoritesList.innerHTML = "";
+      routineFavoritesList.innerHTML = `
+        <article class="routine-favorites__empty">
+          <h3>No hay rutinas guardadas todavía</h3>
+          <p>Cuando guardes una rutina aparecerá aquí para abrirla o editarla desde este dispositivo y navegador.</p>
+        </article>
+      `;
       return;
     }
 
@@ -1294,6 +1699,7 @@
       .map((routine, index) => {
         const items = Array.isArray(routine.items) ? routine.items : [];
         const days = Array.isArray(routine.days) ? routine.days : routineDaysForEntries(items, []);
+        const isRemoveConfirming = pendingRoutineFavoriteRemoveIndex === index;
         const dayPreview = groupRoutineEntries(items, days)
           .filter((group) => group.entries.length)
           .map((group) => {
@@ -1309,7 +1715,7 @@
               ${dayPreview ? `<div class="routine-favorites__days">${dayPreview}</div>` : ""}
             </div>
             <div class="routine-favorites__actions">
-              <button type="button" data-routine-favorite-remove="${index}" aria-label="Eliminar ${escapeHtml(routine.title || "rutina guardada")}">×</button>
+              <button type="button" data-routine-favorite-remove="${index}" data-confirming="${isRemoveConfirming}" aria-label="${isRemoveConfirming ? "Confirmar eliminación de" : "Eliminar"} ${escapeHtml(routine.title || "rutina guardada")}">${isRemoveConfirming ? "Confirmar" : "×"}</button>
               <button type="button" data-routine-favorite-open="${index}">Abrir</button>
               <button type="button" data-routine-favorite-edit="${index}">Editar</button>
             </div>
@@ -1337,6 +1743,22 @@
     }
     const decoded = window.Routines.decode(routine.id);
     loadRoutineIntoBuilder(decoded || routine);
+  }
+
+  function requestRoutineFavoriteRemoval(index) {
+    if (pendingRoutineFavoriteRemoveIndex === index) {
+      clearRoutineFavoriteRemoveConfirmation(false);
+      removeRoutineFavorite(index);
+      return;
+    }
+    pendingRoutineFavoriteRemoveIndex = index;
+    if (pendingRoutineFavoriteRemoveTimer) {
+      window.clearTimeout(pendingRoutineFavoriteRemoveTimer);
+    }
+    pendingRoutineFavoriteRemoveTimer = window.setTimeout(() => {
+      clearRoutineFavoriteRemoveConfirmation();
+    }, ROUTINE_REMOVE_CONFIRM_DELAY);
+    renderRoutineFavorites();
   }
 
   function removeRoutineFavorite(index) {
@@ -1662,6 +2084,13 @@
     }
   }
 
+  function openRoutineCartLink() {
+    if (!routineCartLink || !routineCartLink.value) {
+      return;
+    }
+    window.open(routineCartLink.value, "_blank", "noopener");
+  }
+
   function downloadRoutineCartQr() {
     if (!routineCartQr) {
       return;
@@ -1710,42 +2139,93 @@
   const HEART_ICON =
     '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.8-9.1C.7 8 2.2 4.7 5.4 4c2-.4 3.9.5 5 2.1C11.6 4.5 13.5 3.6 15.5 4c3.2.7 4.7 4 3.2 7.4C16.4 15.9 12 20.5 12 20.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg>';
 
+  const CATALOG_TOUR_STEPS = [
+    {
+      selector: "[data-catalog-searchbar]",
+      placement: "bottom",
+      title: "Busca y filtra ejercicios",
+      text: "Usa el buscador para localizar ejercicios por nombre, músculo o material. Con Filtros puedes acotar por favoritos, grupo muscular o equipamiento.",
+    },
+    {
+      selector: "[data-exercises-count]",
+      placement: "bottom",
+      title: "Revisa los resultados",
+      text: "El contador muestra cuántos ejercicios coinciden con la búsqueda y los filtros activos.",
+    },
+    {
+      selector: "[data-exercises-grid] .exercise-card",
+      placement: "right",
+      title: "Abre la ficha",
+      text: "Pulsa una tarjeta para ver la explicación completa, posiciones, músculos implicados, instrucciones y consejos.",
+    },
+    {
+      selector: "[data-exercises-grid] [data-favorite-toggle]",
+      placement: "left",
+      title: "Guarda favoritos",
+      text: "El corazón permite marcar ejercicios para encontrarlos más rápido desde el filtro de favoritos.",
+    },
+    {
+      selector: "[data-exercises-grid] [data-routine-toggle]",
+      placement: "top",
+      title: "Añade a una rutina",
+      text: "Añadir a rutina envía el ejercicio al asistente, donde puedes organizarlo por días, series, repeticiones y descanso.",
+    },
+    {
+      selector: "[data-routine-cart-toggle]",
+      placement: "top",
+      title: "Abre el asistente",
+      text: "Este acceso flotante muestra los ejercicios añadidos y abre el asistente para crear, imprimir o compartir una rutina.",
+    },
+    {
+      selector: "[data-routine-favorites-toggle]",
+      placement: "top",
+      title: "Rutinas guardadas",
+      text: "Desde este acceso puedes abrir o editar las rutinas guardadas en este dispositivo y navegador. Conserva siempre también el enlace o el QR para no depender solo del guardado local.",
+    },
+    {
+      selector: "[data-catalog-tour]",
+      placement: "bottom",
+      title: "Vuelve a ver la guía",
+      text: "Puedes abrir esta guía rápida siempre que necesites repasar cómo usar el catálogo de ejercicios.",
+    },
+  ];
+
   const ROUTINE_CART_TOUR_STEPS = [
     {
       selector: ".routine-cart__panel",
       placement: "center",
-      title: "Prepara rutinas completas",
-      text: "Los ejercicios añadidos quedan en este panel. Desde aquí puedes revisar la selección y preparar una rutina para entrenar o entregársela a un cliente.",
+      title: "Crea rutinas semanales",
+      text: "Los ejercicios añadidos quedan en este panel. Desde aquí puedes organizar una rutina por días para entrenar o entregársela a un cliente.",
     },
     {
       selector: "[data-routine-cart-title]",
       placement: "bottom",
-      title: "Nombra la rutina",
-      text: "Usa el título para identificar el objetivo, la semana o la persona. Las notas sirven para añadir indicaciones generales para quien vaya a recibir la rutina.",
+      title: "Identifica la rutina",
+      text: "El título puede ser el objetivo, la semana, el nivel o el nombre del cliente. En notas puedes añadir indicaciones generales sin límite de texto.",
     },
     {
       selector: ".routine-cart__week-planner",
       placement: "bottom",
-      title: "Define el plan semanal",
-      text: "Activa los días de entrenamiento que necesites. Cada día crea su propia caja y el resumen calcula ejercicios, series y duración estimada por día.",
+      title: "Elige los días",
+      text: "Activa los días de entrenamiento que necesites. Cada día crea su propia caja y el resumen muestra ejercicios, series y tiempo estimado por día.",
     },
     {
       selector: ".routine-cart__day-group--unassigned",
       placement: "left",
-      title: "Asigna cada ejercicio a un día",
-      text: "Los ejercicios nuevos entran en “Sin día definido”. Antes de generar la rutina, todos deben estar dentro de un día activo.",
+      title: "Evita ejercicios sin día",
+      text: "Los ejercicios nuevos entran en “Sin día definido”. Para generar enlace, QR o impresión, todos deben estar asignados a un día activo.",
     },
     {
       selector: "[data-routine-select]",
       placement: "left",
       title: "Marca varios a la vez",
-      text: "Puedes seleccionar varios ejercicios para moverlos juntos. Los ejercicios marcados quedan resaltados para que sepas qué bloque estás organizando.",
+      text: "Selecciona varios ejercicios para moverlos juntos. Los ejercicios marcados quedan resaltados para que sepas exactamente qué bloque vas a organizar.",
     },
     {
       selector: "[data-routine-drag-id]",
       placement: "left",
-      title: "Arrastra para ordenar",
-      text: "Arrastra desde el icono de puntos para mover uno o varios ejercicios a otro día. En móvil, mantén pulsado medio segundo y mueve el ejercicio con el dedo.",
+      title: "Arrastra a cualquier día",
+      text: "Arrastra desde el icono de puntos para mover uno o varios ejercicios. Al arrastrar aparecen los días disponibles como zona rápida para soltar.",
     },
     {
       selector: "[data-routine-info]",
@@ -1757,25 +2237,76 @@
       selector: ".routine-cart__quick-values",
       placement: "bottom",
       title: "Usa valores rápidos",
-      text: "Configura series, repeticiones y descanso una vez y aplícalos a todos. Después puedes ajustar cada ejercicio de forma individual.",
+      text: "Define series, repeticiones y descanso una vez y aplícalos a todos. Después puedes ajustar cada ejercicio de forma individual.",
     },
     {
       selector: ".routine-cart__prescription",
       placement: "bottom",
-      title: "Completa los parámetros",
-      text: "Series, repeticiones y descanso son obligatorios. Estos datos se guardan en el enlace, el QR y la versión impresa.",
+      title: "Completa cada ejercicio",
+      text: "Series, repeticiones y descanso son obligatorios. También puedes reordenar, eliminar o abrir la ficha de cada ejercicio desde sus botones.",
     },
     {
       selector: "[data-routine-cart-generate]",
       placement: "top",
-      title: "Genera y comparte",
-      text: "Si falta un día o algún parámetro, el asistente te avisará. Cuando todo esté completo, podrás copiar el enlace, descargar el QR o imprimir la rutina.",
+      title: "Genera enlace, QR e impresión",
+      text: "Si falta un día o algún parámetro, el asistente te avisará. Cuando todo esté completo, podrás copiar o abrir el enlace, descargar el QR e imprimir la rutina.",
+    },
+    {
+      selector: "[data-routine-cart-generate]",
+      placement: "top",
+      title: "Abre y guarda la rutina",
+      text: "Tras generar el enlace y el QR podrás abrir la rutina compartida. Desde esa vista se puede guardar en Rutinas guardadas; aun así, conserva siempre el enlace o el QR.",
     },
     {
       selector: "[data-routine-cart-tour]",
       placement: "bottom",
       title: "Repite la guía",
       text: "Este botón vuelve a abrir la guía rápida cuando necesites revisar el flujo.",
+    },
+  ];
+
+  const ROUTINE_VIEW_TOUR_STEPS = [
+    {
+      selector: ".routine-view__searchbar",
+      placement: "bottom",
+      title: "Busca dentro de la rutina",
+      text: "Usa el buscador para encontrar ejercicios por nombre, músculo o material. El botón Filtros permite afinar la rutina por favoritos, grupo muscular o equipamiento.",
+    },
+    {
+      selector: "[data-routine-day-filters]",
+      placement: "bottom",
+      title: "Filtra por día",
+      text: "Usa los días para revisar una sesión concreta o vuelve a Todos para ver la rutina completa.",
+    },
+    {
+      selector: ".routine-view__grid .exercise-card",
+      placement: "right",
+      title: "Consulta cada ejercicio",
+      text: "Pulsa cualquier ejercicio para abrir su ficha técnica con posiciones, músculos implicados, instrucciones y consejos.",
+    },
+    {
+      selector: "[data-routine-save-favorites]",
+      placement: "top",
+      title: "Guarda la rutina",
+      text: "Puedes guardar la rutina completa en este dispositivo y navegador. Conserva también el enlace o el QR para no depender solo del guardado local.",
+    },
+    {
+      selector: "[data-routine-edit]",
+      placement: "top",
+      title: "Modifica la rutina",
+      text: "Editar rutina abre el asistente con esta rutina cargada para cambiar días, añadir ejercicios, ordenar y ajustar series, repeticiones o descanso.",
+    },
+    {
+      selector: "[data-routine-dismiss]",
+      placement: "top",
+      title: "Cierra la rutina",
+      text: "Este botón cierra la rutina compartida y te lleva al catálogo completo para explorar todos los ejercicios.",
+    },
+    {
+      selector: "[data-routine-view-tour]",
+      placement: "bottom",
+      title: "Vuelve a ver la guía",
+      text: "Puedes abrir esta guía rápida siempre que necesites repasar cómo revisar, guardar o editar una rutina compartida.",
     },
   ];
 
@@ -1789,6 +2320,281 @@
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
+
+  function catalogTourCurrentTarget() {
+    const step = CATALOG_TOUR_STEPS[catalogTourIndex];
+    return step ? document.querySelector(step.selector) : null;
+  }
+
+  function buildCatalogTour() {
+    if (catalogTourBuilt) {
+      return;
+    }
+    catalogTourBuilt = true;
+
+    catalogTourBackdrop = document.createElement("div");
+    catalogTourBackdrop.className = "tour-backdrop";
+    catalogTourBackdrop.hidden = true;
+
+    catalogTourSpot = document.createElement("div");
+    catalogTourSpot.className = "tour-spot";
+
+    catalogTourPopup = document.createElement("div");
+    catalogTourPopup.className = "tour-popup";
+    catalogTourPopup.setAttribute("role", "dialog");
+    catalogTourPopup.setAttribute("aria-modal", "true");
+    catalogTourPopup.setAttribute("aria-labelledby", "catalog-tour-title");
+    catalogTourPopup.innerHTML = `
+      <button type="button" class="tour-popup__close" data-catalog-tour-close aria-label="Cerrar guía">×</button>
+      <p class="tour-popup__step" data-catalog-tour-step></p>
+      <h2 class="tour-popup__title" id="catalog-tour-title" data-catalog-tour-title></h2>
+      <p class="tour-popup__text" data-catalog-tour-text></p>
+      <div class="tour-popup__footer">
+        <label class="tour-popup__dismiss">
+          <input type="checkbox" data-catalog-tour-dismiss>
+          No volver a mostrar
+        </label>
+        <div class="tour-popup__nav">
+          <button type="button" class="tour-popup__prev" data-catalog-tour-prev>Anterior</button>
+          <button type="button" class="tour-popup__next" data-catalog-tour-next>Siguiente</button>
+        </div>
+      </div>
+    `;
+
+    catalogTourBackdrop.appendChild(catalogTourSpot);
+    catalogTourBackdrop.appendChild(catalogTourPopup);
+    document.body.appendChild(catalogTourBackdrop);
+
+    catalogTourStepLabel = catalogTourPopup.querySelector("[data-catalog-tour-step]");
+    catalogTourTitle = catalogTourPopup.querySelector("[data-catalog-tour-title]");
+    catalogTourText = catalogTourPopup.querySelector("[data-catalog-tour-text]");
+    catalogTourDismissCheckbox = catalogTourPopup.querySelector("[data-catalog-tour-dismiss]");
+    catalogTourPrevButton = catalogTourPopup.querySelector("[data-catalog-tour-prev]");
+    catalogTourNextButton = catalogTourPopup.querySelector("[data-catalog-tour-next]");
+    catalogTourCloseButton = catalogTourPopup.querySelector("[data-catalog-tour-close]");
+
+    catalogTourCloseButton.addEventListener("click", () => {
+      if (maybeJumpToCatalogTourFinalStep()) {
+        return;
+      }
+      endCatalogTour();
+    });
+    catalogTourPrevButton.addEventListener("click", () => {
+      if (maybeJumpToCatalogTourFinalStep()) {
+        return;
+      }
+      goToCatalogTourStep(catalogTourIndex - 1, -1);
+    });
+    catalogTourNextButton.addEventListener("click", () => {
+      if (maybeJumpToCatalogTourFinalStep()) {
+        return;
+      }
+      if (catalogTourIndex === CATALOG_TOUR_STEPS.length - 1) {
+        endCatalogTour();
+      } else {
+        goToCatalogTourStep(catalogTourIndex + 1, 1);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (!catalogTourActive) {
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        if (!maybeJumpToCatalogTourFinalStep()) {
+          endCatalogTour();
+        }
+      } else if (event.key === "ArrowRight") {
+        catalogTourNextButton.click();
+      } else if (event.key === "ArrowLeft" && !catalogTourPrevButton.disabled) {
+        catalogTourPrevButton.click();
+      } else if (event.key === "Tab") {
+        trapCatalogTourFocus(event);
+      }
+    });
+  }
+
+  function maybeJumpToCatalogTourFinalStep() {
+    if (
+      catalogTourDismissCheckbox &&
+      catalogTourDismissCheckbox.checked &&
+      catalogTourIndex < CATALOG_TOUR_STEPS.length - 1
+    ) {
+      goToCatalogTourStep(CATALOG_TOUR_STEPS.length - 1, 1);
+      return true;
+    }
+    return false;
+  }
+
+  function trapCatalogTourFocus(event) {
+    const focusable = catalogTourPopup.querySelectorAll("button, input");
+    if (focusable.length === 0) {
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  function goToCatalogTourStep(requestedIndex, direction) {
+    let index = requestedIndex;
+    while (index >= 0 && index < CATALOG_TOUR_STEPS.length) {
+      const step = CATALOG_TOUR_STEPS[index];
+      if (document.querySelector(step.selector)) {
+        catalogTourIndex = index;
+        renderCatalogTourStep();
+        return;
+      }
+      index += direction;
+    }
+    endCatalogTour();
+  }
+
+  function renderCatalogTourStep() {
+    const step = CATALOG_TOUR_STEPS[catalogTourIndex];
+    catalogTourStepLabel.textContent = `Paso ${catalogTourIndex + 1} de ${CATALOG_TOUR_STEPS.length}`;
+    catalogTourTitle.textContent = step.title;
+    catalogTourText.textContent = step.text;
+    catalogTourPrevButton.disabled = catalogTourIndex === 0;
+    catalogTourNextButton.textContent = catalogTourIndex === CATALOG_TOUR_STEPS.length - 1 ? "Entendido" : "Siguiente";
+
+    const target = catalogTourCurrentTarget();
+    if (target) {
+      target.scrollIntoView({
+        block: "center",
+        inline: "nearest",
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
+    }
+    window.setTimeout(() => positionCatalogTourAt(step, target), target && !prefersReducedMotion ? 260 : 0);
+  }
+
+  function positionCatalogTourAt(step, target) {
+    if (!catalogTourPopup || !catalogTourSpot) {
+      return;
+    }
+    if (!target) {
+      return;
+    }
+
+    const rect = target.getBoundingClientRect();
+    const pad = 8;
+    catalogTourSpot.style.top = `${rect.top - pad}px`;
+    catalogTourSpot.style.left = `${rect.left - pad}px`;
+    catalogTourSpot.style.width = `${rect.width + pad * 2}px`;
+    catalogTourSpot.style.height = `${rect.height + pad * 2}px`;
+
+    catalogTourPopup.style.transform = "none";
+    const popupWidth = catalogTourPopup.offsetWidth || 320;
+    const popupHeight = catalogTourPopup.offsetHeight || 180;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const gap = 16;
+    const margin = 12;
+    const fits = {
+      bottom: vh - rect.bottom >= popupHeight + gap,
+      top: rect.top >= popupHeight + gap,
+      right: vw - rect.right >= popupWidth + gap,
+      left: rect.left >= popupWidth + gap,
+    };
+
+    let side = step.placement;
+    if (!fits[side]) {
+      side = ["bottom", "top", "right", "left"].find((candidate) => fits[candidate]) || "bottom";
+    }
+
+    let top;
+    let left;
+    if (side === "bottom" || side === "top") {
+      top = side === "bottom" ? rect.bottom + gap : rect.top - gap - popupHeight;
+      left = rect.left + rect.width / 2 - popupWidth / 2;
+    } else {
+      left = side === "right" ? rect.right + gap : rect.left - gap - popupWidth;
+      top = rect.top + rect.height / 2 - popupHeight / 2;
+    }
+
+    top = Math.min(Math.max(top, margin), vh - popupHeight - margin);
+    left = Math.min(Math.max(left, margin), vw - popupWidth - margin);
+    catalogTourPopup.style.top = `${top}px`;
+    catalogTourPopup.style.left = `${left}px`;
+  }
+
+  function startCatalogTour() {
+    if (!exercisesCatalog || exercisesCatalog.hidden || currentExercise || isRoutineHash(location.hash)) {
+      return;
+    }
+    buildCatalogTour();
+    endRoutineCartTour();
+    endRoutineViewTour();
+    catalogTourPreviousFocus = document.activeElement;
+    catalogTourActive = true;
+    catalogTourBackdrop.hidden = false;
+    catalogTourDismissCheckbox.checked = false;
+    goToCatalogTourStep(0, 1);
+    window.setTimeout(() => catalogTourNextButton.focus(), 60);
+
+    catalogTourRepositionHandler = () => {
+      if (catalogTourActive) {
+        positionCatalogTourAt(CATALOG_TOUR_STEPS[catalogTourIndex], catalogTourCurrentTarget());
+      }
+    };
+    window.addEventListener("resize", catalogTourRepositionHandler);
+    window.addEventListener("scroll", catalogTourRepositionHandler, true);
+  }
+
+  function endCatalogTour() {
+    if (!catalogTourActive) {
+      return;
+    }
+    catalogTourActive = false;
+    catalogTourBackdrop.hidden = true;
+    if (catalogTourDismissCheckbox && catalogTourDismissCheckbox.checked) {
+      try {
+        window.localStorage.setItem(CATALOG_TOUR_KEY, "1");
+      } catch (error) {
+        /* almacenamiento no disponible */
+      }
+    }
+    window.removeEventListener("resize", catalogTourRepositionHandler);
+    window.removeEventListener("scroll", catalogTourRepositionHandler, true);
+    catalogTourRepositionHandler = null;
+
+    if (catalogTourPreviousFocus && document.contains(catalogTourPreviousFocus)) {
+      catalogTourPreviousFocus.focus();
+    }
+  }
+
+  function maybeAutoStartCatalogTour() {
+    if (catalogTourAutoStarted) {
+      return;
+    }
+    catalogTourAutoStarted = true;
+    try {
+      if (window.localStorage.getItem(CATALOG_TOUR_KEY) === "1") {
+        return;
+      }
+    } catch (error) {
+      /* almacenamiento no disponible */
+    }
+    startCatalogTour();
+  }
+
+  function resetAndStartCatalogTour() {
+    try {
+      window.localStorage.removeItem(CATALOG_TOUR_KEY);
+    } catch (error) {
+      /* almacenamiento no disponible */
+    }
+    catalogTourAutoStarted = false;
+    startCatalogTour();
+  }
 
   function routineCartTourCurrentTarget() {
     const step = ROUTINE_CART_TOUR_STEPS[routineCartTourIndex];
@@ -1842,9 +2648,22 @@
     routineCartTourNextButton = routineCartTourPopup.querySelector("[data-routine-cart-tour-next]");
     routineCartTourCloseButton = routineCartTourPopup.querySelector("[data-routine-cart-tour-close]");
 
-    routineCartTourCloseButton.addEventListener("click", endRoutineCartTour);
-    routineCartTourPrevButton.addEventListener("click", () => goToRoutineCartTourStep(routineCartTourIndex - 1, -1));
+    routineCartTourCloseButton.addEventListener("click", () => {
+      if (maybeJumpToRoutineCartTourFinalStep()) {
+        return;
+      }
+      endRoutineCartTour();
+    });
+    routineCartTourPrevButton.addEventListener("click", () => {
+      if (maybeJumpToRoutineCartTourFinalStep()) {
+        return;
+      }
+      goToRoutineCartTourStep(routineCartTourIndex - 1, -1);
+    });
     routineCartTourNextButton.addEventListener("click", () => {
+      if (maybeJumpToRoutineCartTourFinalStep()) {
+        return;
+      }
       if (routineCartTourIndex === ROUTINE_CART_TOUR_STEPS.length - 1) {
         endRoutineCartTour();
       } else {
@@ -1867,6 +2686,18 @@
         trapRoutineCartTourFocus(event);
       }
     });
+  }
+
+  function maybeJumpToRoutineCartTourFinalStep() {
+    if (
+      routineCartTourDismissCheckbox &&
+      routineCartTourDismissCheckbox.checked &&
+      routineCartTourIndex < ROUTINE_CART_TOUR_STEPS.length - 1
+    ) {
+      goToRoutineCartTourStep(ROUTINE_CART_TOUR_STEPS.length - 1, 1);
+      return true;
+    }
+    return false;
   }
 
   function trapRoutineCartTourFocus(event) {
@@ -2037,6 +2868,300 @@
       /* almacenamiento no disponible */
     }
     startRoutineCartTour();
+  }
+
+  function resetAndStartRoutineCartTour() {
+    try {
+      window.localStorage.removeItem(ROUTINE_CART_TOUR_KEY);
+    } catch (error) {
+      /* almacenamiento no disponible */
+    }
+    routineCartTourAutoStarted = false;
+    startRoutineCartTour();
+  }
+
+  function routineViewTourCurrentTarget() {
+    const step = ROUTINE_VIEW_TOUR_STEPS[routineViewTourIndex];
+    return step ? document.querySelector(step.selector) : null;
+  }
+
+  function buildRoutineViewTour() {
+    if (routineViewTourBuilt) {
+      return;
+    }
+    routineViewTourBuilt = true;
+
+    routineViewTourBackdrop = document.createElement("div");
+    routineViewTourBackdrop.className = "tour-backdrop";
+    routineViewTourBackdrop.hidden = true;
+
+    routineViewTourSpot = document.createElement("div");
+    routineViewTourSpot.className = "tour-spot";
+
+    routineViewTourPopup = document.createElement("div");
+    routineViewTourPopup.className = "tour-popup";
+    routineViewTourPopup.setAttribute("role", "dialog");
+    routineViewTourPopup.setAttribute("aria-modal", "true");
+    routineViewTourPopup.setAttribute("aria-labelledby", "routine-view-tour-title");
+    routineViewTourPopup.innerHTML = `
+      <button type="button" class="tour-popup__close" data-routine-view-tour-close aria-label="Cerrar guía">×</button>
+      <p class="tour-popup__step" data-routine-view-tour-step></p>
+      <h2 class="tour-popup__title" id="routine-view-tour-title" data-routine-view-tour-title></h2>
+      <p class="tour-popup__text" data-routine-view-tour-text></p>
+      <div class="tour-popup__footer">
+        <label class="tour-popup__dismiss">
+          <input type="checkbox" data-routine-view-tour-dismiss>
+          No volver a mostrar
+        </label>
+        <div class="tour-popup__nav">
+          <button type="button" class="tour-popup__prev" data-routine-view-tour-prev>Anterior</button>
+          <button type="button" class="tour-popup__next" data-routine-view-tour-next>Siguiente</button>
+        </div>
+      </div>
+    `;
+
+    routineViewTourBackdrop.appendChild(routineViewTourSpot);
+    routineViewTourBackdrop.appendChild(routineViewTourPopup);
+    document.body.appendChild(routineViewTourBackdrop);
+
+    routineViewTourStepLabel = routineViewTourPopup.querySelector("[data-routine-view-tour-step]");
+    routineViewTourTitle = routineViewTourPopup.querySelector("[data-routine-view-tour-title]");
+    routineViewTourText = routineViewTourPopup.querySelector("[data-routine-view-tour-text]");
+    routineViewTourDismissCheckbox = routineViewTourPopup.querySelector("[data-routine-view-tour-dismiss]");
+    routineViewTourPrevButton = routineViewTourPopup.querySelector("[data-routine-view-tour-prev]");
+    routineViewTourNextButton = routineViewTourPopup.querySelector("[data-routine-view-tour-next]");
+    routineViewTourCloseButton = routineViewTourPopup.querySelector("[data-routine-view-tour-close]");
+
+    routineViewTourCloseButton.addEventListener("click", () => {
+      if (maybeJumpToRoutineViewTourFinalStep()) {
+        return;
+      }
+      endRoutineViewTour();
+    });
+    routineViewTourPrevButton.addEventListener("click", () => {
+      if (maybeJumpToRoutineViewTourFinalStep()) {
+        return;
+      }
+      goToRoutineViewTourStep(routineViewTourIndex - 1, -1);
+    });
+    routineViewTourNextButton.addEventListener("click", () => {
+      if (maybeJumpToRoutineViewTourFinalStep()) {
+        return;
+      }
+      if (routineViewTourIndex === ROUTINE_VIEW_TOUR_STEPS.length - 1) {
+        endRoutineViewTour();
+      } else {
+        goToRoutineViewTourStep(routineViewTourIndex + 1, 1);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (!routineViewTourActive) {
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        endRoutineViewTour();
+      } else if (event.key === "ArrowRight") {
+        routineViewTourNextButton.click();
+      } else if (event.key === "ArrowLeft" && !routineViewTourPrevButton.disabled) {
+        routineViewTourPrevButton.click();
+      } else if (event.key === "Tab") {
+        trapRoutineViewTourFocus(event);
+      }
+    });
+  }
+
+  function maybeJumpToRoutineViewTourFinalStep() {
+    if (
+      routineViewTourDismissCheckbox &&
+      routineViewTourDismissCheckbox.checked &&
+      routineViewTourIndex < ROUTINE_VIEW_TOUR_STEPS.length - 1
+    ) {
+      goToRoutineViewTourStep(ROUTINE_VIEW_TOUR_STEPS.length - 1, 1);
+      return true;
+    }
+    return false;
+  }
+
+  function trapRoutineViewTourFocus(event) {
+    const focusable = routineViewTourPopup.querySelectorAll("button, input");
+    if (focusable.length === 0) {
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  function goToRoutineViewTourStep(requestedIndex, direction) {
+    let index = requestedIndex;
+    while (index >= 0 && index < ROUTINE_VIEW_TOUR_STEPS.length) {
+      const step = ROUTINE_VIEW_TOUR_STEPS[index];
+      if (step.placement === "center" || document.querySelector(step.selector)) {
+        routineViewTourIndex = index;
+        renderRoutineViewTourStep();
+        return;
+      }
+      index += direction;
+    }
+    endRoutineViewTour();
+  }
+
+  function renderRoutineViewTourStep() {
+    const step = ROUTINE_VIEW_TOUR_STEPS[routineViewTourIndex];
+    routineViewTourStepLabel.textContent = `Paso ${routineViewTourIndex + 1} de ${ROUTINE_VIEW_TOUR_STEPS.length}`;
+    routineViewTourTitle.textContent = step.title;
+    routineViewTourText.textContent = step.text;
+    routineViewTourPrevButton.disabled = routineViewTourIndex === 0;
+    routineViewTourNextButton.textContent =
+      routineViewTourIndex === ROUTINE_VIEW_TOUR_STEPS.length - 1 ? "Entendido" : "Siguiente";
+
+    const target = routineViewTourCurrentTarget();
+    if (target) {
+      target.scrollIntoView({
+        block: "center",
+        inline: "nearest",
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
+    }
+    window.setTimeout(() => positionRoutineViewTourAt(step, target), target && !prefersReducedMotion ? 260 : 0);
+  }
+
+  function positionRoutineViewTourAt(step, target) {
+    if (!routineViewTourPopup || !routineViewTourSpot) {
+      return;
+    }
+
+    if (!target) {
+      routineViewTourPopup.style.transform = "translate(-50%, -50%)";
+      routineViewTourPopup.style.top = "50%";
+      routineViewTourPopup.style.left = "50%";
+      routineViewTourPopup.style.maxWidth = "calc(100vw - 2rem)";
+      const popupRect = routineViewTourPopup.getBoundingClientRect();
+      const pad = 10;
+      routineViewTourSpot.style.top = `${popupRect.top - pad}px`;
+      routineViewTourSpot.style.left = `${popupRect.left - pad}px`;
+      routineViewTourSpot.style.width = `${popupRect.width + pad * 2}px`;
+      routineViewTourSpot.style.height = `${popupRect.height + pad * 2}px`;
+      return;
+    }
+
+    const rect = target.getBoundingClientRect();
+    const pad = 8;
+    routineViewTourSpot.style.top = `${rect.top - pad}px`;
+    routineViewTourSpot.style.left = `${rect.left - pad}px`;
+    routineViewTourSpot.style.width = `${rect.width + pad * 2}px`;
+    routineViewTourSpot.style.height = `${rect.height + pad * 2}px`;
+
+    routineViewTourPopup.style.transform = "none";
+    const popupWidth = routineViewTourPopup.offsetWidth || 320;
+    const popupHeight = routineViewTourPopup.offsetHeight || 180;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const gap = 16;
+    const margin = 12;
+    const fits = {
+      bottom: vh - rect.bottom >= popupHeight + gap,
+      top: rect.top >= popupHeight + gap,
+      right: vw - rect.right >= popupWidth + gap,
+      left: rect.left >= popupWidth + gap,
+    };
+
+    let side = step.placement;
+    if (!fits[side]) {
+      side = ["bottom", "top", "right", "left"].find((candidate) => fits[candidate]) || "bottom";
+    }
+
+    let top;
+    let left;
+    if (side === "bottom" || side === "top") {
+      top = side === "bottom" ? rect.bottom + gap : rect.top - gap - popupHeight;
+      left = rect.left + rect.width / 2 - popupWidth / 2;
+    } else {
+      left = side === "right" ? rect.right + gap : rect.left - gap - popupWidth;
+      top = rect.top + rect.height / 2 - popupHeight / 2;
+    }
+
+    top = Math.min(Math.max(top, margin), vh - popupHeight - margin);
+    left = Math.min(Math.max(left, margin), vw - popupWidth - margin);
+    routineViewTourPopup.style.top = `${top}px`;
+    routineViewTourPopup.style.left = `${left}px`;
+  }
+
+  function startRoutineViewTour() {
+    if (!routineView || routineView.hidden) {
+      return;
+    }
+    buildRoutineViewTour();
+    endRoutineCartTour();
+    routineViewTourPreviousFocus = document.activeElement;
+    routineViewTourActive = true;
+    routineViewTourBackdrop.hidden = false;
+    routineViewTourDismissCheckbox.checked = false;
+    goToRoutineViewTourStep(0, 1);
+    window.setTimeout(() => routineViewTourNextButton.focus(), 60);
+
+    routineViewTourRepositionHandler = () => {
+      if (routineViewTourActive) {
+        positionRoutineViewTourAt(ROUTINE_VIEW_TOUR_STEPS[routineViewTourIndex], routineViewTourCurrentTarget());
+      }
+    };
+    window.addEventListener("resize", routineViewTourRepositionHandler);
+    window.addEventListener("scroll", routineViewTourRepositionHandler, true);
+  }
+
+  function endRoutineViewTour() {
+    if (!routineViewTourActive) {
+      return;
+    }
+    routineViewTourActive = false;
+    routineViewTourBackdrop.hidden = true;
+    if (routineViewTourDismissCheckbox && routineViewTourDismissCheckbox.checked) {
+      try {
+        window.localStorage.setItem(ROUTINE_VIEW_TOUR_KEY, "1");
+      } catch (error) {
+        /* almacenamiento no disponible */
+      }
+    }
+    window.removeEventListener("resize", routineViewTourRepositionHandler);
+    window.removeEventListener("scroll", routineViewTourRepositionHandler, true);
+    routineViewTourRepositionHandler = null;
+
+    if (routineViewTourPreviousFocus && document.contains(routineViewTourPreviousFocus)) {
+      routineViewTourPreviousFocus.focus();
+    }
+  }
+
+  function maybeAutoStartRoutineViewTour() {
+    if (routineViewTourAutoStarted) {
+      return;
+    }
+    routineViewTourAutoStarted = true;
+    try {
+      if (window.localStorage.getItem(ROUTINE_VIEW_TOUR_KEY) === "1") {
+        return;
+      }
+    } catch (error) {
+      /* almacenamiento no disponible */
+    }
+    startRoutineViewTour();
+  }
+
+  function resetAndStartRoutineViewTour() {
+    try {
+      window.localStorage.removeItem(ROUTINE_VIEW_TOUR_KEY);
+    } catch (error) {
+      /* almacenamiento no disponible */
+    }
+    routineViewTourAutoStarted = false;
+    startRoutineViewTour();
   }
 
   function updateHeaderHeightVar() {
@@ -2311,7 +3436,11 @@
   }
 
   function countMatchesForDraft() {
-    const baseState = filterPanelMode === "routine" ? routineFilterState : state;
+    const baseState = filterPanelMode === "routine"
+      ? routineFilterState
+      : filterPanelMode === "picker"
+        ? routineExercisePickerState
+        : state;
     const candidate = { q: baseState.q, grupo: draftState.grupo, equipamiento: draftState.equipamiento, favoritos: draftState.favoritos };
     return filterSourceExercises().filter((exercise) => matchesFiltersWith(exercise, candidate)).length;
   }
@@ -2821,6 +3950,105 @@
     }
   }
 
+  function closeRoutineExercisePickerDetail(picker = document.querySelector("[data-routine-exercise-picker]")) {
+    if (!picker) {
+      return false;
+    }
+    const preview = picker.querySelector("[data-routine-exercise-picker-detail]");
+    if (!preview) {
+      return false;
+    }
+    preview.remove();
+    return true;
+  }
+
+  function openRoutineExercisePickerDetail(picker, id) {
+    const exercise = getExerciseById(id);
+    if (!picker || !exercise) {
+      return;
+    }
+    closeRoutineExercisePickerDetail(picker);
+
+    const anatomyImage = exercise.imagenAnatomia || exercise.imagenAnatomica || "";
+    const preview = document.createElement("div");
+    preview.className = "routine-cart__exercise-preview routine-exercise-picker__detail";
+    preview.dataset.routineExercisePickerDetail = "";
+    preview.setAttribute("role", "dialog");
+    preview.setAttribute("aria-modal", "false");
+    preview.setAttribute("aria-labelledby", "routine-exercise-picker-detail-title");
+    preview.innerHTML = `
+      <button type="button" class="routine-cart__exercise-preview-backdrop" data-routine-picker-detail-close aria-label="Cerrar detalles del ejercicio"></button>
+      <article class="routine-cart__exercise-preview-panel exercise-detail" aria-labelledby="routine-exercise-picker-detail-title">
+        <div class="exercise-detail__topbar">
+          <h1 id="routine-exercise-picker-detail-title">${escapeHtml(exercise.nombre)}</h1>
+          <div class="exercise-detail__actions">
+            <button type="button" class="exercise-detail__close" data-routine-picker-detail-close aria-label="Cerrar detalles del ejercicio">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <header class="exercise-detail__header">
+          <div class="exercise-detail__meta-line">
+            <p class="exercise-detail__eyebrow">${escapeHtml(exercise.grupoMuscular)}</p>
+            ${exercise.nombreAlternativo ? `<p class="exercise-detail__alt-name">${escapeHtml(exercise.nombreAlternativo)}</p>` : ""}
+          </div>
+        </header>
+
+        ${exercise.descripcion ? `<p class="exercise-detail__description">${escapeHtml(exercise.descripcion)}</p>` : ""}
+
+        <div class="exercise-detail__info">
+          <div class="exercise-detail__copy">
+            ${
+              exercise.musculosPrincipales.length || exercise.musculosSecundarios.length
+                ? `<section class="exercise-detail__muscles">
+                    ${
+                      exercise.musculosPrincipales.length
+                        ? `<div class="exercise-detail__muscle-group"><span>Músculos principales</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--primary">${renderList(exercise.musculosPrincipales)}</ul></div>`
+                        : ""
+                    }
+                    ${
+                      exercise.musculosSecundarios.length
+                        ? `<div class="exercise-detail__muscle-group"><span>Músculos secundarios</span><ul class="exercise-detail__muscle-tags exercise-detail__muscle-tags--secondary">${renderList(exercise.musculosSecundarios)}</ul></div>`
+                        : ""
+                    }
+                  </section>`
+                : ""
+            }
+          </div>
+          ${
+            anatomyImage
+              ? `<figure class="exercise-detail__anatomy"><img src="${escapeHtml(anatomyImage)}" alt="" loading="lazy" decoding="async"></figure>`
+              : ""
+          }
+        </div>
+
+        ${renderMedia(exercise)}
+
+        <div class="exercise-detail__guidance">
+          ${
+            exercise.instrucciones.length
+              ? `<section class="exercise-detail__section"><h2>Instrucciones</h2><ol class="exercise-detail__steps">${renderSteps(exercise.instrucciones)}</ol></section>`
+              : ""
+          }
+          ${
+            exercise.consejos.length
+              ? `<section class="exercise-detail__section"><h2>Consejos</h2><ul class="exercise-detail__tips">${renderList(exercise.consejos)}</ul></section>`
+              : ""
+          }
+        </div>
+
+        ${renderSimilar(exercise)}
+      </article>
+    `;
+    picker.appendChild(preview);
+    initLazyImages(preview);
+    const closeButton = preview.querySelector(".exercise-detail__close[data-routine-picker-detail-close]");
+    if (closeButton) {
+      closeButton.focus({ preventScroll: true });
+    }
+  }
+
   function getFilteredList() {
     return exercises.filter(matchesFilters);
   }
@@ -2980,6 +4208,8 @@
   function showExercise(exercise, options = {}) {
     const useOverlay = usesExerciseOverlay();
     const fromRoutine = options.fromRoutine === true;
+    endCatalogTour();
+    endRoutineViewTour();
     setCatalogToolsReveal(false);
     currentExercise = exercise;
     exerciseReturnContext = fromRoutine ? "routine" : "catalog";
@@ -3106,6 +4336,8 @@
     const routineCards = filteredRoutineItems.map(renderRoutineCard).filter(Boolean);
 
     if (!routine || validRoutineItems.length === 0) {
+      endCatalogTour();
+      endRoutineViewTour();
       routineView.hidden = true;
       routineViewItems = [];
       if (routineGrid) {
@@ -3131,6 +4363,7 @@
     }
 
     currentExercise = null;
+    endCatalogTour();
     setCatalogToolsPlacement("intro");
     if (exercisePage) {
       exercisePage.hidden = true;
@@ -3204,6 +4437,8 @@
       routineEmpty.hidden = routineGrid.children.length > 0;
     }
 
+    window.setTimeout(maybeAutoStartRoutineViewTour, 260);
+
     if (options.scrollToTop !== false) {
       window.scrollTo(0, 0);
     }
@@ -3219,11 +4454,16 @@
       return;
     }
 
+    endRoutineViewTour();
+    if (!currentExercise) {
+      endCatalogTour();
+    }
     routineView.hidden = true;
     openFromHash();
   }
 
   function dismissRoutineView() {
+    endRoutineViewTour();
     if (isRoutineHash(location.hash)) {
       history.pushState({}, "", location.pathname);
     }
@@ -3262,9 +4502,16 @@
     if (!routineSaveButton) {
       return;
     }
-    const isSaved = routineFavoriteIndex(routine) >= 0;
-    routineSaveButton.textContent = isSaved ? "Quitar rutina de Favoritos" : "Guardar rutina en Favoritos";
+    const savedRoutine = buildSavedRoutine(routine);
+    const isSaved = savedRoutine ? loadRoutineFavorites().some((item) => item.id === savedRoutine.id) : false;
+    const isConfirming = Boolean(isSaved && savedRoutine && pendingRoutineSaveRemoveId === savedRoutine.id);
+    routineSaveButton.textContent = isConfirming
+      ? "Confirmar quitar"
+      : isSaved
+        ? "Quitar rutina de Favoritos"
+        : "Guardar rutina en Favoritos";
     routineSaveButton.setAttribute("aria-pressed", String(isSaved));
+    routineSaveButton.classList.toggle("is-confirming", isConfirming);
     routineSaveButton.disabled = false;
   }
 
@@ -3278,8 +4525,21 @@
     const routines = loadRoutineFavorites();
     const existingIndex = routines.findIndex((item) => item.id === savedRoutine.id);
     if (existingIndex >= 0) {
+      if (pendingRoutineSaveRemoveId !== savedRoutine.id) {
+        pendingRoutineSaveRemoveId = savedRoutine.id;
+        if (pendingRoutineSaveRemoveTimer) {
+          window.clearTimeout(pendingRoutineSaveRemoveTimer);
+        }
+        pendingRoutineSaveRemoveTimer = window.setTimeout(() => {
+          clearRoutineSaveRemoveConfirmation();
+        }, ROUTINE_REMOVE_CONFIRM_DELAY);
+        updateRoutineSaveButton(routine);
+        return;
+      }
+      clearRoutineSaveRemoveConfirmation(false);
       routines.splice(existingIndex, 1);
     } else {
+      clearRoutineSaveRemoveConfirmation(false);
       routines.unshift(savedRoutine);
     }
     saveRoutineFavorites(routines);
@@ -3389,12 +4649,34 @@
     }
   }
 
+  function mountFilterPanelToBody() {
+    if (filterPanel && filterPanel.parentElement !== document.body) {
+      document.body.appendChild(filterPanel);
+    }
+  }
+
+  function restoreFilterPanelMount() {
+    if (!filterPanel || !filterPanelOriginalParent || filterPanel.parentElement !== document.body) {
+      return;
+    }
+    if (filterPanelOriginalNext && filterPanelOriginalNext.parentElement === filterPanelOriginalParent) {
+      filterPanelOriginalParent.insertBefore(filterPanel, filterPanelOriginalNext);
+    } else {
+      filterPanelOriginalParent.appendChild(filterPanel);
+    }
+  }
+
   function openFilterPanel(mode = "catalog") {
     if (!filterPanel) {
       return;
     }
-    filterPanelMode = mode === "routine" ? "routine" : "catalog";
-    const sourceState = filterPanelMode === "routine" ? routineFilterState : state;
+    mountFilterPanelToBody();
+    filterPanelMode = mode === "routine" || mode === "picker" ? mode : "catalog";
+    const sourceState = filterPanelMode === "routine"
+      ? routineFilterState
+      : filterPanelMode === "picker"
+        ? routineExercisePickerState
+        : state;
     draftState.grupo = sourceState.grupo;
     draftState.equipamiento = sourceState.equipamiento;
     draftState.favoritos = sourceState.favoritos;
@@ -3425,6 +4707,7 @@
 
     const finish = () => {
       filterPanel.hidden = true;
+      restoreFilterPanelMount();
     };
     if (prefersReducedMotion) {
       finish();
@@ -3445,6 +4728,14 @@
       routineFilterState.equipamiento = draftState.equipamiento;
       routineFilterState.favoritos = draftState.favoritos;
       checkRoutineView({ scrollToTop: false });
+    } else if (filterPanelMode === "picker") {
+      routineExercisePickerState.grupo = draftState.grupo;
+      routineExercisePickerState.equipamiento = draftState.equipamiento;
+      routineExercisePickerState.favoritos = draftState.favoritos;
+      const picker = document.querySelector("[data-routine-exercise-picker]");
+      if (picker) {
+        renderRoutineExercisePickerList(picker);
+      }
     } else {
       state.grupo = draftState.grupo;
       state.equipamiento = draftState.equipamiento;
@@ -3602,7 +4893,7 @@
 
     document.addEventListener("click", (event) => {
       if (event.target.closest("[data-routine-cart-tour]")) {
-        startRoutineCartTour();
+        resetAndStartRoutineCartTour();
       }
     });
 
@@ -3640,7 +4931,7 @@
     }
 
     if (routineCartAddMore) {
-      routineCartAddMore.addEventListener("click", () => setRoutineCartOpen(false));
+      routineCartAddMore.addEventListener("click", openRoutineExercisePicker);
     }
 
     if (routineCartGenerate) {
@@ -3649,6 +4940,10 @@
 
     if (routineCartCopy) {
       routineCartCopy.addEventListener("click", copyRoutineCartLink);
+    }
+
+    if (routineCartOpen) {
+      routineCartOpen.addEventListener("click", openRoutineCartLink);
     }
 
     if (routineCartDownloadQr) {
@@ -3821,6 +5116,10 @@
       });
     }
 
+    if (catalogTourButton) {
+      catalogTourButton.addEventListener("click", resetAndStartCatalogTour);
+    }
+
     searchInput.addEventListener("input", () => {
       window.clearTimeout(searchDebounce);
       searchDebounce = window.setTimeout(() => {
@@ -3913,6 +5212,10 @@
       routineSaveButton.addEventListener("click", toggleRoutineFavorite);
     }
 
+    if (routineViewTourButton) {
+      routineViewTourButton.addEventListener("click", resetAndStartRoutineViewTour);
+    }
+
     if (routineDismissButton) {
       routineDismissButton.addEventListener("click", dismissRoutineView);
     }
@@ -3944,7 +5247,7 @@
 
         const removeButton = event.target.closest("[data-routine-favorite-remove]");
         if (removeButton) {
-          removeRoutineFavorite(Number(removeButton.dataset.routineFavoriteRemove));
+          requestRoutineFavoriteRemoval(Number(removeButton.dataset.routineFavoriteRemove));
         }
       });
     }
@@ -3967,9 +5270,11 @@
       populateFilters(payload);
       bindEvents();
       renderGrid();
+      seedDefaultRoutineFavorites();
       renderRoutineFavorites();
       renderRoutineCart();
       syncRoute();
+      window.setTimeout(maybeAutoStartCatalogTour, 320);
       updateHeaderHeightVar();
     })
     .catch((error) => {

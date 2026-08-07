@@ -14,8 +14,8 @@
     <meta property="og:description" content="Pádel en Ponte Caldelas con pistas, módulos de 90 minutos, tarifas de pista, clases de pádel y fotografías reales.">
     <meta property="og:url" content="https://eltablerosportclub.com/padel/">
     <meta property="og:image" content="https://eltablerosportclub.com/assets/images/brand/og-cover.png">
-    <meta property="og:image:width" content="1254">
-    <meta property="og:image:height" content="1254">
+    <meta property="og:image:width" content="1050">
+    <meta property="og:image:height" content="1006">
     <meta property="og:image:alt" content="El Tablero Sport Club, gimnasio y pádel en Ponte Caldelas">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Pádel en Ponte Caldelas | El Tablero Sport Club">
@@ -103,7 +103,7 @@
         ]
       }
     </script>
-    <link rel="icon" href="../assets/icons/favicon-192.png" type="image/png">
+    <link rel="icon" href="../assets/icons/favicon.png" type="image/png">
     <link rel="stylesheet" href="../assets/css/tokens.css">
     <link rel="stylesheet" href="../assets/css/base.css">
     <link rel="stylesheet" href="../assets/css/layout.css">
@@ -642,6 +642,11 @@
       #tarifas > .concept-container {
         position: relative;
         z-index: 1;
+      }
+
+      #tarifas .padel-pricing-note {
+        margin-bottom: clamp(0.55rem, 1.2vw, 0.95rem);
+        max-width: min(100%, 78rem);
       }
 
       .concept-inline-section .price-card {
@@ -2059,19 +2064,19 @@
             <div class="concept-section__head">
               <p class="concept-kicker">Tarifas</p>
               <h2>Precios de pista</h2>
-              <p>Precios por persona, módulos de 90 minutos y descuentos vinculados al abono.</p>
+              <p class="padel-pricing-note">Precio por persona en reservas de 90 minutos, calculado para 4 jugadores. Si juegan menos, se debe abonar igualmente la pista completa.</p>
             </div>
             <div class="grid grid--2">
               <article class="price-card">
-                <p class="eyebrow">LUNES A VIERNES</p>
+                <p class="eyebrow">LUNES A VIERNES MAÑANA Y MEDIODÍA</p>
                 <h3>Hora valle</h3>
                 <p class="price-card__price"><span class="price-card__value">4,50 €</span><span class="price-card__unit">/persona · 1 h 30 min</span></p>
                 <ul class="list-check">
-                  <li>De 9:30 a 17:00.</li>
+                  <li>De lunes a viernes de 9:30 a 17:00.</li>
                 </ul>
               </article>
               <article class="price-card">
-                <p class="eyebrow">TARDES Y FIN DE SEMANA</p>
+                <p class="eyebrow">LUNES A VIERNES TARDE · FIN DE SEMANA</p>
                 <h3>Hora punta</h3>
                 <p class="price-card__price"><span class="price-card__value">7 €</span><span class="price-card__unit">/persona · 1 h 30 min</span></p>
                 <ul class="list-check">
@@ -2104,6 +2109,7 @@
                 <li>Las reservas se realizan en módulos de 90 minutos.</li>
                 <li>Los precios por persona están calculados para partidas de 4 jugadores.</li>
                 <li>En partidas incompletas se abonará el importe equivalente a 4 jugadores no abonados.</li>
+                <li>Las cancelaciones deben realizarse con al menos 24 horas de antelación.</li>
                 <li>Las reservas fijas requieren al menos una persona abonada o con bono activo.</li>
                 <li>Alquiler de pala: 1 € por pala.</li>
               </ul>
