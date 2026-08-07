@@ -196,6 +196,7 @@
     <script src="assets/js/config.js" defer></script>
     <script src="assets/js/hero-glow.js" defer></script>
     <script src="assets/js/hero-fitness-preview.js" defer></script>
+    <script src="assets/js/member-card-3d.js" defer></script>
     <script src="assets/js/main.js" defer></script>
     <script src="assets/js/navigation.js" defer></script>
     <script src="assets/js/animations.js" defer></script>
@@ -626,6 +627,60 @@
                   <span class="home-zones__tab-label">Pádel</span>
                   <span class="home-zones__tab-arrow" aria-hidden="true"></span>
                 </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="home-member-card" aria-labelledby="home-member-card-title">
+          <div class="container-wide">
+            <div class="home-member-card__layout">
+              <div class="home-zones__heading home-member-card__heading" data-reveal>
+                <p class="eyebrow">Hazte socio</p>
+                <h2 id="home-member-card-title">
+                  <span class="home-member-card__title-line home-member-card__title-line--light">Mucho más</span>
+                  <span class="home-member-card__title-line home-member-card__title-line--ink">que un gimnasio,</span>
+                  <span class="home-member-card__title-line home-member-card__title-line--accent">tu club</span>
+                </h2>
+                <p>
+                  Entrena, juega y supérate en un espacio completo.<br>
+                  Ven a <strong>El Tablero Sport Club</strong>, recibe tu tarjeta hoy y empieza a disfrutar de todas las ventajas.
+                </p>
+                <ul class="home-member-card__benefits" role="list" aria-label="Zonas incluidas en El Tablero Sport Club">
+                  <li>
+                    <img src="imagenes/types/fitness.webp" alt="" width="320" height="320" loading="lazy" decoding="async">
+                    <span>Fitness</span>
+                  </li>
+                  <li>
+                    <img src="imagenes/types/hybrid.webp" alt="" width="320" height="320" loading="lazy" decoding="async">
+                    <span>Hybrid</span>
+                  </li>
+                  <li>
+                    <img src="imagenes/types/functional.webp" alt="" width="320" height="320" loading="lazy" decoding="async">
+                    <span>Funcional</span>
+                  </li>
+                  <li>
+                    <img src="imagenes/types/padel.webp" alt="" width="320" height="320" loading="lazy" decoding="async">
+                    <span>Pádel</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="home-member-card__stage" data-reveal style="--reveal-delay: 120ms;">
+                <div
+                  class="member-card-3d"
+                  data-member-card-3d
+                  aria-label="Tarjeta de socio de El Tablero Sport Club en 3D"
+                >
+                  <div class="member-card-3d__object" data-member-card-object>
+                    <div class="member-card-3d__face member-card-3d__face--front">
+                      <img src="imagenes/member-card-front.png" alt="" width="1583" height="994" loading="lazy" decoding="async">
+                    </div>
+                    <div class="member-card-3d__face member-card-3d__face--back">
+                      <img src="imagenes/member-card-back.png" alt="" width="1583" height="994" loading="lazy" decoding="async">
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
