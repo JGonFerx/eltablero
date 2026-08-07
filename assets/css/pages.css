@@ -2133,6 +2133,8 @@
 }
 
 .home-member-card__benefits {
+  grid-column: 1;
+  grid-row: 2;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
@@ -2173,6 +2175,8 @@
 
 .home-member-card__stage {
   position: relative;
+  grid-column: 2;
+  grid-row: 1 / span 2;
   width: 100%;
   min-width: 0;
   justify-self: start;
@@ -2260,7 +2264,13 @@
 
   .home-member-card__layout {
     grid-template-columns: 1fr;
-    gap: clamp(1.25rem, 7vw, 2.25rem);
+    gap: clamp(1rem, 5vw, 1.75rem);
+  }
+
+  .home-member-card__stage,
+  .home-member-card__benefits {
+    grid-column: auto;
+    grid-row: auto;
   }
 
   .home-member-card__heading {
@@ -2287,8 +2297,14 @@
   .home-member-card__benefits {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     width: min(100%, 22rem);
-    margin-inline: auto;
+    margin: clamp(0.35rem, 2vw, 0.75rem) auto 0;
     row-gap: 1rem;
+    text-align: center;
+  }
+
+  .home-member-card__benefits li {
+    justify-items: center;
+    text-align: center;
   }
 
   .home-member-card__benefits li:nth-child(odd) {
