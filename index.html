@@ -672,14 +672,20 @@
                   data-member-card-3d
                   aria-label="Tarjeta de socio de El Tablero Sport Club en 3D"
                 >
-                  <div class="member-card-3d__object" data-member-card-object>
-                    <div class="member-card-3d__face member-card-3d__face--front">
-                      <img src="imagenes/member-card-front.png" alt="" width="1583" height="994" loading="lazy" decoding="async">
-                    </div>
-                    <div class="member-card-3d__face member-card-3d__face--back">
-                      <img src="imagenes/member-card-back.png" alt="" width="1583" height="994" loading="lazy" decoding="async">
-                    </div>
-                  </div>
+                  <canvas
+                    class="member-card-3d__canvas"
+                    data-member-card-canvas
+                    aria-hidden="true"
+                  ></canvas>
+                  <img
+                    class="member-card-3d__fallback"
+                    src="imagenes/member-card-front.png"
+                    alt=""
+                    width="1583"
+                    height="994"
+                    loading="lazy"
+                    decoding="async"
+                  >
                 </div>
               </div>
             </div>

@@ -2212,79 +2212,45 @@
   cursor: grabbing;
 }
 
-.member-card-3d__object {
+.member-card-3d__canvas,
+.member-card-3d__fallback {
   position: relative;
   z-index: 1;
-  width: min(44vw, 34rem);
+  display: block;
+  width: min(48vw, 37rem);
   aspect-ratio: 1583 / 994;
   border-radius: clamp(1.05rem, 2vw, 1.85rem);
-  transform:
-    rotateX(var(--member-card-rotate-x))
-    rotateY(var(--member-card-rotate-y));
-  transform-style: preserve-3d;
-  transition: transform 180ms var(--ease-standard);
-  will-change: transform;
-  animation: member-card-idle 10400ms ease-in-out infinite;
-  pointer-events: none;
-  box-shadow:
-    0 34px 74px -34px rgba(0, 0, 0, 0.88),
-    0 0 0 1px rgba(255, 255, 255, 0.18);
-}
-
-.member-card-3d__face {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  overflow: hidden;
-  border-radius: inherit;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.54),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.18);
-}
-
-.member-card-3d__face--front {
-  transform: translateZ(0.01px) rotateY(0deg);
-}
-
-.member-card-3d__face--back {
-  transform: rotateY(180deg) translateZ(0.01px);
-}
-
-.member-card-3d__face img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
   user-select: none;
   -webkit-user-drag: none;
 }
 
-.member-card-3d.is-dragging .member-card-3d__object {
-  animation: none;
-  transform:
-    rotateX(var(--member-card-rotate-x))
-    rotateY(var(--member-card-rotate-y));
-  transition-duration: 0ms;
+.member-card-3d__canvas {
+  height: auto;
+  opacity: 0;
+  transition: opacity 240ms var(--ease-standard);
 }
 
-@keyframes member-card-idle {
-  0%,
-  50%,
-  100% {
-    transform:
-      translate3d(0, 0, 0)
-      rotateX(var(--member-card-rotate-x))
-      rotateY(var(--member-card-rotate-y));
-  }
+.member-card-3d.is-webgl-ready .member-card-3d__canvas {
+  opacity: 1;
+}
 
-  25% {
-    transform:
-      translate3d(0, -0.7rem, 0)
-      rotateX(calc(var(--member-card-rotate-x) - 1.5deg))
-      rotateY(calc(var(--member-card-rotate-y) + 7deg));
-  }
+.member-card-3d__fallback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 1;
+  object-fit: cover;
+  filter: drop-shadow(0 34px 34px rgba(18, 15, 12, 0.38));
+  pointer-events: none;
+}
+
+.member-card-3d.is-webgl-ready .member-card-3d__fallback {
+  opacity: 0;
+}
+
+.member-card-3d.is-dragging .member-card-3d__canvas {
+  transition-duration: 0ms;
 }
 
 @media (max-width: 47.98rem) {
@@ -2348,12 +2314,13 @@
     opacity: 0.82;
   }
 
-  .member-card-3d__object {
-    width: min(92vw, 31rem);
-    box-shadow:
-      0 28px 58px -30px rgba(18, 15, 12, 0.9),
-      0 12px 22px -18px rgba(18, 15, 12, 0.86),
-      0 0 0 1px rgba(255, 255, 255, 0.2);
+  .member-card-3d__canvas,
+  .member-card-3d__fallback {
+    width: min(92vw, 30rem);
+  }
+
+  .member-card-3d__fallback {
+    filter: drop-shadow(0 28px 28px rgba(18, 15, 12, 0.42));
   }
 }
 
