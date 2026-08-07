@@ -7,14 +7,17 @@
   }
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const compactMotion = window.matchMedia("(pointer: coarse), (max-width: 47.98rem)").matches;
+  const initialRotateX = compactMotion ? -13 : -8;
+  const initialRotateY = compactMotion ? -24 : -18;
   const state = {
     dragging: false,
     pointerId: null,
     lastX: 0,
     lastY: 0,
-    rotateX: -8,
-    rotateY: -18,
-    autoRotation: -18,
+    rotateX: initialRotateX,
+    rotateY: initialRotateY,
+    autoRotation: initialRotateY,
   };
 
   const setRotation = () => {
