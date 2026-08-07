@@ -22,6 +22,9 @@
   const compactMotion = window.matchMedia("(pointer: coarse), (max-width: 47.98rem)").matches;
   const initialCameraPitch = compactMotion ? -13 : -8;
   const initialRotateY = compactMotion ? -24 : -18;
+  const dragRotateSensitivity = compactMotion ? 0.58 : 0.28;
+  const dragCameraSensitivity = compactMotion ? 0.22 : 0.16;
+  const autoRotateSpeed = compactMotion ? 0.0075 : 0.0065;
   const cardAspect = 1583 / 994;
 
   const state = {
@@ -378,8 +381,8 @@
 
     const deltaX = event.clientX - state.lastX;
     const deltaY = event.clientY - state.lastY;
-    state.rotateY += deltaX * 0.28;
-    state.cameraPitch = Math.max(-26, Math.min(18, state.cameraPitch + deltaY * 0.16));
+    state.rotateY += deltaX * dragRotateSensitivity;
+    state.cameraPitch = Math.max(-26, Math.min(18, state.cameraPitch + deltaY * dragCameraSensitivity));
     state.autoRotation = state.rotateY;
     state.lastX = event.clientX;
     state.lastY = event.clientY;
@@ -500,7 +503,7 @@
       lastTime = time;
 
       if (!state.dragging) {
-        state.autoRotation += delta * 0.004;
+        state.autoRotation += delta * autoRotateSpeed;
         state.rotateY += (state.autoRotation - state.rotateY) * 0.025;
       }
 
