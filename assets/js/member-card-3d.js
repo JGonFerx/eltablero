@@ -20,11 +20,13 @@
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const compactMotion = window.matchMedia("(pointer: coarse), (max-width: 47.98rem)").matches;
-  const initialCameraPitch = compactMotion ? -13 : -8;
-  const initialRotateY = compactMotion ? -24 : -18;
+  const initialCameraPitch = 0;
+  const initialRotateY = 0;
   const dragRotateSensitivity = compactMotion ? 0.58 : 0.28;
   const dragCameraSensitivity = compactMotion ? 0.22 : 0.16;
-  const autoRotateSpeed = compactMotion ? 0.0075 : 0.0065;
+  const autoRotateSpeed = compactMotion ? 0.013 : 0.0115;
+  const maxInertiaSpeed = compactMotion ? 0.2 : 0.16;
+  const inertiaFriction = compactMotion ? 0.985 : 0.987;
   const cardAspect = 1583 / 994;
 
   const state = {
@@ -32,9 +34,12 @@
     pointerId: null,
     lastX: 0,
     lastY: 0,
+    lastMoveTime: 0,
     cameraPitch: initialCameraPitch,
     rotateY: initialRotateY,
     autoRotation: initialRotateY,
+    dragVelocity: 0,
+    inertiaVelocity: 0,
   };
 
   const vertexSource = `
@@ -132,7 +137,7 @@
   };
 
   const buildCardMesh = () => {
-    const width = 5.2;
+    const width = 4.85;
     const height = width / cardAspect;
     const depth = 0.036;
     const radius = 0.26;
@@ -365,11 +370,16 @@
     return width / height;
   };
 
+  const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
   const startDrag = (event) => {
     state.dragging = true;
     state.pointerId = event.pointerId;
     state.lastX = event.clientX;
     state.lastY = event.clientY;
+    state.lastMoveTime = event.timeStamp || performance.now();
+    state.dragVelocity = 0;
+    state.inertiaVelocity = 0;
     stage.classList.add("is-dragging");
     stage.setPointerCapture?.(event.pointerId);
   };
@@ -381,11 +391,16 @@
 
     const deltaX = event.clientX - state.lastX;
     const deltaY = event.clientY - state.lastY;
-    state.rotateY += deltaX * dragRotateSensitivity;
-    state.cameraPitch = Math.max(-26, Math.min(18, state.cameraPitch + deltaY * dragCameraSensitivity));
+    const time = event.timeStamp || performance.now();
+    const elapsed = Math.max(time - state.lastMoveTime, 8);
+    const rotationDelta = deltaX * dragRotateSensitivity;
+    state.rotateY += rotationDelta;
+    state.cameraPitch = clamp(state.cameraPitch + deltaY * dragCameraSensitivity, -26, 34);
     state.autoRotation = state.rotateY;
+    state.dragVelocity = clamp(rotationDelta / elapsed, -maxInertiaSpeed, maxInertiaSpeed);
     state.lastX = event.clientX;
     state.lastY = event.clientY;
+    state.lastMoveTime = time;
   };
 
   const endDrag = (event) => {
@@ -395,6 +410,10 @@
 
     state.dragging = false;
     state.pointerId = null;
+    state.inertiaVelocity = Math.abs(state.dragVelocity) > autoRotateSpeed * 2
+      ? state.dragVelocity
+      : 0;
+    state.dragVelocity = 0;
     stage.classList.remove("is-dragging");
     stage.releasePointerCapture?.(event.pointerId);
   };
@@ -434,7 +453,7 @@
       const aspect = resizeCanvas();
       const projection = perspective((36 * Math.PI) / 180, aspect, 0.1, 100);
       const model = rotateY(state.rotateY);
-      const cameraDistance = 6.35;
+      const cameraDistance = 7.35;
       const cameraPitchRadians = (state.cameraPitch * Math.PI) / 180;
       const view = lookAt(
         [
@@ -503,8 +522,15 @@
       lastTime = time;
 
       if (!state.dragging) {
-        state.autoRotation += delta * autoRotateSpeed;
-        state.rotateY += (state.autoRotation - state.rotateY) * 0.025;
+        if (Math.abs(state.inertiaVelocity) > autoRotateSpeed * 1.15) {
+          state.rotateY += state.inertiaVelocity * delta;
+          state.inertiaVelocity *= Math.pow(inertiaFriction, delta / 16.67);
+          state.autoRotation = state.rotateY;
+        } else {
+          state.inertiaVelocity = 0;
+          state.autoRotation += delta * autoRotateSpeed;
+          state.rotateY += (state.autoRotation - state.rotateY) * 0.025;
+        }
       }
 
       render();
