@@ -2072,7 +2072,8 @@
   align-items: center;
   width: min(100%, 88rem);
   margin-inline: auto;
-  gap: clamp(1.5rem, 4vw, 4.5rem);
+  column-gap: clamp(1.5rem, 4vw, 4.5rem);
+  row-gap: 0;
 }
 
 .home-member-card__heading {
