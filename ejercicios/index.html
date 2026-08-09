@@ -229,6 +229,10 @@
               <strong data-routine-cart-count>0 ejercicios</strong>
             </span>
           </button>
+          <button type="button" class="routine-cart__ai-open" data-routine-ai-open aria-label="Crear rutina con IA">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5 13.9 8l4.6 1.7-4.6 1.7L12 16l-1.9-4.6-4.6-1.7 4.6-1.7L12 3.5ZM18 14l.9 2.1 2.1.9-2.1.9L18 20l-.9-2.1-2.1-.9 2.1-.9L18 14Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path></svg>
+            <span>Crear con IA</span>
+          </button>
           <button type="button" class="routine-favorites__toggle" data-routine-favorites-toggle aria-expanded="false" aria-controls="routine-favorites-panel">
             <span aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none"><path d="M5.5 6.5A2.5 2.5 0 0 1 8 4h8a2.5 2.5 0 0 1 2.5 2.5v12.2l-6.5-3.4-6.5 3.4V6.5Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"></path></svg>
@@ -434,6 +438,31 @@
           </div>
         </section>
       </aside>
+
+      <div class="routine-ai" data-routine-ai hidden>
+        <button type="button" class="routine-ai__backdrop" data-routine-ai-close aria-label="Cerrar creador con IA"></button>
+        <section class="routine-ai__panel" role="dialog" aria-modal="true" aria-labelledby="routine-ai-title">
+          <header class="routine-ai__head">
+            <div>
+              <p>Crear rutina con IA</p>
+              <h2 id="routine-ai-title">Define tu rutina</h2>
+            </div>
+            <button type="button" data-routine-ai-close aria-label="Cerrar creador con IA">×</button>
+          </header>
+
+          <div class="routine-ai__body">
+            <section class="routine-ai__step routine-ai__step--simple">
+              <div>
+                <h3>Qué necesitas</h3>
+                <p>Indica objetivo, nivel, días disponibles, limitaciones, material preferido y cualquier detalle útil. ChatGPT abrirá la web, usará el catálogo real y te devolverá un enlace de rutina listo para abrir o imprimir.</p>
+                <textarea rows="6" data-routine-ai-brief aria-label="Indicaciones para ChatGPT"></textarea>
+                <p class="routine-ai__status" data-routine-ai-status role="alert" hidden></p>
+                <button type="button" class="routine-ai__chatgpt" data-routine-ai-chatgpt>Abrir ChatGPT con este encargo</button>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
 
       <div class="routine-poster routine-poster--cart" data-routine-cart-poster>
         <div class="routine-poster__sheet">

@@ -97,6 +97,11 @@
   const routineCartPosterMeta = document.querySelector("[data-routine-cart-poster-meta]");
   const routineCartPosterQr = document.querySelector("[data-routine-cart-poster-qr]");
   const routineCartPosterList = document.querySelector("[data-routine-cart-poster-list]");
+  const routineAiPanel = document.querySelector("[data-routine-ai]");
+  const routineAiOpenButtons = document.querySelectorAll("[data-routine-ai-open]");
+  const routineAiBrief = document.querySelector("[data-routine-ai-brief]");
+  const routineAiChatgpt = document.querySelector("[data-routine-ai-chatgpt]");
+  const routineAiStatus = document.querySelector("[data-routine-ai-status]");
 
   if (!grid) {
     return;
@@ -167,20 +172,20 @@
 
   const state = {
     q: "",
-    grupo: "",
-    equipamiento: "",
+    grupo: [],
+    equipamiento: [],
     favoritos: false,
   };
   const routineFilterState = {
     q: "",
-    grupo: "",
-    equipamiento: "",
+    grupo: [],
+    equipamiento: [],
     favoritos: false,
   };
   const routineExercisePickerState = {
     q: "",
-    grupo: "",
-    equipamiento: "",
+    grupo: [],
+    equipamiento: [],
     favoritos: false,
   };
 
@@ -196,6 +201,7 @@
   const ROUTINE_DEFAULT_SERIES = "3";
   const ROUTINE_DEFAULT_REPS = "10";
   const ROUTINE_DEFAULT_REST = "2";
+  const CHATGPT_ROUTINE_URL = "https://chatgpt.com/?q=";
   const ROUTINE_REMOVE_CONFIRM_DELAY = 4500;
   const WEEK_DAYS = [
     { id: "lunes", label: "Lunes", short: "Lun" },
@@ -253,6 +259,7 @@
   }
 
   const favorites = loadFavorites();
+  let routineCartKeyCounter = 0;
   let routineCartDays = loadRoutineCartDays();
   let routineCartItems = loadRoutineCart();
   let routineCartSelectedIds = new Set();
@@ -384,6 +391,7 @@
   function normalizeRoutineCartItem(item) {
     if (typeof item === "string") {
       return {
+        key: createRoutineCartItemKey(item),
         id: item,
         series: ROUTINE_DEFAULT_SERIES,
         reps: ROUTINE_DEFAULT_REPS,
@@ -393,6 +401,7 @@
     }
 
     return {
+      key: item && (item.key || item.k) ? String(item.key || item.k) : createRoutineCartItemKey(item && (item.id || item.i)),
       id: item && (item.id || item.i) ? item.id || item.i : "",
       series: item && (item.series || item.s) ? item.series || item.s : ROUTINE_DEFAULT_SERIES,
       reps: item && (item.reps || item.r) ? item.reps || item.r : ROUTINE_DEFAULT_REPS,
@@ -404,6 +413,7 @@
   function normalizeRoutineEntry(item) {
     if (typeof item === "string") {
       return {
+        key: createRoutineCartItemKey(item),
         id: item,
         series: ROUTINE_DEFAULT_SERIES,
         reps: ROUTINE_DEFAULT_REPS,
@@ -415,6 +425,7 @@
     const day = item && (item.day || item.w) ? item.day || item.w : ROUTINE_UNASSIGNED_DAY;
     const isValidDay = WEEK_DAYS.some((entry) => entry.id === day);
     return {
+      key: item && (item.key || item.k) ? String(item.key || item.k) : createRoutineCartItemKey(item && (item.id || item.i)),
       id: item && (item.id || item.i) ? item.id || item.i : "",
       series: item && (item.series || item.s) ? item.series || item.s : ROUTINE_DEFAULT_SERIES,
       reps: item && (item.reps || item.r) ? item.reps || item.r : ROUTINE_DEFAULT_REPS,
@@ -432,16 +443,11 @@
       : Array.isArray(routine.e)
         ? routine.e.map((id) => ({ id }))
         : [];
-    const seen = new Set();
-    return source
+    return withRoutineCartItemKeys(source
       .map(normalizeRoutineEntry)
       .filter((item) => {
-        if (!item.id || seen.has(item.id) || !getExerciseById(item.id)) {
-          return false;
-        }
-        seen.add(item.id);
-        return true;
-      });
+        return item.id && getExerciseById(item.id);
+      }));
   }
 
   function loadRoutineCartDays() {
@@ -468,16 +474,11 @@
       if (!Array.isArray(items)) {
         return [];
       }
-      const seen = new Set();
-      return items
+      return withRoutineCartItemKeys(items
         .map(normalizeRoutineCartItem)
         .filter((item) => {
-          if (!item.id || seen.has(item.id)) {
-            return false;
-          }
-          seen.add(item.id);
-          return true;
-        });
+          return item.id && getExerciseById(item.id);
+        }));
     } catch (error) {
       return [];
     }
@@ -495,8 +496,26 @@
     return String(value).trim().replace(/\s+/g, " ").slice(0, 24);
   }
 
-  function getRoutineCartItem(id) {
-    return routineCartItems.find((item) => item.id === id);
+  function createRoutineCartItemKey(id) {
+    routineCartKeyCounter += 1;
+    const slug = String(id || "ejercicio").replace(/[^a-z0-9_-]+/gi, "-").replace(/^-+|-+$/g, "").slice(0, 48) || "ejercicio";
+    return `rutina-${Date.now().toString(36)}-${routineCartKeyCounter}-${slug}`;
+  }
+
+  function withRoutineCartItemKeys(items) {
+    const seen = new Set();
+    return items.map((item) => {
+      let key = item.key ? String(item.key) : createRoutineCartItemKey(item.id);
+      while (seen.has(key)) {
+        key = createRoutineCartItemKey(item.id);
+      }
+      seen.add(key);
+      return { ...item, key };
+    });
+  }
+
+  function getRoutineCartItem(key) {
+    return routineCartItems.find((item) => item.key === key);
   }
 
   function clearRoutineCartValidation() {
@@ -524,8 +543,8 @@
     return hasRoutineValue(item.series) && hasRoutineValue(item.reps) && hasRoutineValue(item.rest);
   }
 
-  function updateRoutineCartSetting(id, key, value) {
-    const item = getRoutineCartItem(id);
+  function updateRoutineCartSetting(itemKey, key, value) {
+    const item = getRoutineCartItem(itemKey);
     if (!item) {
       return;
     }
@@ -686,24 +705,31 @@
     return routineCartItems.some((item) => item.id === id);
   }
 
+  function routineCartExerciseCount(id) {
+    return routineCartItems.filter((item) => item.id === id).length;
+  }
+
   function syncRoutineButtons(id) {
     document.querySelectorAll("[data-routine-toggle]").forEach((button) => {
       const exerciseId = button.dataset.routineToggle;
       if (id && exerciseId !== id) {
         return;
       }
-      const isSelected = isInRoutineCart(exerciseId);
+      const selectedCount = routineCartExerciseCount(exerciseId);
+      const isSelected = selectedCount > 0;
       const label = button.querySelector("[data-routine-toggle-label]");
       button.setAttribute("aria-pressed", String(isSelected));
       button.classList.toggle("is-added", isSelected);
       if (label) {
-        label.textContent = isSelected ? "Añadido" : "Añadir a rutina";
+        label.textContent = isSelected ? "Añadir otra vez" : "Añadir a rutina";
       }
       const exercise = getExerciseById(exerciseId);
       if (exercise) {
         button.setAttribute(
           "aria-label",
-          `${isSelected ? "Quitar" : "Añadir"} ${exercise.nombre} ${isSelected ? "de" : "a"} la rutina`
+          isSelected
+            ? `Añadir otra vez ${exercise.nombre} a la rutina`
+            : `Añadir ${exercise.nombre} a la rutina`
         );
       }
     });
@@ -759,13 +785,13 @@
   }
 
   function pruneRoutineCartSelection() {
-    const validIds = new Set(routineCartItems.map((item) => item.id));
-    routineCartSelectedIds = new Set(Array.from(routineCartSelectedIds).filter((id) => validIds.has(id)));
+    const validKeys = new Set(routineCartItems.map((item) => item.key));
+    routineCartSelectedIds = new Set(Array.from(routineCartSelectedIds).filter((key) => validKeys.has(key)));
   }
 
-  function routineDragIds(anchorId) {
-    const selected = routineCartItems.filter((item) => routineCartSelectedIds.has(item.id)).map((item) => item.id);
-    return selected.includes(anchorId) ? selected : [anchorId];
+  function routineDragIds(anchorKey) {
+    const selected = routineCartItems.filter((item) => routineCartSelectedIds.has(item.key)).map((item) => item.key);
+    return selected.includes(anchorKey) ? selected : [anchorKey];
   }
 
   function renderRoutineCartBuilderItem(item, index, dayIndex, dayTotal) {
@@ -777,19 +803,20 @@
     item.day = normalizeRoutineDay(item.day);
     const isUnassigned = !item.day;
     const hasMissingPrescription = !hasCompleteRoutinePrescription(item);
-    const dragLabel = routineCartSelectedIds.has(item.id) && routineCartSelectedIds.size > 1
+    const itemKey = item.key;
+    const dragLabel = routineCartSelectedIds.has(itemKey) && routineCartSelectedIds.size > 1
       ? `Arrastrar ${routineCartSelectedIds.size} ejercicios a otro día`
       : `Arrastrar ${exercise.nombre} a otro día`;
     const li = document.createElement("li");
-    li.className = `routine-cart__builder-item${routineCartSelectedIds.has(item.id) ? " is-selected" : ""}${isUnassigned ? " is-unassigned" : ""}${hasMissingPrescription ? " has-missing-prescription" : ""}`;
+    li.className = `routine-cart__builder-item${routineCartSelectedIds.has(itemKey) ? " is-selected" : ""}${isUnassigned ? " is-unassigned" : ""}${hasMissingPrescription ? " has-missing-prescription" : ""}`;
     li.dataset.routineDay = item.day;
-    li.dataset.routineBuilderId = item.id;
+    li.dataset.routineBuilderId = itemKey;
     li.innerHTML = `
       <label class="routine-cart__select" title="Marcar para mover en grupo">
-        <input type="checkbox" data-routine-select="${escapeHtml(exercise.id)}" ${routineCartSelectedIds.has(item.id) ? "checked" : ""} aria-label="Marcar ${escapeHtml(exercise.nombre)} para mover en grupo">
+        <input type="checkbox" data-routine-select="${escapeHtml(itemKey)}" ${routineCartSelectedIds.has(itemKey) ? "checked" : ""} aria-label="Marcar ${escapeHtml(exercise.nombre)} para mover en grupo">
         <span aria-hidden="true"></span>
       </label>
-      <span class="routine-cart__drag" data-routine-drag-id="${escapeHtml(exercise.id)}" role="button" tabindex="0" aria-label="${escapeHtml(dragLabel)}" title="Arrastrar a otro día"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="9" cy="5" r="1.45" fill="currentColor"></circle><circle cx="15" cy="5" r="1.45" fill="currentColor"></circle><circle cx="9" cy="12" r="1.45" fill="currentColor"></circle><circle cx="15" cy="12" r="1.45" fill="currentColor"></circle><circle cx="9" cy="19" r="1.45" fill="currentColor"></circle><circle cx="15" cy="19" r="1.45" fill="currentColor"></circle></svg></span>
+      <span class="routine-cart__drag" data-routine-drag-id="${escapeHtml(itemKey)}" role="button" tabindex="0" aria-label="${escapeHtml(dragLabel)}" title="Arrastrar a otro día"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="9" cy="5" r="1.45" fill="currentColor"></circle><circle cx="15" cy="5" r="1.45" fill="currentColor"></circle><circle cx="9" cy="12" r="1.45" fill="currentColor"></circle><circle cx="15" cy="12" r="1.45" fill="currentColor"></circle><circle cx="9" cy="19" r="1.45" fill="currentColor"></circle><circle cx="15" cy="19" r="1.45" fill="currentColor"></circle></svg></span>
       <span class="routine-cart__index">${index + 1}</span>
       <span class="routine-cart__builder-copy">
         <span class="routine-cart__builder-title-row">
@@ -797,7 +824,7 @@
         </span>
         <span>${escapeHtml(exercise.grupoMuscular)}</span>
       </span>
-      <span class="routine-cart__prescription" data-routine-prescription="${escapeHtml(exercise.id)}">
+      <span class="routine-cart__prescription" data-routine-prescription="${escapeHtml(itemKey)}">
         <label>
           <span>Series</span>
           <input type="text" inputmode="numeric" autocomplete="off" maxlength="24" value="${escapeHtml(item.series)}" data-routine-setting="series" aria-label="Series de ${escapeHtml(exercise.nombre)}" aria-invalid="${!hasRoutineValue(item.series)}">
@@ -813,9 +840,9 @@
       </span>
       <span class="routine-cart__builder-controls">
         <button type="button" data-routine-info="${escapeHtml(exercise.id)}" aria-label="Ver detalles de ${escapeHtml(exercise.nombre)}">i</button>
-        <button type="button" data-routine-move="-1" data-routine-move-id="${escapeHtml(exercise.id)}" ${dayIndex === 0 ? "disabled" : ""} aria-label="Subir ${escapeHtml(exercise.nombre)}">↑</button>
-        <button type="button" data-routine-move="1" data-routine-move-id="${escapeHtml(exercise.id)}" ${dayIndex === dayTotal - 1 ? "disabled" : ""} aria-label="Bajar ${escapeHtml(exercise.nombre)}">↓</button>
-        <button type="button" data-routine-remove="${escapeHtml(exercise.id)}" aria-label="Quitar ${escapeHtml(exercise.nombre)}">×</button>
+        <button type="button" data-routine-move="-1" data-routine-move-id="${escapeHtml(itemKey)}" ${dayIndex === 0 ? "disabled" : ""} aria-label="Subir ${escapeHtml(exercise.nombre)}">↑</button>
+        <button type="button" data-routine-move="1" data-routine-move-id="${escapeHtml(itemKey)}" ${dayIndex === dayTotal - 1 ? "disabled" : ""} aria-label="Bajar ${escapeHtml(exercise.nombre)}">↓</button>
+        <button type="button" data-routine-remove="${escapeHtml(itemKey)}" aria-label="Quitar ${escapeHtml(exercise.nombre)}">×</button>
       </span>
     `;
     return li;
@@ -919,23 +946,23 @@
     });
   }
 
-  function moveRoutineCartItem(id, direction) {
-    const item = getRoutineCartItem(id);
+  function moveRoutineCartItem(itemKey, direction) {
+    const item = getRoutineCartItem(itemKey);
     if (!item) {
       return;
     }
     const day = normalizeRoutineDay(item.day);
     const dayItems = routineCartItems.filter((entry) => normalizeRoutineDay(entry.day) === day);
-    const dayIndex = dayItems.findIndex((entry) => entry.id === id);
+    const dayIndex = dayItems.findIndex((entry) => entry.key === itemKey);
     const targetDayItem = dayItems[dayIndex + direction];
     if (!targetDayItem) {
       return;
     }
-    const index = routineCartItems.findIndex((entry) => entry.id === id);
-    const target = routineCartItems.findIndex((entry) => entry.id === targetDayItem.id);
+    const index = routineCartItems.findIndex((entry) => entry.key === itemKey);
+    const target = routineCartItems.findIndex((entry) => entry.key === targetDayItem.key);
     const [moved] = routineCartItems.splice(index, 1);
     routineCartItems.splice(target, 0, moved);
-    renderRoutineCartWithReorderAnimation([id]);
+    renderRoutineCartWithReorderAnimation([itemKey]);
     if (routineCartResult) {
       routineCartResult.hidden = true;
     }
@@ -993,7 +1020,8 @@
     let ghost;
     if (ids.length > 1) {
       const names = ids
-        .map((id) => getExerciseById(id))
+        .map((id) => getRoutineCartItem(id))
+        .map((item) => item && getExerciseById(item.id))
         .filter(Boolean)
         .slice(0, 3)
         .map((exercise) => `<span>${escapeHtml(exercise.nombre)}</span>`)
@@ -1047,7 +1075,7 @@
     const movingIds = new Set(ids || []);
     const sourceDays = new Set(
       routineCartItems
-        .filter((item) => movingIds.has(item.id))
+        .filter((item) => movingIds.has(item.key))
         .map((item) => normalizeRoutineDay(item.day))
     );
     const singleSourceDay = sourceDays.size === 1 ? Array.from(sourceDays)[0] : null;
@@ -1298,7 +1326,7 @@
 
   function moveRoutineCartItemsToDay(ids, day, targetId) {
     const normalizedDay = normalizeRoutineDay(day);
-    const uniqueIds = Array.from(new Set(ids)).filter((id) => routineCartItems.some((item) => item.id === id));
+    const uniqueIds = Array.from(new Set(ids)).filter((id) => routineCartItems.some((item) => item.key === id));
     if (uniqueIds.length === 0) {
       return;
     }
@@ -1312,10 +1340,10 @@
       return;
     }
     const movingIds = new Set(uniqueIds);
-    const movingItems = routineCartItems.filter((item) => movingIds.has(item.id)).map((item) => ({ ...item, day: normalizedDay }));
-    routineCartItems = routineCartItems.filter((item) => !movingIds.has(item.id));
+    const movingItems = routineCartItems.filter((item) => movingIds.has(item.key)).map((item) => ({ ...item, day: normalizedDay }));
+    routineCartItems = routineCartItems.filter((item) => !movingIds.has(item.key));
 
-    const targetIndex = targetId && !movingIds.has(targetId) ? routineCartItems.findIndex((entry) => entry.id === targetId) : -1;
+    const targetIndex = targetId && !movingIds.has(targetId) ? routineCartItems.findIndex((entry) => entry.key === targetId) : -1;
     if (targetIndex !== -1) {
       routineCartItems.splice(targetIndex, 0, ...movingItems);
     } else {
@@ -1339,7 +1367,7 @@
       return;
     }
 
-    routineCartItems = routineCartItems.filter((item) => getExerciseById(item.id));
+    routineCartItems = withRoutineCartItemKeys(routineCartItems.filter((item) => getExerciseById(item.id)));
     const count = routineCartItems.length;
     const label = count === 1 ? "1 ejercicio" : `${count} ejercicios`;
 
@@ -1393,7 +1421,7 @@
           <strong>${escapeHtml(exercise.nombre)}</strong>
           <span>${escapeHtml(exercise.grupoMuscular)}</span>
         </span>
-        <button type="button" class="routine-cart__remove" data-routine-remove="${escapeHtml(exercise.id)}" aria-label="Quitar ${escapeHtml(exercise.nombre)} de la rutina">
+        <button type="button" class="routine-cart__remove" data-routine-remove="${escapeHtml(item.key)}" aria-label="Quitar ${escapeHtml(exercise.nombre)} de la rutina">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
         </button>
       `;
@@ -1408,10 +1436,11 @@
   }
 
   function addRoutineCartItem(id) {
-    if (isInRoutineCart(id) || !getExerciseById(id)) {
+    if (!getExerciseById(id)) {
       return;
     }
     routineCartItems.push({
+      key: createRoutineCartItemKey(id),
       id,
       series: ROUTINE_DEFAULT_SERIES,
       reps: ROUTINE_DEFAULT_REPS,
@@ -1425,9 +1454,9 @@
     setRoutineCartOpen(true);
   }
 
-  function removeRoutineCartItem(id) {
-    routineCartSelectedIds.delete(id);
-    routineCartItems = routineCartItems.filter((item) => item.id !== id);
+  function removeRoutineCartItem(itemKey) {
+    routineCartSelectedIds.delete(itemKey);
+    routineCartItems = routineCartItems.filter((item) => item.key !== itemKey);
     if (routineCartResult) {
       routineCartResult.hidden = true;
     }
@@ -1435,20 +1464,14 @@
   }
 
   function toggleRoutineCartItem(id) {
-    if (isInRoutineCart(id)) {
-      removeRoutineCartItem(id);
-    } else {
-      addRoutineCartItem(id);
-    }
+    addRoutineCartItem(id);
   }
 
   function syncRoutineExercisePickerControls(picker) {
     const search = picker.querySelector("[data-routine-exercise-picker-search]");
     const filtersButton = picker.querySelector("[data-routine-exercise-picker-filters]");
     const filtersBadge = picker.querySelector("[data-routine-exercise-picker-filters-badge]");
-    const filtersCount = Number(Boolean(routineExercisePickerState.grupo)) +
-      Number(Boolean(routineExercisePickerState.equipamiento)) +
-      Number(routineExercisePickerState.favoritos);
+    const filtersCount = filterCountForState(routineExercisePickerState);
 
     if (search && search.value !== routineExercisePickerState.q) {
       search.value = routineExercisePickerState.q;
@@ -1495,8 +1518,8 @@
                   <small>${escapeHtml((exercise.equipamiento && exercise.equipamiento[0]) || "Peso corporal")}</small>
                 </span>
               </button>
-              <button type="button" data-routine-picker-add="${escapeHtml(exercise.id)}" ${isAdded ? "disabled" : ""}>
-                ${isAdded ? "Añadido" : "Añadir"}
+              <button type="button" data-routine-picker-add="${escapeHtml(exercise.id)}">
+                ${isAdded ? "Añadir otra vez" : "Añadir"}
               </button>
             </article>
           `;
@@ -1606,6 +1629,7 @@
 
   function clearRoutineCart() {
     routineCartItems = [];
+    routineCartSelectedIds.clear();
     if (routineCartResult) {
       routineCartResult.hidden = true;
     }
@@ -3224,8 +3248,31 @@
     return filterPanelMode === "routine" ? routineFilterSourceExercises() : exercises;
   }
 
+  function filterValues(value) {
+    if (Array.isArray(value)) {
+      return value.map((item) => String(item || "").trim()).filter(Boolean);
+    }
+    return value ? [String(value).trim()].filter(Boolean) : [];
+  }
+
+  function uniqueFilterValues(values) {
+    return Array.from(new Set(filterValues(values)));
+  }
+
+  function filterHasValue(source, value) {
+    return filterValues(source).includes(value);
+  }
+
+  function filterCountForState(source) {
+    return filterValues(source.grupo).length + filterValues(source.equipamiento).length + Number(Boolean(source.favoritos));
+  }
+
   function groupValuesFor(value) {
     return GROUP_AGGREGATES[value] ? GROUP_AGGREGATES[value].values : [value];
+  }
+
+  function groupValuesForSelection(values) {
+    return Array.from(new Set(filterValues(values).flatMap((value) => groupValuesFor(value))));
   }
 
   function countForGroupValue(value) {
@@ -3234,14 +3281,14 @@
   }
 
   function countForEquipmentValue(value) {
-    return filterSourceExercises().filter((exercise) => exercise.equipamiento.includes(value)).length;
+    return equipmentFilterSourceExercises().filter((exercise) => exercise.equipamiento.includes(value)).length;
   }
 
   function createRadioRow({ name, value, label, count, checked }) {
     const row = document.createElement("label");
     row.className = "filter-radio-row";
     row.innerHTML = `
-      <input type="radio" name="${escapeHtml(name)}" value="${escapeHtml(value)}" ${checked ? "checked" : ""}>
+      <input type="checkbox" name="${escapeHtml(name)}" value="${escapeHtml(value)}" ${checked ? "checked" : ""}>
       <span class="filter-radio-row__indicator" aria-hidden="true"></span>
       <span class="filter-radio-row__label">${escapeHtml(label)}</span>
       ${count === undefined ? "" : `<span class="filter-radio-row__count">${count}</span>`}
@@ -3250,8 +3297,9 @@
   }
 
   function buildAggregateGroup(key, aggregate, realValues) {
+    const selectedGroups = filterValues(draftState.grupo);
     const isExpanded =
-      expandedAggregateGroups.has(key) || draftState.grupo === key || realValues.includes(draftState.grupo);
+      expandedAggregateGroups.has(key) || selectedGroups.includes(key) || realValues.some((value) => selectedGroups.includes(value));
 
     const wrapper = document.createElement("div");
     wrapper.className = "filter-expand-group";
@@ -3274,7 +3322,7 @@
         value: key,
         label: aggregate.all,
         count: countForGroupValue(key),
-        checked: draftState.grupo === key,
+        checked: selectedGroups.includes(key),
       })
     );
     realValues.forEach((value) => {
@@ -3284,7 +3332,7 @@
           value,
           label: value,
           count: countForGroupValue(value),
-          checked: draftState.grupo === value,
+          checked: selectedGroups.includes(value),
         })
       );
     });
@@ -3307,13 +3355,14 @@
 
   function buildGroupList() {
     filterGroupList.innerHTML = "";
+    const selectedGroups = filterValues(draftState.grupo);
     const sourceGroups = filterPanelMode === "routine"
       ? Array.from(new Set(filterSourceExercises().flatMap((exercise) => exercise.gruposMusculares || [])))
       : payloadGrupos;
     const muscleGroups = sourceGroups.filter((group) => !EXERCISE_TYPE_VALUES.includes(group));
 
     filterGroupList.appendChild(
-      createRadioRow({ name: "filter-grupo", value: "", label: "Todos", checked: draftState.grupo === "" })
+      createRadioRow({ name: "filter-grupo", value: "", label: "Todos", checked: selectedGroups.length === 0 })
     );
 
     PRIMARY_GROUP_VALUES.filter((group) => muscleGroups.includes(group)).forEach((group) => {
@@ -3323,7 +3372,7 @@
           value: group,
           label: group,
           count: countForGroupValue(group),
-          checked: draftState.grupo === group,
+          checked: selectedGroups.includes(group),
         })
       );
     });
@@ -3336,14 +3385,36 @@
     });
   }
 
+  function exerciseMatchesDraftGroup(exercise) {
+    const selectedValues = groupValuesForSelection(draftState.grupo);
+    if (selectedValues.length === 0) {
+      return true;
+    }
+    return selectedValues.some((value) => exercise.gruposMusculares.includes(value));
+  }
+
+  function equipmentFilterSourceExercises() {
+    return filterSourceExercises().filter((exercise) => {
+      if (draftState.favoritos && !isFavorite(exercise.id)) {
+        return false;
+      }
+      return exerciseMatchesDraftGroup(exercise);
+    });
+  }
+
   function buildEquipmentList() {
     const equipmentSet = new Set();
-    filterSourceExercises().forEach((exercise) => exercise.equipamiento.forEach((item) => equipmentSet.add(item)));
+    const selectedEquipment = filterValues(draftState.equipamiento);
+    equipmentFilterSourceExercises().forEach((exercise) => exercise.equipamiento.forEach((item) => equipmentSet.add(item)));
     const equipmentValues = Array.from(equipmentSet).sort((a, b) => a.localeCompare(b, "es"));
+
+    if (selectedEquipment.length) {
+      draftState.equipamiento = selectedEquipment.filter((value) => equipmentSet.has(value));
+    }
 
     filterEquipmentList.innerHTML = "";
     filterEquipmentList.appendChild(
-      createRadioRow({ name: "filter-equipamiento", value: "", label: "Todo el equipamiento", checked: draftState.equipamiento === "" })
+      createRadioRow({ name: "filter-equipamiento", value: "", label: "Todo el equipamiento", checked: filterValues(draftState.equipamiento).length === 0 })
     );
     equipmentValues.forEach((value) => {
       filterEquipmentList.appendChild(
@@ -3352,7 +3423,7 @@
           value,
           label: value,
           count: countForEquipmentValue(value),
-          checked: draftState.equipamiento === value,
+          checked: filterHasValue(draftState.equipamiento, value),
         })
       );
     });
@@ -3398,15 +3469,18 @@
       return false;
     }
 
-    if (candidate.grupo) {
-      const values = groupValuesFor(candidate.grupo);
-      if (!values.some((value) => exercise.gruposMusculares.includes(value))) {
+    const selectedGroups = groupValuesForSelection(candidate.grupo);
+    if (selectedGroups.length) {
+      if (!selectedGroups.some((value) => exercise.gruposMusculares.includes(value))) {
         return false;
       }
     }
 
-    if (candidate.equipamiento && !exercise.equipamiento.includes(candidate.equipamiento)) {
-      return false;
+    const selectedEquipment = filterValues(candidate.equipamiento);
+    if (selectedEquipment.length) {
+      if (!selectedEquipment.some((value) => exercise.equipamiento.includes(value))) {
+        return false;
+      }
     }
 
     if (candidate.q) {
@@ -3451,6 +3525,10 @@
     card.className = isRoutineCard ? "exercise-card exercise-card--routine" : "exercise-card";
     card.dataset.exerciseId = exercise.id;
     card.dataset.current = String(currentExercise && currentExercise.id === exercise.id);
+    const isInRoutine = isInRoutineCart(exercise.id);
+    const routineActionLabel = isInRoutine
+      ? `Añadir otra vez ${exercise.nombre} a la rutina`
+      : `Añadir ${exercise.nombre} a la rutina`;
 
     const media = exercise.imagenInicial
       ? `<img src="${escapeHtml(exercise.imagenInicial)}" alt="" loading="lazy" decoding="async" width="512" height="512">`
@@ -3473,9 +3551,9 @@
       ${
         isRoutineCard
           ? ""
-          : `<button type="button" class="exercise-card__add" data-routine-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isInRoutineCart(exercise.id)}" aria-label="${isInRoutineCart(exercise.id) ? "Quitar" : "Añadir"} ${escapeHtml(exercise.nombre)} ${isInRoutineCart(exercise.id) ? "de" : "a"} la rutina">
+          : `<button type="button" class="exercise-card__add" data-routine-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isInRoutine}" aria-label="${escapeHtml(routineActionLabel)}">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
-              <span data-routine-toggle-label>${isInRoutineCart(exercise.id) ? "Añadido" : "Añadir a rutina"}</span>
+              <span data-routine-toggle-label>${isInRoutine ? "Añadir otra vez" : "Añadir a rutina"}</span>
             </button>`
       }
     `;
@@ -3545,12 +3623,8 @@
 
   function activeFilterLabels() {
     const labels = [];
-    if (state.grupo) {
-      labels.push(groupLabelFor(state.grupo));
-    }
-    if (state.equipamiento) {
-      labels.push(state.equipamiento);
-    }
+    filterValues(state.grupo).forEach((value) => labels.push(groupLabelFor(value)));
+    filterValues(state.equipamiento).forEach((value) => labels.push(value));
     if (state.favoritos) {
       labels.push("Solo favoritos");
     }
@@ -3559,12 +3633,8 @@
 
   function activeRoutineFilterLabels() {
     const labels = [];
-    if (routineFilterState.grupo) {
-      labels.push(groupLabelFor(routineFilterState.grupo));
-    }
-    if (routineFilterState.equipamiento) {
-      labels.push(routineFilterState.equipamiento);
-    }
+    filterValues(routineFilterState.grupo).forEach((value) => labels.push(groupLabelFor(value)));
+    filterValues(routineFilterState.equipamiento).forEach((value) => labels.push(value));
     if (routineFilterState.favoritos) {
       labels.push("Solo favoritos");
     }
@@ -3580,15 +3650,15 @@
   }
 
   function resetFilters() {
-    state.grupo = "";
-    state.equipamiento = "";
+    state.grupo = [];
+    state.equipamiento = [];
     state.favoritos = false;
     renderGrid();
   }
 
   function resetRoutineFilters() {
-    routineFilterState.grupo = "";
-    routineFilterState.equipamiento = "";
+    routineFilterState.grupo = [];
+    routineFilterState.equipamiento = [];
     routineFilterState.favoritos = false;
     checkRoutineView({ scrollToTop: false });
   }
@@ -3764,6 +3834,10 @@
 
     const anatomyImage = exercise.imagenAnatomia || exercise.imagenAnatomica || "";
     const showRoutineActions = !options.readOnlyRoutine;
+    const isInRoutine = isInRoutineCart(exercise.id);
+    const routineActionLabel = isInRoutine
+      ? `Añadir otra vez ${exercise.nombre} a la rutina`
+      : `Añadir ${exercise.nombre} a la rutina`;
 
     exercisePageContent.innerHTML = `
       <article class="exercise-detail" aria-labelledby="exercise-page-title">
@@ -3775,9 +3849,9 @@
                 ? `<button type="button" class="exercise-detail__favorite" data-favorite-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isFavorite(exercise.id)}" aria-label="Guardar ${escapeHtml(exercise.nombre)} en favoritos">
                     ${HEART_ICON}
                   </button>
-                  <button type="button" class="exercise-detail__add" data-routine-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isInRoutineCart(exercise.id)}" aria-label="${isInRoutineCart(exercise.id) ? "Quitar" : "Añadir"} ${escapeHtml(exercise.nombre)} ${isInRoutineCart(exercise.id) ? "de" : "a"} la rutina">
+                  <button type="button" class="exercise-detail__add" data-routine-toggle="${escapeHtml(exercise.id)}" aria-pressed="${isInRoutine}" aria-label="${escapeHtml(routineActionLabel)}">
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
-                    <span data-routine-toggle-label>${isInRoutineCart(exercise.id) ? "Añadido" : "Añadir a rutina"}</span>
+                    <span data-routine-toggle-label>${isInRoutine ? "Añadir otra vez" : "Añadir a rutina"}</span>
                   </button>`
                 : ""
             }
@@ -3883,6 +3957,10 @@
         <div class="exercise-detail__topbar">
           <h1 id="routine-exercise-preview-title">${escapeHtml(exercise.nombre)}</h1>
           <div class="exercise-detail__actions">
+            <button type="button" class="exercise-detail__add" data-routine-info-add="${escapeHtml(exercise.id)}" aria-label="Añadir otra vez ${escapeHtml(exercise.nombre)} a la rutina">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
+              <span>Añadir otra vez</span>
+            </button>
             <button type="button" class="exercise-detail__close" data-routine-info-close aria-label="Cerrar detalles del ejercicio">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
             </button>
@@ -4067,6 +4145,118 @@
       /* portapapeles no disponible */
     }
     document.body.removeChild(textarea);
+  }
+
+  function copyTextToClipboard(text, onDone) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(onDone).catch(() => fallbackCopy(text, onDone));
+    } else {
+      fallbackCopy(text, onDone);
+    }
+  }
+
+  function setRoutineAiStatus(message, type = "info") {
+    if (!routineAiStatus) {
+      return;
+    }
+    routineAiStatus.textContent = message;
+    routineAiStatus.dataset.state = type;
+    routineAiStatus.hidden = !message;
+  }
+
+  function openRoutineAiPanel() {
+    if (!routineAiPanel) {
+      return;
+    }
+    setRoutineAiStatus("");
+    routineAiPanel.hidden = false;
+    document.body.classList.add("has-routine-ai");
+    window.setTimeout(() => {
+      const target = routineAiBrief || routineAiChatgpt || routineAiPanel.querySelector("button");
+      if (target) {
+        target.focus({ preventScroll: true });
+      }
+    }, 40);
+  }
+
+  function closeRoutineAiPanel() {
+    if (!routineAiPanel) {
+      return;
+    }
+    routineAiPanel.hidden = true;
+    document.body.classList.remove("has-routine-ai");
+  }
+
+  function routineAiCurrentDraftLines() {
+    if (!routineCartItems.length) {
+      return "No hay ejercicios añadidos todavía.";
+    }
+    return routineCartItems.map((item, index) => {
+      const exercise = getExerciseById(item.id);
+      return `${index + 1}. ${item.id} | ${exercise ? exercise.nombre : item.id} | día: ${routineDayMeta(item.day).label} | ${item.series} series | ${item.reps} reps | descanso ${item.rest} min`;
+    }).join("\n");
+  }
+
+  function buildRoutineAiPrompt() {
+    const selectedDays = routineCartDays.map((day) => routineDayMeta(day).id).join(", ");
+    const userBrief = routineAiBrief && routineAiBrief.value.trim()
+      ? routineAiBrief.value.trim()
+      : "No se han indicado preferencias adicionales.";
+    return [
+      "Actúa como entrenador personal para El Tablero Sport Club.",
+      "Necesito que crees una rutina y me devuelvas un enlace completo listo para abrir en el navegador.",
+      "",
+      "Web pública:",
+      "https://eltablerosportclub.com/ejercicios/",
+      "",
+      "Archivos que debes inspeccionar para no inventar ejercicios:",
+      "- Catálogo real: https://eltablerosportclub.com/ejercicios/exercises.js",
+      "- Codificador de URL: https://eltablerosportclub.com/ejercicios/routines.js",
+      "",
+      "Cómo debes construir el enlace:",
+      "- Usa la ruta base https://eltablerosportclub.com/ejercicios/",
+      "- La rutina va en el hash compacto #r?... tal como define window.Routines.encode en routines.js.",
+      "- Estructura lógica: { t, n, days, items }.",
+      "- Cada item debe tener id, series, reps, rest y day.",
+      "- El parámetro i contiene ejercicios como id:series:reps:rest:day.",
+      "- series, reps y rest se codifican con base64url UTF-8 igual que compactValue en routines.js.",
+      "- t y n también se codifican con base64url UTF-8.",
+      "- days se codifica en w con días separados por coma.",
+      "- Si no puedes inspeccionar esos archivos, dilo claramente y no inventes IDs.",
+      "",
+      "Reglas de entrenamiento:",
+      "- Usa exclusivamente IDs reales existentes en exercises.js.",
+      "- Puedes repetir un mismo ejercicio si tiene sentido.",
+      "- Los días válidos son: lunes, martes, miercoles, jueves, viernes, sabado, domingo.",
+      "- Series, repeticiones y descanso son obligatorios en cada ejercicio.",
+      "- El descanso va en minutos, sin escribir la unidad dentro del valor.",
+      "- Mantén una rutina realista, simple y segura para el nivel indicado.",
+      "",
+      "Formato de respuesta:",
+      "1. Primera línea: solo el enlace completo de la rutina.",
+      "2. Después: resumen breve por días.",
+      "3. No incluyas JSON salvo que te lo pida expresamente.",
+      "",
+      `Días seleccionados actualmente en la web: ${selectedDays || "ninguno"}.`,
+      "Borrador actual del asistente:",
+      routineAiCurrentDraftLines(),
+      "",
+      "Indicaciones del usuario:",
+      userBrief,
+    ].join("\n");
+  }
+
+  function openRoutineAiInChatgpt() {
+    const prompt = buildRoutineAiPrompt();
+    const chatUrl = `${CHATGPT_ROUTINE_URL}${encodeURIComponent(prompt)}`;
+    const opened = window.open(chatUrl, "_blank", "noopener");
+    if (opened) {
+      setRoutineAiStatus("ChatGPT se ha abierto con el encargo preparado. Cuando te devuelva el enlace, ábrelo para ver la rutina.", "success");
+      return;
+    }
+    copyTextToClipboard(prompt, () => {
+      setRoutineAiStatus("El navegador bloqueó la pestaña. He copiado el encargo para que lo pegues en ChatGPT.", "warning");
+    });
   }
 
   function setCatalogToolsPlacement(target) {
@@ -4557,10 +4747,10 @@
     }
     const days = routineDaysForEntries(items, routine.days || []);
     routineCartDays = normalizeRoutineCartDays(days);
-    routineCartItems = items.map((item) => ({
+    routineCartItems = withRoutineCartItemKeys(items.map((item) => ({
       ...item,
       day: routineCartDays.includes(item.day) ? item.day : ROUTINE_UNASSIGNED_DAY,
-    }));
+    })));
     routineCartSelectedIds.clear();
     clearRoutineCartValidation();
     saveRoutineCartDays();
@@ -4637,7 +4827,7 @@
     if (!filterPanelClear) {
       return;
     }
-    const hasDraftFilters = Boolean(draftState.grupo) || Boolean(draftState.equipamiento) || draftState.favoritos;
+    const hasDraftFilters = filterValues(draftState.grupo).length > 0 || filterValues(draftState.equipamiento).length > 0 || draftState.favoritos;
     filterPanelClear.classList.toggle("is-visible", hasDraftFilters);
   }
 
@@ -4677,8 +4867,8 @@
       : filterPanelMode === "picker"
         ? routineExercisePickerState
         : state;
-    draftState.grupo = sourceState.grupo;
-    draftState.equipamiento = sourceState.equipamiento;
+    draftState.grupo = filterValues(sourceState.grupo);
+    draftState.equipamiento = filterValues(sourceState.equipamiento);
     draftState.favoritos = sourceState.favoritos;
     if (filterFavoritesSwitch) {
       filterFavoritesSwitch.checked = draftState.favoritos;
@@ -4724,21 +4914,21 @@
 
   function applyFilterPanel() {
     if (filterPanelMode === "routine") {
-      routineFilterState.grupo = draftState.grupo;
-      routineFilterState.equipamiento = draftState.equipamiento;
+      routineFilterState.grupo = uniqueFilterValues(draftState.grupo);
+      routineFilterState.equipamiento = uniqueFilterValues(draftState.equipamiento);
       routineFilterState.favoritos = draftState.favoritos;
       checkRoutineView({ scrollToTop: false });
     } else if (filterPanelMode === "picker") {
-      routineExercisePickerState.grupo = draftState.grupo;
-      routineExercisePickerState.equipamiento = draftState.equipamiento;
+      routineExercisePickerState.grupo = uniqueFilterValues(draftState.grupo);
+      routineExercisePickerState.equipamiento = uniqueFilterValues(draftState.equipamiento);
       routineExercisePickerState.favoritos = draftState.favoritos;
       const picker = document.querySelector("[data-routine-exercise-picker]");
       if (picker) {
         renderRoutineExercisePickerList(picker);
       }
     } else {
-      state.grupo = draftState.grupo;
-      state.equipamiento = draftState.equipamiento;
+      state.grupo = uniqueFilterValues(draftState.grupo);
+      state.equipamiento = uniqueFilterValues(draftState.equipamiento);
       state.favoritos = draftState.favoritos;
       renderGrid();
     }
@@ -4746,8 +4936,8 @@
   }
 
   function clearFilterPanel() {
-    draftState.grupo = "";
-    draftState.equipamiento = "";
+    draftState.grupo = [];
+    draftState.equipamiento = [];
     draftState.favoritos = false;
     if (filterFavoritesSwitch) {
       filterFavoritesSwitch.checked = false;
@@ -4867,6 +5057,19 @@
           closeRoutineExercisePreview();
           return;
         }
+        const previewAddButton = event.target.closest("[data-routine-info-add]");
+        if (previewAddButton) {
+          addRoutineCartItem(previewAddButton.dataset.routineInfoAdd);
+          previewAddButton.classList.add("is-added");
+          previewAddButton.querySelector("span").textContent = "Añadido";
+          window.setTimeout(() => {
+            if (document.body.contains(previewAddButton)) {
+              previewAddButton.classList.remove("is-added");
+              previewAddButton.querySelector("span").textContent = "Añadir otra vez";
+            }
+          }, 900);
+          return;
+        }
         const similarCard = event.target.closest(".routine-cart__exercise-preview [data-similar-id]");
         if (similarCard) {
           openRoutineExercisePreview(similarCard.dataset.similarId);
@@ -4890,6 +5093,28 @@
     if (routineCartView) {
       routineCartView.addEventListener("click", viewRoutineCart);
     }
+
+    routineAiOpenButtons.forEach((button) => {
+      button.addEventListener("click", openRoutineAiPanel);
+    });
+
+    if (routineAiPanel) {
+      routineAiPanel.addEventListener("click", (event) => {
+        if (event.target.closest("[data-routine-ai-close]")) {
+          closeRoutineAiPanel();
+        }
+      });
+    }
+
+    if (routineAiChatgpt) {
+      routineAiChatgpt.addEventListener("click", openRoutineAiInChatgpt);
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && routineAiPanel && !routineAiPanel.hidden) {
+        closeRoutineAiPanel();
+      }
+    });
 
     document.addEventListener("click", (event) => {
       if (event.target.closest("[data-routine-cart-tour]")) {
@@ -5170,6 +5395,10 @@
       if (filterFavoritesSwitch) {
         filterFavoritesSwitch.addEventListener("change", () => {
           draftState.favoritos = filterFavoritesSwitch.checked;
+          buildEquipmentList();
+          if (filterEquipmentSearch) {
+            filterEquipmentSearch.value = "";
+          }
           updateApplyButtonLabel();
           updateFilterPanelClearVisibility();
         });
@@ -5184,11 +5413,40 @@
       filterPanel.addEventListener("change", (event) => {
         const target = event.target;
         if (target.name === "filter-grupo") {
-          draftState.grupo = target.value;
+          if (target.value === "") {
+            draftState.grupo = [];
+          } else {
+            const values = new Set(filterValues(draftState.grupo));
+            if (target.checked) {
+              values.add(target.value);
+            } else {
+              values.delete(target.value);
+            }
+            draftState.grupo = Array.from(values);
+          }
+          buildGroupList();
+          buildEquipmentList();
+          if (filterEquipmentSearch) {
+            filterEquipmentSearch.value = "";
+          }
           updateApplyButtonLabel();
           updateFilterPanelClearVisibility();
         } else if (target.name === "filter-equipamiento") {
-          draftState.equipamiento = target.value;
+          if (target.value === "") {
+            draftState.equipamiento = [];
+          } else {
+            const values = new Set(filterValues(draftState.equipamiento));
+            if (target.checked) {
+              values.add(target.value);
+            } else {
+              values.delete(target.value);
+            }
+            draftState.equipamiento = Array.from(values);
+          }
+          buildEquipmentList();
+          if (filterEquipmentSearch) {
+            filterEquipmentSearch.value = "";
+          }
           updateApplyButtonLabel();
           updateFilterPanelClearVisibility();
         }
