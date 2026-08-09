@@ -100,6 +100,8 @@
   const routineAiPanel = document.querySelector("[data-routine-ai]");
   const routineAiOpenButtons = document.querySelectorAll("[data-routine-ai-open]");
   const routineAiBrief = document.querySelector("[data-routine-ai-brief]");
+  const routineAiFields = document.querySelectorAll("[data-routine-ai-field]");
+  const routineAiDayInputs = document.querySelectorAll("[data-routine-ai-day]");
   const routineAiChatgpt = document.querySelector("[data-routine-ai-chatgpt]");
   const routineAiStatus = document.querySelector("[data-routine-ai-status]");
 
@@ -2207,6 +2209,12 @@
       text: "Desde este acceso puedes abrir o editar las rutinas guardadas en este dispositivo y navegador. Conserva siempre también el enlace o el QR para no depender solo del guardado local.",
     },
     {
+      selector: "[data-routine-ai-open]",
+      placement: "top",
+      title: "Crea con IA",
+      text: "Este botón abre un formulario guiado para definir objetivo, nivel, días y preferencias. Después podrás abrir ChatGPT con el encargo preparado y revisar la rutina generada antes de entregarla.",
+    },
+    {
       selector: "[data-catalog-tour]",
       placement: "bottom",
       title: "Vuelve a ver la guía",
@@ -4169,6 +4177,8 @@
       return;
     }
     setRoutineAiStatus("");
+    syncRoutineAiDays();
+    setCatalogToolsReveal(false);
     routineAiPanel.hidden = false;
     document.body.classList.add("has-routine-ai");
     window.setTimeout(() => {
@@ -4197,11 +4207,43 @@
     }).join("\n");
   }
 
+  function syncRoutineAiDays() {
+    if (!routineAiDayInputs.length) {
+      return;
+    }
+    const currentDays = new Set(routineCartDays.filter(Boolean));
+    routineAiDayInputs.forEach((input) => {
+      input.checked = currentDays.has(input.value);
+    });
+  }
+
+  function routineAiFieldValue(name) {
+    const field = Array.from(routineAiFields).find((item) => item.dataset.routineAiField === name);
+    return field ? field.value.trim() : "";
+  }
+
+  function routineAiSelectedDays() {
+    const days = Array.from(routineAiDayInputs)
+      .filter((input) => input.checked)
+      .map((input) => input.value);
+    return days.length ? days : routineCartDays.filter(Boolean);
+  }
+
+  function routineAiBriefLines() {
+    const notes = routineAiBrief && routineAiBrief.value.trim() ? routineAiBrief.value.trim() : "Sin limitaciones o notas adicionales.";
+    return [
+      `Objetivo: ${routineAiFieldValue("objetivo") || "Rutina de cuerpo completo"}.`,
+      `Nivel: ${routineAiFieldValue("nivel") || "Principiante"}.`,
+      `Días disponibles: ${routineAiSelectedDays().join(", ") || "a decidir por la IA"}.`,
+      `Duración aproximada por sesión: ${routineAiFieldValue("duracion") || "45 minutos"}.`,
+      `Preferencia de trabajo: ${routineAiFieldValue("preferencia") || "Equilibrada"}.`,
+      `Limitaciones o notas: ${notes}`,
+    ].join("\n");
+  }
+
   function buildRoutineAiPrompt() {
-    const selectedDays = routineCartDays.map((day) => routineDayMeta(day).id).join(", ");
-    const userBrief = routineAiBrief && routineAiBrief.value.trim()
-      ? routineAiBrief.value.trim()
-      : "No se han indicado preferencias adicionales.";
+    const selectedDays = routineAiSelectedDays().join(", ");
+    const userBrief = routineAiBriefLines();
     return [
       "Actúa como entrenador personal para El Tablero Sport Club.",
       "Necesito que crees una rutina y me devuelvas un enlace completo listo para abrir en el navegador.",
@@ -4315,6 +4357,7 @@
     const toolsArePastHeader = catalogRect ? catalogRect.top < headerHeight + 12 : currentY > headerHeight;
     const canReveal =
       !currentExercise &&
+      !document.body.classList.contains("has-routine-ai") &&
       (!routineView || routineView.hidden) &&
       exercisesIntro &&
       !exercisesIntro.hidden &&

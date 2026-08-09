@@ -229,16 +229,16 @@
               <strong data-routine-cart-count>0 ejercicios</strong>
             </span>
           </button>
-          <button type="button" class="routine-cart__ai-open" data-routine-ai-open aria-label="Crear rutina con IA">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5 13.9 8l4.6 1.7-4.6 1.7L12 16l-1.9-4.6-4.6-1.7 4.6-1.7L12 3.5ZM18 14l.9 2.1 2.1.9-2.1.9L18 20l-.9-2.1-2.1-.9 2.1-.9L18 14Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path></svg>
-            <span>Crear con IA</span>
-          </button>
           <button type="button" class="routine-favorites__toggle" data-routine-favorites-toggle aria-expanded="false" aria-controls="routine-favorites-panel">
             <span aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none"><path d="M5.5 6.5A2.5 2.5 0 0 1 8 4h8a2.5 2.5 0 0 1 2.5 2.5v12.2l-6.5-3.4-6.5 3.4V6.5Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"></path></svg>
             </span>
             <span>Rutinas guardadas</span>
             <strong data-routine-favorites-count>0</strong>
+          </button>
+          <button type="button" class="routine-cart__ai-open" data-routine-ai-open aria-label="Crear rutina con IA" title="Crear con IA">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5 13.9 8l4.6 1.7-4.6 1.7L12 16l-1.9-4.6-4.6-1.7 4.6-1.7L12 3.5ZM18 14l.9 2.1 2.1.9-2.1.9L18 20l-.9-2.1-2.1-.9 2.1-.9L18 14Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path></svg>
+            <span>Crear con IA</span>
           </button>
         </div>
 
@@ -454,8 +454,61 @@
             <section class="routine-ai__step routine-ai__step--simple">
               <div>
                 <h3>Qué necesitas</h3>
-                <p>Indica objetivo, nivel, días disponibles, limitaciones, material preferido y cualquier detalle útil. ChatGPT abrirá la web, usará el catálogo real y te devolverá un enlace de rutina listo para abrir o imprimir.</p>
-                <textarea rows="6" data-routine-ai-brief aria-label="Indicaciones para ChatGPT"></textarea>
+                <p>Completa estos datos y ChatGPT usará el catálogo real para devolverte un enlace de rutina listo para abrir o imprimir.</p>
+                <div class="routine-ai__form" aria-label="Datos para crear la rutina con IA">
+                  <label>
+                    <span>Objetivo</span>
+                    <select data-routine-ai-field="objetivo">
+                      <option value="Rutina de cuerpo completo para principiantes">Cuerpo completo</option>
+                      <option value="Ganar fuerza con técnica segura">Ganar fuerza</option>
+                      <option value="Ganar masa muscular de forma progresiva">Ganar masa muscular</option>
+                      <option value="Mejorar condición física y perder grasa">Condición física</option>
+                      <option value="Preparación física complementaria para pádel">Complemento para pádel</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Nivel</span>
+                    <select data-routine-ai-field="nivel">
+                      <option value="Principiante">Principiante</option>
+                      <option value="Intermedio">Intermedio</option>
+                      <option value="Avanzado">Avanzado</option>
+                    </select>
+                  </label>
+                  <fieldset>
+                    <legend>Días de entrenamiento</legend>
+                    <div class="routine-ai__days">
+                      <label><input type="checkbox" value="lunes" data-routine-ai-day> Lun</label>
+                      <label><input type="checkbox" value="martes" data-routine-ai-day> Mar</label>
+                      <label><input type="checkbox" value="miercoles" data-routine-ai-day> Mié</label>
+                      <label><input type="checkbox" value="jueves" data-routine-ai-day> Jue</label>
+                      <label><input type="checkbox" value="viernes" data-routine-ai-day> Vie</label>
+                      <label><input type="checkbox" value="sabado" data-routine-ai-day> Sáb</label>
+                      <label><input type="checkbox" value="domingo" data-routine-ai-day> Dom</label>
+                    </div>
+                  </fieldset>
+                  <label>
+                    <span>Duración por sesión</span>
+                    <select data-routine-ai-field="duracion">
+                      <option value="45 minutos">45 minutos</option>
+                      <option value="30 minutos">30 minutos</option>
+                      <option value="60 minutos">60 minutos</option>
+                      <option value="75 minutos">75 minutos</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Preferencia de trabajo</span>
+                    <select data-routine-ai-field="preferencia">
+                      <option value="Mezclar máquinas, peso corporal, mancuernas y poleas si encaja">Equilibrada</option>
+                      <option value="Priorizar máquinas y ejercicios fáciles de ejecutar">Más guiada</option>
+                      <option value="Priorizar peso libre cuando sea seguro para el nivel">Más peso libre</option>
+                      <option value="Evitar ejercicios complejos y priorizar técnica básica">Muy simple</option>
+                    </select>
+                  </label>
+                  <label class="routine-ai__field-wide">
+                    <span>Limitaciones o notas opcionales</span>
+                    <textarea rows="3" data-routine-ai-brief aria-label="Limitaciones o notas opcionales"></textarea>
+                  </label>
+                </div>
                 <p class="routine-ai__status" data-routine-ai-status role="alert" hidden></p>
                 <button type="button" class="routine-ai__chatgpt" data-routine-ai-chatgpt>Abrir ChatGPT con este encargo</button>
               </div>
