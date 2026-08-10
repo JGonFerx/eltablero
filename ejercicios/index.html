@@ -464,6 +464,7 @@
                       <option value="Ganar masa muscular de forma progresiva">Ganar masa muscular</option>
                       <option value="Mejorar condición física y perder grasa">Condición física</option>
                       <option value="Preparación física complementaria para pádel">Complemento para pádel</option>
+                      <option value="Movilidad, acondicionamiento suave y técnica básica">Movilidad / suave</option>
                     </select>
                   </label>
                   <label>
@@ -487,6 +488,16 @@
                     </div>
                   </fieldset>
                   <label>
+                    <span>Reparto semanal</span>
+                    <select data-routine-ai-field="reparto">
+                      <option value="La IA decide el reparto más coherente según objetivo, días y nivel">La IA decide</option>
+                      <option value="Full body en todos los días de entrenamiento">Full body</option>
+                      <option value="Torso y pierna alternados">Torso / pierna</option>
+                      <option value="Empuje, tirón y pierna adaptado a los días disponibles">Empuje / tirón / pierna</option>
+                      <option value="Rutina por grupos musculares, evitando dejar días desequilibrados">Por grupos musculares</option>
+                    </select>
+                  </label>
+                  <label>
                     <span>Duración por sesión</span>
                     <select data-routine-ai-field="duracion">
                       <option value="45 minutos">45 minutos</option>
@@ -496,17 +507,71 @@
                     </select>
                   </label>
                   <label>
-                    <span>Preferencia de trabajo</span>
-                    <select data-routine-ai-field="preferencia">
-                      <option value="Mezclar máquinas, peso corporal, mancuernas y poleas si encaja">Equilibrada</option>
-                      <option value="Priorizar máquinas y ejercicios fáciles de ejecutar">Más guiada</option>
-                      <option value="Priorizar peso libre cuando sea seguro para el nivel">Más peso libre</option>
-                      <option value="Evitar ejercicios complejos y priorizar técnica básica">Muy simple</option>
+                    <span>Ejercicios por sesión</span>
+                    <select data-routine-ai-field="ejerciciosDia">
+                      <option value="La IA decide el número de ejercicios necesario para llegar a la duración objetivo">La IA decide</option>
+                      <option value="4 a 5 ejercicios por día">4-5</option>
+                      <option value="5 a 6 ejercicios por día">5-6</option>
+                      <option value="6 a 7 ejercicios por día">6-7</option>
+                      <option value="7 a 8 ejercicios por día">7-8</option>
                     </select>
                   </label>
+                  <label>
+                    <span>Estilo de rutina</span>
+                    <select data-routine-ai-field="preferencia">
+                      <option value="Rutina equilibrada: combina máquinas, poleas, mancuernas y peso corporal si encaja">Equilibrada</option>
+                      <option value="Rutina guiada: prioriza máquinas, poleas y ejercicios fáciles de explicar">Guiada y fácil</option>
+                      <option value="Rutina con más peso libre: usa mancuernas o barra solo si es seguro para el nivel">Más peso libre</option>
+                      <option value="Rutina muy simple: ejercicios básicos, poco técnicos y fáciles de recordar">Muy simple</option>
+                    </select>
+                  </label>
+                  <fieldset>
+                    <legend>Material permitido</legend>
+                    <p class="routine-ai__field-hint">Puedes marcar varios. La IA solo usará ejercicios compatibles con esta selección.</p>
+                    <div class="routine-ai__options routine-ai__options--material">
+                      <label><input type="checkbox" value="Máquinas" data-routine-ai-material checked> Máquinas</label>
+                      <label><input type="checkbox" value="Poleas" data-routine-ai-material checked> Poleas</label>
+                      <label><input type="checkbox" value="Mancuernas" data-routine-ai-material checked> Mancuernas</label>
+                      <label><input type="checkbox" value="Bandas" data-routine-ai-material checked> Bandas</label>
+                      <label><input type="checkbox" value="Peso corporal" data-routine-ai-material checked> Peso corporal</label>
+                      <label><input type="checkbox" value="Barra libre" data-routine-ai-material> Barra libre</label>
+                      <label><input type="checkbox" value="Kettlebell" data-routine-ai-material> Kettlebell</label>
+                      <label><input type="checkbox" value="TRX" data-routine-ai-material> TRX</label>
+                    </div>
+                  </fieldset>
+                  <fieldset>
+                    <legend>Limitaciones rápidas</legend>
+                    <p class="routine-ai__field-hint">Marca lo que convenga evitar o cuidar en la rutina.</p>
+                    <div class="routine-ai__options routine-ai__options--limits">
+                      <label>
+                        <input type="checkbox" value="Evitar saltos, carrera, impactos y ejercicios bruscos" data-routine-ai-limit>
+                        <span class="routine-ai__option-copy"><strong>Sin impacto</strong><small>Sin saltos ni movimientos bruscos.</small></span>
+                      </label>
+                      <label>
+                        <input type="checkbox" value="Evitar ejercicios que carguen mucho la rodilla o requieran flexión profunda" data-routine-ai-limit>
+                        <span class="routine-ai__option-copy"><strong>Cuidar rodilla</strong><small>Evitar flexiones profundas o cargas molestas.</small></span>
+                      </label>
+                      <label>
+                        <input type="checkbox" value="Evitar ejercicios que carguen mucho la zona lumbar o requieran bisagras complejas" data-routine-ai-limit>
+                        <span class="routine-ai__option-copy"><strong>Cuidar lumbar</strong><small>Evitar cargas o bisagras exigentes.</small></span>
+                      </label>
+                      <label>
+                        <input type="checkbox" value="Evitar ejercicios exigentes para el hombro o por encima de la cabeza" data-routine-ai-limit>
+                        <span class="routine-ai__option-copy"><strong>Cuidar hombro</strong><small>Reducir trabajo por encima de la cabeza.</small></span>
+                      </label>
+                      <label>
+                        <input type="checkbox" value="Evitar ejercicios en el suelo" data-routine-ai-limit>
+                        <span class="routine-ai__option-copy"><strong>Sin suelo</strong><small>Priorizar ejercicios de pie o en máquina.</small></span>
+                      </label>
+                      <label>
+                        <input type="checkbox" value="Priorizar ejercicios muy fáciles de aprender y aptos para principiantes" data-routine-ai-limit>
+                        <span class="routine-ai__option-copy"><strong>Muy principiante</strong><small>Rutina simple y fácil de recordar.</small></span>
+                      </label>
+                    </div>
+                  </fieldset>
                   <label class="routine-ai__field-wide">
-                    <span>Limitaciones o notas opcionales</span>
-                    <textarea rows="3" data-routine-ai-brief aria-label="Limitaciones o notas opcionales"></textarea>
+                    <span>Notas del monitor o del cliente</span>
+                    <textarea rows="3" data-routine-ai-brief aria-label="Notas del monitor o del cliente"></textarea>
                   </label>
                 </div>
                 <p class="routine-ai__status" data-routine-ai-status role="alert" hidden></p>

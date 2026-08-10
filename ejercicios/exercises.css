@@ -4517,10 +4517,15 @@ body.has-routine-cart-builder {
   display: grid;
   grid-template-columns: 2rem minmax(0, 1fr);
   gap: 0.85rem;
-  padding: 1rem;
-  border: 1px solid rgba(23, 24, 22, 0.08);
-  border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.66);
+  padding: clamp(1rem, 2vw, 1.35rem);
+  border: 1px solid rgba(201, 130, 92, 0.14);
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(135deg, rgba(201, 130, 92, 0.08), rgba(255, 255, 255, 0) 18rem),
+    rgba(255, 255, 255, 0.78);
+  box-shadow:
+    0 1.2rem 3rem rgba(23, 24, 22, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.76);
 }
 
 .routine-ai__step--simple {
@@ -4558,19 +4563,20 @@ body.has-routine-cart-builder {
 .routine-ai__form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
 .routine-ai__form > label,
 .routine-ai__form > fieldset {
   display: grid;
-  gap: 0.42rem;
+  gap: 0.5rem;
   min-width: 0;
   margin: 0;
-  border: 1px solid rgba(23, 24, 22, 0.1);
-  border-radius: 0.9rem;
-  padding: 0.75rem;
-  background: rgba(251, 250, 246, 0.72);
+  border: 1px solid rgba(23, 24, 22, 0.095);
+  border-radius: 1rem;
+  padding: 0.85rem;
+  background: rgba(255, 252, 248, 0.82);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.74);
 }
 
 .routine-ai__form > label > span,
@@ -4582,32 +4588,99 @@ body.has-routine-cart-builder {
   text-transform: uppercase;
 }
 
+.routine-ai__field-hint {
+  max-width: none;
+  margin: -0.15rem 0 0.1rem;
+  color: rgba(23, 24, 22, 0.58);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
 .routine-ai__field-wide,
 .routine-ai__form fieldset {
   grid-column: 1 / -1;
 }
 
-.routine-ai__days {
+.routine-ai__days,
+.routine-ai__options {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
 }
 
-.routine-ai__days label {
+.routine-ai__days label,
+.routine-ai__options label {
   display: inline-flex;
   align-items: center;
   gap: 0.36rem;
   min-height: 2.15rem;
+  border: 1px solid rgba(23, 24, 22, 0.08);
   border-radius: var(--radius-pill);
   padding: 0 0.72rem;
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.86);
   color: #171816;
   font-size: 0.82rem;
   font-weight: 850;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
-.routine-ai__days input {
+.routine-ai__days input,
+.routine-ai__options input {
   accent-color: #c9825c;
+  flex: none;
+}
+
+.routine-ai__days label:hover,
+.routine-ai__options label:hover {
+  border-color: rgba(201, 130, 92, 0.34);
+  transform: translateY(-1px);
+}
+
+.routine-ai__days label:has(input:checked),
+.routine-ai__options label:has(input:checked) {
+  border-color: rgba(201, 130, 92, 0.46);
+  background: rgba(201, 130, 92, 0.12);
+  color: #8b5336;
+}
+
+.routine-ai__options--material label {
+  min-width: 7.2rem;
+  justify-content: center;
+}
+
+.routine-ai__options--limits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.routine-ai__options--limits label {
+  align-items: flex-start;
+  min-height: auto;
+  border-radius: 0.9rem;
+  padding: 0.72rem;
+}
+
+.routine-ai__option-copy {
+  display: grid;
+  gap: 0.16rem;
+  min-width: 0;
+}
+
+.routine-ai__option-copy strong {
+  font-size: 0.84rem;
+  line-height: 1.15;
+}
+
+.routine-ai__option-copy small {
+  color: rgba(23, 24, 22, 0.58);
+  font-size: 0.74rem;
+  font-weight: 650;
+  line-height: 1.25;
 }
 
 .routine-ai__step input,
@@ -4621,6 +4694,16 @@ body.has-routine-cart-builder {
   color: #171816;
   font: inherit;
   line-height: 1.45;
+}
+
+.routine-ai__days input[type="checkbox"],
+.routine-ai__options input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  min-width: 1rem;
+  margin: 0;
+  padding: 0;
+  border-radius: 0.25rem;
 }
 
 .routine-ai__step textarea {
@@ -7647,11 +7730,17 @@ body.has-routine-exercise-overlay .exercise-detail__similar-row {
     padding: 0.68rem;
   }
 
-  .routine-ai__days {
+  .routine-ai__days,
+  .routine-ai__options {
     gap: 0.38rem;
   }
 
-  .routine-ai__days label {
+  .routine-ai__options--limits {
+    grid-template-columns: 1fr;
+  }
+
+  .routine-ai__days label,
+  .routine-ai__options label {
     min-height: 2rem;
     padding-inline: 0.62rem;
     font-size: 0.78rem;

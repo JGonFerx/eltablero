@@ -102,6 +102,8 @@
   const routineAiBrief = document.querySelector("[data-routine-ai-brief]");
   const routineAiFields = document.querySelectorAll("[data-routine-ai-field]");
   const routineAiDayInputs = document.querySelectorAll("[data-routine-ai-day]");
+  const routineAiMaterialInputs = document.querySelectorAll("[data-routine-ai-material]");
+  const routineAiLimitInputs = document.querySelectorAll("[data-routine-ai-limit]");
   const routineAiChatgpt = document.querySelector("[data-routine-ai-chatgpt]");
   const routineAiStatus = document.querySelector("[data-routine-ai-status]");
 
@@ -4229,15 +4231,33 @@
     return days.length ? days : routineCartDays.filter(Boolean);
   }
 
+  function routineAiSelectedLimits() {
+    return Array.from(routineAiLimitInputs)
+      .filter((input) => input.checked)
+      .map((input) => input.value);
+  }
+
+  function routineAiSelectedMaterials() {
+    return Array.from(routineAiMaterialInputs)
+      .filter((input) => input.checked)
+      .map((input) => input.value);
+  }
+
   function routineAiBriefLines() {
     const notes = routineAiBrief && routineAiBrief.value.trim() ? routineAiBrief.value.trim() : "Sin limitaciones o notas adicionales.";
+    const limits = routineAiSelectedLimits();
+    const materials = routineAiSelectedMaterials();
     return [
       `Objetivo: ${routineAiFieldValue("objetivo") || "Rutina de cuerpo completo"}.`,
       `Nivel: ${routineAiFieldValue("nivel") || "Principiante"}.`,
       `Días disponibles: ${routineAiSelectedDays().join(", ") || "a decidir por la IA"}.`,
       `Duración aproximada por sesión: ${routineAiFieldValue("duracion") || "45 minutos"}.`,
-      `Preferencia de trabajo: ${routineAiFieldValue("preferencia") || "Equilibrada"}.`,
-      `Limitaciones o notas: ${notes}`,
+      `Reparto semanal preferido: ${routineAiFieldValue("reparto") || "La IA decide"}.`,
+      `Ejercicios por sesión: ${routineAiFieldValue("ejerciciosDia") || "La IA decide"}.`,
+      `Estilo de rutina: ${routineAiFieldValue("preferencia") || "Equilibrada"}.`,
+      `Material permitido: ${materials.length ? materials.join(", ") : "Sin restricción de material; puedes usar todo el material real del catálogo"}.`,
+      `Limitaciones rápidas: ${limits.length ? limits.join("; ") : "Sin limitaciones rápidas marcadas"}.`,
+      `Notas del monitor o del cliente: ${notes}`,
     ].join("\n");
   }
 
@@ -4273,10 +4293,23 @@
       "- Series, repeticiones y descanso son obligatorios en cada ejercicio.",
       "- El descanso va en minutos, sin escribir la unidad dentro del valor.",
       "- Mantén una rutina realista, simple y segura para el nivel indicado.",
+      "- Respeta el reparto semanal preferido salvo que sea incompatible con los días disponibles; si lo adaptas, mantén una lógica clara.",
+      "- Respeta la preferencia de material permitido. No uses ejercicios con material que el usuario haya pedido evitar.",
+      "- Respeta las limitaciones rápidas y las notas del monitor o del cliente. Si hay una limitación, prioriza alternativas seguras del catálogo.",
+      "- Respeta el número de ejercicios por sesión indicado. Si la IA decide, elige el mínimo número razonable para alcanzar la duración objetivo sin rellenar por rellenar.",
+      "- Distribuye los grupos musculares de forma equilibrada según el objetivo y evita repetir patrones sin intención.",
+      "- Calcula la duración estimada de cada día antes de generar el enlace.",
+      "- Fórmula obligatoria por ejercicio: segundos = (series × repeticiones × 2.5) + (series × descanso_minutos × 60 × 1.2).",
+      "- Fórmula obligatoria por día: minutos = suma(segundos de todos los ejercicios del día) / 60, redondeado al minuto más cercano.",
+      "- La duración aproximada por sesión indicada por el usuario es el objetivo de cada día, no del total semanal.",
+      "- Cada día debe quedar lo más cerca posible de esa duración objetivo, con un margen máximo aproximado de ±10 minutos.",
+      "- Si un día queda demasiado corto, añade ejercicios, aumenta series o ajusta repeticiones y descansos manteniendo la seguridad del nivel indicado.",
+      "- Si un día queda demasiado largo, reduce ejercicios, series, repeticiones o descansos manteniendo el objetivo muscular del día.",
+      "- Antes de responder, revisa mentalmente los minutos de cada día con esta fórmula y corrige la rutina si se aleja del objetivo.",
       "",
       "Formato de respuesta:",
       "1. Primera línea: solo el enlace completo de la rutina.",
-      "2. Después: resumen breve por días.",
+      "2. Después: resumen breve por días, incluyendo la duración estimada de cada día calculada con la fórmula indicada.",
       "3. No incluyas JSON salvo que te lo pida expresamente.",
       "",
       `Días seleccionados actualmente en la web: ${selectedDays || "ninguno"}.`,
