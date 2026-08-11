@@ -1,6 +1,7 @@
 /**
  * Codifica y decodifica rutinas dentro de la propia URL — sin backend.
- * Formato compacto: #r?i=id:s:r:d:day,id2&w=lunes,miercoles&t=<base64url>&n=<base64url>
+ * Formato compacto: #r?i=id:series:reps:rest:day:note,id2&w=lunes,miercoles&t=<base64url>&n=<base64url>
+ * series, reps, rest, note, t y n se codifican como base64url UTF-8 sin padding.
  * Formato legacy: #rutina?t=<titulo>&n=<nota>&e=id1,id2,id3
  * Formato legacy con parametros: añade p=<payload> con series, repeticiones y descanso por ejercicio.
  * Compartido entre index.html (vista de rutina) y crear-rutina.html (constructor).
@@ -21,7 +22,7 @@
 
   function normalizeItem(item) {
     if (typeof item === "string") {
-      return { id: item, series: "", reps: "", rest: "", day: "" };
+      return { id: item, series: "", reps: "", rest: "", day: "", note: "" };
     }
 
     return {
@@ -30,6 +31,7 @@
       reps: item.reps || item.r || "",
       rest: item.rest || item.d || "",
       day: item.day || item.w || "",
+      note: item.note || item.m || item.notes || "",
     };
   }
 
@@ -55,6 +57,7 @@
       compactValue(item.reps),
       compactValue(item.rest),
       encodeURIComponent(item.day || ""),
+      compactValue(item.note),
     ];
 
     while (fields.length > 1 && fields[fields.length - 1] === "") {
@@ -72,6 +75,7 @@
       reps: expandValue(fields[2]),
       rest: expandValue(fields[3]),
       day: decodeURIComponent(fields[4] || ""),
+      note: expandValue(fields[5]),
     });
   }
 

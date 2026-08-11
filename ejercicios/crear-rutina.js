@@ -59,8 +59,8 @@
   const draftState = { grupo: "", equipamiento: "" };
   const expandedAggregateGroups = new Set();
 
-  const EXERCISE_TYPE_VALUES = ["Cuerpo completo", "Cardio", "Movilidad y estiramientos"];
-  const PRIMARY_GROUP_VALUES = ["Pecho", "Espalda", "Hombros"];
+  const EXERCISE_TYPE_VALUES = ["Cuerpo completo", "Movilidad y estiramientos"];
+  const PRIMARY_GROUP_VALUES = ["Pecho", "Espalda", "Hombros", "Cardio"];
   const GROUP_AGGREGATES = {
     brazos: { label: "Brazos", all: "Brazo completo", values: ["Bíceps", "Tríceps", "Antebrazos"] },
     piernas: {

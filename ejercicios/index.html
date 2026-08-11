@@ -416,6 +416,19 @@
                       Imprimir
                     </button>
                   </div>
+                  <div class="routine-cart__print-row">
+                    <span class="routine-cart__result-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M7 3.5h7l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20V5A1.5 1.5 0 0 1 7.5 3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path><path d="M14 3.5V8h4M9 12h6M9 15h6M9 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                    </span>
+                    <div>
+                      <h4>Exportar a Word</h4>
+                      <p>Descarga una versión DOCX editable con imágenes.</p>
+                    </div>
+                    <button type="button" class="routine-cart__print" data-routine-cart-docx>
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v10M8 10l4 4 4-4M5 20h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                      DOCX
+                    </button>
+                  </div>
                 </section>
                 <section class="routine-cart__result-card routine-cart__result-card--qr">
                   <div class="routine-cart__result-head">
@@ -537,6 +550,31 @@
                       <label><input type="checkbox" value="Barra libre" data-routine-ai-material> Barra libre</label>
                       <label><input type="checkbox" value="Kettlebell" data-routine-ai-material> Kettlebell</label>
                       <label><input type="checkbox" value="TRX" data-routine-ai-material> TRX</label>
+                    </div>
+                  </fieldset>
+                  <fieldset>
+                    <legend>Cardio</legend>
+                    <p class="routine-ai__field-hint">Opcional. Si lo marcas, la IA añadirá ejercicios reales de cardio del catálogo.</p>
+                    <div class="routine-ai__cardio-list">
+                      <div class="routine-ai__cardio-row">
+                        <label><input type="checkbox" value="Cardio de calentamiento" data-routine-ai-cardio="warmup"> Cardio de calentamiento</label>
+                        <select data-routine-ai-cardio-duration="warmup" aria-label="Minutos de cardio de calentamiento">
+                          <option value="5">5 min</option>
+                          <option value="10" selected>10 min</option>
+                          <option value="15">15 min</option>
+                          <option value="20">20 min</option>
+                        </select>
+                      </div>
+                      <div class="routine-ai__cardio-row">
+                        <label><input type="checkbox" value="Cardio post-entreno" data-routine-ai-cardio="post"> Cardio post-entreno</label>
+                        <select data-routine-ai-cardio-duration="post" aria-label="Minutos de cardio post-entreno">
+                          <option value="5">5 min</option>
+                          <option value="10">10 min</option>
+                          <option value="15" selected>15 min</option>
+                          <option value="20">20 min</option>
+                          <option value="30">30 min</option>
+                        </select>
+                      </div>
                     </div>
                   </fieldset>
                   <fieldset>
@@ -689,7 +727,7 @@
                           <img class="club-ticker__icon" src="../imagenes/types/functional.webp" alt="" width="320" height="320" loading="lazy" decoding="async">
                           <div class="club-ticker__copy">
                             <span class="club-ticker__label">Zona Funcional</span>
-                            <strong class="club-ticker__value">150m²</strong>
+                            <strong class="club-ticker__value">200m²</strong>
                           </div>
                         </article>
                         <article class="club-ticker__item">
@@ -727,7 +765,7 @@
                           <img class="club-ticker__icon" src="../imagenes/types/functional.webp" alt="" width="320" height="320" loading="lazy" decoding="async">
                           <div class="club-ticker__copy">
                             <span class="club-ticker__label">Zona Funcional</span>
-                            <strong class="club-ticker__value">150m²</strong>
+                            <strong class="club-ticker__value">200m²</strong>
                           </div>
                         </article>
                         <article class="club-ticker__item">

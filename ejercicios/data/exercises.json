@@ -3,7 +3,7 @@
     "source": "repdb-free",
     "datasetGeneratedAt": "2026-07-18T12:48:53Z",
     "importedAt": "2026-07-23T22:13:45.308Z",
-    "total": 400
+    "total": 405
   },
   "grupos": [
     "Pecho",
@@ -18469,6 +18469,253 @@
         "Conserva una columna vertebral neutra durante todo el movimiento, previniendo un arqueo o redondeo excesivo.",
         "Controla la fase excéntrica (de descenso) para maximizar el compromiso muscular.",
         "Ajusta tu distancia del punto de anclaje para modificar la dificultad."
+      ]
+    },
+    {
+      "id": "correr-en-cinta",
+      "slug": "correr-en-cinta",
+      "nombre": "Correr en cinta",
+      "nombreAlternativo": "Treadmill Running",
+      "descripcion": "Ejercicio cardiovascular en cinta de correr que permite trabajar la resistencia, controlar el ritmo y ajustar la intensidad mediante velocidad e inclinación.",
+      "categoria": "Cardio",
+      "dificultad": "Principiante",
+      "tipoFuerza": "Dinámico",
+      "mecanica": "Compuesto",
+      "parteCuerpo": "Cuerpo completo",
+      "grupoMuscular": "Cardio",
+      "gruposMusculares": [
+        "Cardio"
+      ],
+      "musculosPrincipales": [
+        "Cuádriceps",
+        "Isquiotibiales",
+        "Glúteo Mayor",
+        "Gemelos"
+      ],
+      "musculosSecundarios": [
+        "Sóleo",
+        "Recto Abdominal"
+      ],
+      "equipamiento": [
+        "Cinta de correr"
+      ],
+      "objetivos": [
+        "Resistencia",
+        "Acondicionamiento"
+      ],
+      "esPesoCorporal": false,
+      "esUnilateral": false,
+      "imagenInicial": "assets/images/flat/cardio-treadmill-run-main.webp",
+      "imagenFinal": null,
+      "instrucciones": [
+        "Colócate sobre la cinta con los pies a ambos lados antes de iniciar el movimiento.",
+        "Arranca a velocidad baja y comienza a caminar hasta encontrar estabilidad.",
+        "Aumenta progresivamente la velocidad hasta alcanzar un ritmo de carrera cómodo.",
+        "Mantén el tronco erguido, la mirada al frente y los brazos relajados.",
+        "Controla la intensidad con la velocidad, la inclinación o el tiempo de trabajo indicado."
+      ],
+      "consejos": [
+        "Empieza con un calentamiento suave antes de subir la velocidad.",
+        "Evita agarrarte a los laterales mientras corres salvo que necesites recuperar estabilidad.",
+        "Usa una zancada natural y aterriza con control, sin golpear la cinta."
+      ]
+    },
+    {
+      "id": "caminar-en-cinta",
+      "slug": "caminar-en-cinta",
+      "nombre": "Caminar en cinta",
+      "nombreAlternativo": "Treadmill Walking",
+      "descripcion": "Trabajo cardiovascular de bajo impacto en cinta, adecuado para calentamientos, vuelta a la calma, principiantes o sesiones de resistencia suave.",
+      "categoria": "Cardio",
+      "dificultad": "Principiante",
+      "tipoFuerza": "Dinámico",
+      "mecanica": "Compuesto",
+      "parteCuerpo": "Cuerpo completo",
+      "grupoMuscular": "Cardio",
+      "gruposMusculares": [
+        "Cardio"
+      ],
+      "musculosPrincipales": [
+        "Cuádriceps",
+        "Isquiotibiales",
+        "Glúteo Mayor",
+        "Gemelos"
+      ],
+      "musculosSecundarios": [
+        "Sóleo",
+        "Recto Abdominal"
+      ],
+      "equipamiento": [
+        "Cinta de correr"
+      ],
+      "objetivos": [
+        "Resistencia",
+        "Calentamiento"
+      ],
+      "esPesoCorporal": false,
+      "esUnilateral": false,
+      "imagenInicial": "assets/images/flat/cardio-treadmill-walk-main.webp",
+      "imagenFinal": null,
+      "instrucciones": [
+        "Sube a la cinta con seguridad y empieza a una velocidad muy suave.",
+        "Camina con el tronco erguido y los hombros relajados.",
+        "Mantén una pisada cómoda y constante durante todo el intervalo.",
+        "Ajusta la velocidad o la inclinación según el objetivo de la sesión.",
+        "Reduce la velocidad progresivamente antes de bajar de la cinta."
+      ],
+      "consejos": [
+        "Usa la inclinación para aumentar la intensidad sin necesidad de correr.",
+        "Evita inclinarte hacia delante o cargar peso sobre los pasamanos.",
+        "Respira de forma regular y mantén un ritmo sostenible."
+      ]
+    },
+    {
+      "id": "bicicleta-estatica",
+      "slug": "bicicleta-estatica",
+      "nombre": "Bicicleta estática",
+      "nombreAlternativo": "Stationary Bike",
+      "descripcion": "Ejercicio cardiovascular sentado que permite controlar resistencia y cadencia, con bajo impacto articular y buena transferencia al trabajo de piernas.",
+      "categoria": "Cardio",
+      "dificultad": "Principiante",
+      "tipoFuerza": "Dinámico",
+      "mecanica": "Compuesto",
+      "parteCuerpo": "Cuerpo completo",
+      "grupoMuscular": "Cardio",
+      "gruposMusculares": [
+        "Cardio"
+      ],
+      "musculosPrincipales": [
+        "Cuádriceps",
+        "Glúteo Mayor",
+        "Isquiotibiales"
+      ],
+      "musculosSecundarios": [
+        "Gemelos",
+        "Sóleo",
+        "Recto Abdominal"
+      ],
+      "equipamiento": [
+        "Bicicleta estática"
+      ],
+      "objetivos": [
+        "Resistencia",
+        "Acondicionamiento"
+      ],
+      "esPesoCorporal": false,
+      "esUnilateral": false,
+      "imagenInicial": "assets/images/flat/cardio-stationary-bike-main.webp",
+      "imagenFinal": null,
+      "instrucciones": [
+        "Ajusta el sillín para que la rodilla quede ligeramente flexionada en la parte baja del pedaleo.",
+        "Siéntate con la espalda larga y las manos apoyadas de forma cómoda.",
+        "Empieza pedaleando suave y aumenta la resistencia de manera progresiva.",
+        "Mantén una cadencia estable durante el tiempo indicado.",
+        "Reduce la resistencia y pedalea suave al finalizar."
+      ],
+      "consejos": [
+        "No bloquees las rodillas al extender la pierna.",
+        "Mantén la pelvis estable sobre el sillín.",
+        "Si buscas más intensidad, aumenta primero la resistencia y después la cadencia."
+      ]
+    },
+    {
+      "id": "bicicleta-eliptica",
+      "slug": "bicicleta-eliptica",
+      "nombre": "Bicicleta elíptica",
+      "nombreAlternativo": "Elliptical Trainer",
+      "descripcion": "Ejercicio cardiovascular de bajo impacto que combina el movimiento de piernas y brazos para trabajar la resistencia de forma fluida.",
+      "categoria": "Cardio",
+      "dificultad": "Principiante",
+      "tipoFuerza": "Dinámico",
+      "mecanica": "Compuesto",
+      "parteCuerpo": "Cuerpo completo",
+      "grupoMuscular": "Cardio",
+      "gruposMusculares": [
+        "Cardio"
+      ],
+      "musculosPrincipales": [
+        "Cuádriceps",
+        "Glúteo Mayor",
+        "Gemelos"
+      ],
+      "musculosSecundarios": [
+        "Isquiotibiales",
+        "Deltoides Anterior",
+        "Dorsal Ancho",
+        "Recto Abdominal"
+      ],
+      "equipamiento": [
+        "Bicicleta elíptica"
+      ],
+      "objetivos": [
+        "Resistencia",
+        "Acondicionamiento"
+      ],
+      "esPesoCorporal": false,
+      "esUnilateral": false,
+      "imagenInicial": "assets/images/flat/cardio-elliptical-main.webp",
+      "imagenFinal": null,
+      "instrucciones": [
+        "Sube a la elíptica sujetando los agarres y coloca los pies centrados en las plataformas.",
+        "Empieza con un movimiento suave hasta coordinar brazos y piernas.",
+        "Mantén el tronco erguido y empuja las plataformas de forma continua.",
+        "Ajusta la resistencia según la intensidad buscada.",
+        "Sostén un ritmo fluido durante el intervalo indicado."
+      ],
+      "consejos": [
+        "No cargues todo el peso sobre los brazos.",
+        "Mantén los pies apoyados y evita despegar los talones de forma excesiva.",
+        "Busca un movimiento circular y constante, sin tirones."
+      ]
+    },
+    {
+      "id": "ergometro-remo",
+      "slug": "ergometro-remo",
+      "nombre": "Ergómetro - remo",
+      "nombreAlternativo": "Rowing Ergometer",
+      "descripcion": "Ejercicio cardiovascular en remo ergómetro que combina empuje de piernas, tracción de brazos y control del tronco en una secuencia coordinada.",
+      "categoria": "Cardio",
+      "dificultad": "Principiante",
+      "tipoFuerza": "Dinámico",
+      "mecanica": "Compuesto",
+      "parteCuerpo": "Cuerpo completo",
+      "grupoMuscular": "Cardio",
+      "gruposMusculares": [
+        "Cardio"
+      ],
+      "musculosPrincipales": [
+        "Cuádriceps",
+        "Dorsal Ancho",
+        "Isquiotibiales"
+      ],
+      "musculosSecundarios": [
+        "Glúteo Mayor",
+        "Bíceps",
+        "Trapecio",
+        "Recto Abdominal"
+      ],
+      "equipamiento": [
+        "Remo ergómetro"
+      ],
+      "objetivos": [
+        "Resistencia",
+        "Acondicionamiento"
+      ],
+      "esPesoCorporal": false,
+      "esUnilateral": false,
+      "imagenInicial": "assets/images/flat/cardio-row-ergometer-main.webp",
+      "imagenFinal": null,
+      "instrucciones": [
+        "Siéntate en el remo, fija los pies y sujeta el agarre con ambas manos.",
+        "Empieza con las rodillas flexionadas, brazos extendidos y espalda larga.",
+        "Empuja primero con las piernas, inclina ligeramente el torso y termina tirando del agarre hacia el abdomen.",
+        "Vuelve extendiendo brazos, llevando el torso adelante y flexionando las rodillas al final.",
+        "Mantén una cadencia constante durante el tiempo o distancia indicado."
+      ],
+      "consejos": [
+        "Orden correcto: piernas, tronco y brazos; al volver, brazos, tronco y piernas.",
+        "No redondees la espalda al acercarte al monitor.",
+        "Busca una tracción larga y controlada antes de subir la cadencia."
       ]
     }
   ]

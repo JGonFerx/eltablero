@@ -79,6 +79,7 @@
   const routineCartQr = document.querySelector("[data-routine-cart-qr]");
   const routineCartDownloadQr = document.querySelector("[data-routine-cart-download-qr]");
   const routineCartPrint = document.querySelector("[data-routine-cart-print]");
+  const routineCartDocx = document.querySelector("[data-routine-cart-docx]");
   const routineCartNoteCount = document.querySelector("[data-routine-cart-note-count]");
   const routineQuickApply = document.querySelector("[data-routine-quick-apply]");
   const routineCartAddMore = document.querySelector("[data-routine-cart-add-more]");
@@ -103,6 +104,8 @@
   const routineAiFields = document.querySelectorAll("[data-routine-ai-field]");
   const routineAiDayInputs = document.querySelectorAll("[data-routine-ai-day]");
   const routineAiMaterialInputs = document.querySelectorAll("[data-routine-ai-material]");
+  const routineAiCardioInputs = document.querySelectorAll("[data-routine-ai-cardio]");
+  const routineAiCardioDurationFields = document.querySelectorAll("[data-routine-ai-cardio-duration]");
   const routineAiLimitInputs = document.querySelectorAll("[data-routine-ai-limit]");
   const routineAiChatgpt = document.querySelector("[data-routine-ai-chatgpt]");
   const routineAiStatus = document.querySelector("[data-routine-ai-status]");
@@ -326,6 +329,7 @@
         reps: ROUTINE_DEFAULT_REPS,
         rest: ROUTINE_DEFAULT_REST,
         day,
+        note: "",
       }))
     );
     return {
@@ -401,6 +405,7 @@
         reps: ROUTINE_DEFAULT_REPS,
         rest: ROUTINE_DEFAULT_REST,
         day: ROUTINE_UNASSIGNED_DAY,
+        note: "",
       };
     }
 
@@ -411,6 +416,7 @@
       reps: item && (item.reps || item.r) ? item.reps || item.r : ROUTINE_DEFAULT_REPS,
       rest: item && (item.rest || item.d) ? item.rest || item.d : ROUTINE_DEFAULT_REST,
       day: normalizeRoutineDay(item && (item.day || item.w) ? item.day || item.w : ROUTINE_UNASSIGNED_DAY),
+      note: sanitizeRoutineNote(item && (item.note || item.m || item.notes) ? item.note || item.m || item.notes : ""),
     };
   }
 
@@ -423,6 +429,7 @@
         reps: ROUTINE_DEFAULT_REPS,
         rest: ROUTINE_DEFAULT_REST,
         day: ROUTINE_UNASSIGNED_DAY,
+        note: "",
       };
     }
 
@@ -435,6 +442,7 @@
       reps: item && (item.reps || item.r) ? item.reps || item.r : ROUTINE_DEFAULT_REPS,
       rest: item && (item.rest || item.d) ? item.rest || item.d : ROUTINE_DEFAULT_REST,
       day: isValidDay ? day : ROUTINE_UNASSIGNED_DAY,
+      note: sanitizeRoutineNote(item && (item.note || item.m || item.notes) ? item.note || item.m || item.notes : ""),
     };
   }
 
@@ -500,6 +508,18 @@
     return String(value).trim().replace(/\s+/g, " ").slice(0, 24);
   }
 
+  function sanitizeRoutineNote(value) {
+    return String(value || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").slice(0, 110);
+  }
+
+  function addSoftBreaksToLongWords(value) {
+    return String(value || "").replace(/\S{14,}/g, (word) => word.replace(/(.{8})/g, "$1\u200B"));
+  }
+
+  function hasRoutineNote(item) {
+    return Boolean(sanitizeRoutineNote(item && item.note).trim());
+  }
+
   function createRoutineCartItemKey(id) {
     routineCartKeyCounter += 1;
     const slug = String(id || "ejercicio").replace(/[^a-z0-9_-]+/gi, "-").replace(/^-+|-+$/g, "").slice(0, 48) || "ejercicio";
@@ -552,7 +572,13 @@
     if (!item) {
       return;
     }
-    item[key] = key === "day" ? normalizeRoutineDay(value) : sanitizeRoutineValue(value);
+    if (key === "day") {
+      item[key] = normalizeRoutineDay(value);
+    } else if (key === "note") {
+      item[key] = sanitizeRoutineNote(value);
+    } else {
+      item[key] = sanitizeRoutineValue(value);
+    }
     clearRoutineCartValidation();
     saveRoutineCart();
     updateRoutineCartBuilderSummary();
@@ -808,6 +834,7 @@
     const isUnassigned = !item.day;
     const hasMissingPrescription = !hasCompleteRoutinePrescription(item);
     const itemKey = item.key;
+    const noteActive = hasRoutineNote(item);
     const dragLabel = routineCartSelectedIds.has(itemKey) && routineCartSelectedIds.size > 1
       ? `Arrastrar ${routineCartSelectedIds.size} ejercicios a otro día`
       : `Arrastrar ${exercise.nombre} a otro día`;
@@ -843,6 +870,9 @@
         </label>
       </span>
       <span class="routine-cart__builder-controls">
+        <button type="button" class="routine-cart__note-btn${noteActive ? " is-active" : ""}" data-routine-note="${escapeHtml(itemKey)}" aria-label="${noteActive ? "Editar notas de" : "Añadir notas a"} ${escapeHtml(exercise.nombre)}" title="Notas">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.5 4.5h7.8L18 8.2v11.3H6.5v-15Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 4.8V8.5h3.7M9.2 12h5.6M9.2 15.5h4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
         <button type="button" data-routine-info="${escapeHtml(exercise.id)}" aria-label="Ver detalles de ${escapeHtml(exercise.nombre)}">i</button>
         <button type="button" data-routine-move="-1" data-routine-move-id="${escapeHtml(itemKey)}" ${dayIndex === 0 ? "disabled" : ""} aria-label="Subir ${escapeHtml(exercise.nombre)}">↑</button>
         <button type="button" data-routine-move="1" data-routine-move-id="${escapeHtml(itemKey)}" ${dayIndex === dayTotal - 1 ? "disabled" : ""} aria-label="Bajar ${escapeHtml(exercise.nombre)}">↓</button>
@@ -850,6 +880,82 @@
       </span>
     `;
     return li;
+  }
+
+  function closeRoutineNoteDialog() {
+    const dialog = document.querySelector("[data-routine-note-dialog]");
+    if (dialog) {
+      dialog.remove();
+    }
+    document.removeEventListener("keydown", handleRoutineNoteDialogKeydown);
+  }
+
+  function handleRoutineNoteDialogKeydown(event) {
+    if (event.key === "Escape") {
+      closeRoutineNoteDialog();
+    }
+  }
+
+  function openRoutineNoteDialog(itemKey) {
+    const item = getRoutineCartItem(itemKey);
+    const exercise = item ? getExerciseById(item.id) : null;
+    if (!item || !exercise) {
+      return;
+    }
+
+    closeRoutineNoteDialog();
+    const dialog = document.createElement("div");
+    dialog.className = "routine-note-dialog";
+    dialog.dataset.routineNoteDialog = "";
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.setAttribute("aria-labelledby", "routine-note-dialog-title");
+    dialog.innerHTML = `
+      <button type="button" class="routine-note-dialog__backdrop" data-routine-note-close aria-label="Cerrar notas"></button>
+      <section class="routine-note-dialog__panel">
+        <header class="routine-note-dialog__header">
+          <div>
+            <p>Notas del ejercicio</p>
+            <h2 id="routine-note-dialog-title">${escapeHtml(exercise.nombre)}</h2>
+          </div>
+          <button type="button" class="routine-note-dialog__close" data-routine-note-close aria-label="Cerrar notas">×</button>
+        </header>
+        <label class="routine-note-dialog__field">
+          <span>Nota para este ejercicio</span>
+          <textarea rows="5" maxlength="110" data-routine-note-input>${escapeHtml(item.note || "")}</textarea>
+        </label>
+        <p class="routine-note-dialog__hint">Máximo 110 caracteres. La nota se incluirá en el enlace, el QR, la rutina compartida y el PDF.</p>
+        <div class="routine-note-dialog__actions">
+          <button type="button" data-routine-note-clear>Vaciar</button>
+          <button type="button" data-routine-note-save>Guardar nota</button>
+        </div>
+      </section>
+    `;
+    document.body.appendChild(dialog);
+    const input = dialog.querySelector("[data-routine-note-input]");
+    if (input) {
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    }
+    dialog.addEventListener("click", (event) => {
+      if (event.target.closest("[data-routine-note-close]")) {
+        closeRoutineNoteDialog();
+        return;
+      }
+      if (event.target.closest("[data-routine-note-clear]")) {
+        if (input) {
+          input.value = "";
+          input.focus();
+        }
+        return;
+      }
+      if (event.target.closest("[data-routine-note-save]")) {
+        updateRoutineCartSetting(itemKey, "note", input ? input.value : "");
+        renderRoutineCart();
+        closeRoutineNoteDialog();
+      }
+    });
+    document.addEventListener("keydown", handleRoutineNoteDialogKeydown);
   }
 
   function renderRoutineCartBuilder() {
@@ -1450,6 +1556,7 @@
       reps: ROUTINE_DEFAULT_REPS,
       rest: ROUTINE_DEFAULT_REST,
       day: ROUTINE_UNASSIGNED_DAY,
+      note: "",
     });
     if (routineCartResult) {
       routineCartResult.hidden = true;
@@ -1958,13 +2065,14 @@
         const media = exercise && exercise.imagenInicial
           ? `<img src="${escapeHtml(exercise.imagenInicial)}" alt="" decoding="async" width="512" height="512">`
           : "";
+        const exerciseNote = addSoftBreaksToLongWords(sanitizeRoutineNote(entry.note).trim());
         return `
           <tr>
             <td class="routine-poster__table-index">${entryIndex + 1}</td>
             <td class="routine-poster__table-exercise">
               <span>${media}</span>
               <strong>${escapeHtml(exercise.nombre)}</strong>
-              <em>${escapeHtml(exercise.grupoMuscular)}</em>
+              <em><span>${escapeHtml(exercise.grupoMuscular)}</span>${exerciseNote ? `<b>${escapeHtml(exerciseNote)}</b>` : ""}</em>
               <small>${escapeHtml(exercise.equipamiento[0] || "Peso corporal")}</small>
             </td>
             <td>${escapeHtml(entry.series || "No definido")}</td>
@@ -2137,6 +2245,469 @@
     link.remove();
   }
 
+  function docxXmlEscape(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function docxText(value, preserveSpace = false) {
+    const space = preserveSpace ? ' xml:space="preserve"' : "";
+    return `<w:t${space}>${docxXmlEscape(value)}</w:t>`;
+  }
+
+  function docxRun(value, options = {}) {
+    const props = [
+      options.bold ? "<w:b/>" : "",
+      options.italic ? "<w:i/>" : "",
+      options.color ? `<w:color w:val="${options.color}"/>` : "",
+      options.size ? `<w:sz w:val="${options.size}"/>` : "",
+      options.caps ? "<w:caps/>" : "",
+    ].join("");
+    return `<w:r>${props ? `<w:rPr>${props}</w:rPr>` : ""}${docxText(value, options.preserveSpace)}</w:r>`;
+  }
+
+  function docxParagraph(runs, options = {}) {
+    const alignment = options.align ? `<w:jc w:val="${options.align}"/>` : "";
+    const spacing = `<w:spacing w:before="${options.before || 0}" w:after="${options.after || 120}" w:line="${options.line || 276}" w:lineRule="auto"/>`;
+    return `<w:p><w:pPr>${alignment}${spacing}</w:pPr>${Array.isArray(runs) ? runs.join("") : runs}</w:p>`;
+  }
+
+  function docxCell(content, options = {}) {
+    const width = options.width ? `<w:tcW w:w="${options.width}" w:type="dxa"/>` : "";
+    const fill = options.fill ? `<w:shd w:fill="${options.fill}"/>` : "";
+    const vAlign = options.vAlign ? `<w:vAlign w:val="${options.vAlign}"/>` : "";
+    const gridSpan = options.gridSpan ? `<w:gridSpan w:val="${options.gridSpan}"/>` : "";
+    const margins = options.margins === false ? "" : '<w:tcMar><w:top w:w="90" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:bottom w:w="90" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar>';
+    return `<w:tc><w:tcPr>${width}${fill}${vAlign}${gridSpan}${margins}</w:tcPr>${content}</w:tc>`;
+  }
+
+  function docxTable(rows, widths = []) {
+    const grid = widths.length
+      ? `<w:tblGrid>${widths.map((width) => `<w:gridCol w:w="${width}"/>`).join("")}</w:tblGrid>`
+      : "";
+    return `
+      <w:tbl>
+        <w:tblPr>
+          <w:tblW w:w="5000" w:type="pct"/>
+          <w:tblBorders>
+            <w:top w:val="single" w:sz="6" w:space="0" w:color="E4D8CF"/>
+            <w:left w:val="single" w:sz="6" w:space="0" w:color="E4D8CF"/>
+            <w:bottom w:val="single" w:sz="6" w:space="0" w:color="E4D8CF"/>
+            <w:right w:val="single" w:sz="6" w:space="0" w:color="E4D8CF"/>
+            <w:insideH w:val="single" w:sz="6" w:space="0" w:color="E4D8CF"/>
+            <w:insideV w:val="single" w:sz="6" w:space="0" w:color="E4D8CF"/>
+          </w:tblBorders>
+        </w:tblPr>
+        ${grid}
+        ${rows.map((row) => `<w:tr>${row}</w:tr>`).join("")}
+      </w:tbl>
+    `;
+  }
+
+  function docxImage(rId, widthEmu, heightEmu, label) {
+    const safeLabel = docxXmlEscape(label || "Imagen");
+    return `
+      <w:r>
+        <w:drawing>
+          <wp:inline distT="0" distB="0" distL="0" distR="0">
+            <wp:extent cx="${widthEmu}" cy="${heightEmu}"/>
+            <wp:docPr id="${Math.floor(Math.random() * 1000000) + 1}" name="${safeLabel}"/>
+            <wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr>
+            <a:graphic>
+              <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:pic>
+                  <pic:nvPicPr><pic:cNvPr id="0" name="${safeLabel}"/><pic:cNvPicPr/></pic:nvPicPr>
+                  <pic:blipFill><a:blip r:embed="${rId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>
+                  <pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${widthEmu}" cy="${heightEmu}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>
+                </pic:pic>
+              </a:graphicData>
+            </a:graphic>
+          </wp:inline>
+        </w:drawing>
+      </w:r>
+    `;
+  }
+
+  function dataUrlToBytes(dataUrl) {
+    const base64 = String(dataUrl || "").split(",")[1] || "";
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+    return bytes;
+  }
+
+  function blobToImage(blob) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(blob);
+      const image = new Image();
+      image.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve(image);
+      };
+      image.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error("No se pudo cargar la imagen"));
+      };
+      image.src = url;
+    });
+  }
+
+  async function imageUrlToPngBytes(src, options = {}) {
+    const response = await fetch(src);
+    if (!response.ok) {
+      throw new Error(`No se pudo cargar ${src}`);
+    }
+    const blob = await response.blob();
+    const image = await blobToImage(blob);
+    const width = options.width || image.naturalWidth || image.width || 512;
+    const height = options.height || image.naturalHeight || image.height || 512;
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (options.background) {
+      context.fillStyle = options.background;
+      context.fillRect(0, 0, width, height);
+    }
+    const scale = Math.min(width / image.width, height / image.height);
+    const drawWidth = image.width * scale;
+    const drawHeight = image.height * scale;
+    context.drawImage(image, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight);
+    return dataUrlToBytes(canvas.toDataURL("image/png"));
+  }
+
+  async function routineQrToPngBytes(url) {
+    const wrapper = document.createElement("div");
+    wrapper.style.position = "fixed";
+    wrapper.style.left = "-9999px";
+    wrapper.style.top = "0";
+    document.body.appendChild(wrapper);
+    renderQr(wrapper, url, 520, window.QRCode && window.QRCode.CorrectLevel.L);
+    await new Promise((resolve) => window.requestAnimationFrame(resolve));
+    const canvas = wrapper.querySelector("canvas");
+    const image = wrapper.querySelector("img");
+    const source = canvas ? canvas.toDataURL("image/png") : image ? image.src : "";
+    wrapper.remove();
+    return source ? dataUrlToBytes(source) : null;
+  }
+
+  function crc32(bytes) {
+    if (!crc32.table) {
+      crc32.table = Array.from({ length: 256 }, (_, index) => {
+        let value = index;
+        for (let bit = 0; bit < 8; bit += 1) {
+          value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
+        }
+        return value >>> 0;
+      });
+    }
+    let crc = 0xffffffff;
+    bytes.forEach((byte) => {
+      crc = crc32.table[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+    });
+    return (crc ^ 0xffffffff) >>> 0;
+  }
+
+  function createZip(files) {
+    const encoder = new TextEncoder();
+    const chunks = [];
+    const central = [];
+    let offset = 0;
+    const now = new Date();
+    const dosTime = ((now.getHours() & 31) << 11) | ((now.getMinutes() & 63) << 5) | ((now.getSeconds() / 2) & 31);
+    const dosDate = (((now.getFullYear() - 1980) & 127) << 9) | (((now.getMonth() + 1) & 15) << 5) | (now.getDate() & 31);
+    const writeHeader = (signature, values) => {
+      const bytes = new Uint8Array(values.length * 2 + 4);
+      const view = new DataView(bytes.buffer);
+      view.setUint32(0, signature, true);
+      values.forEach((value, index) => view.setUint16(4 + index * 2, value, true));
+      return bytes;
+    };
+    const write16s = (values) => {
+      const bytes = new Uint8Array(values.length * 2);
+      const view = new DataView(bytes.buffer);
+      values.forEach((value, index) => view.setUint16(index * 2, value, true));
+      return bytes;
+    };
+    const write32 = (value) => {
+      const bytes = new Uint8Array(4);
+      new DataView(bytes.buffer).setUint32(0, value >>> 0, true);
+      return bytes;
+    };
+    files.forEach((file) => {
+      const name = encoder.encode(file.name);
+      const data = file.data instanceof Uint8Array ? file.data : encoder.encode(file.data);
+      const crc = crc32(data);
+      const local = [
+        writeHeader(0x04034b50, [20, 0x0800, 0, dosTime, dosDate]),
+        write32(crc),
+        write32(data.length),
+        write32(data.length),
+        write16s([name.length, 0]),
+        name,
+        data,
+      ];
+      chunks.push(...local);
+      central.push({
+        name,
+        crc,
+        size: data.length,
+        offset,
+      });
+      offset += local.reduce((total, chunk) => total + chunk.length, 0);
+    });
+    const centralStart = offset;
+    central.forEach((entry) => {
+      const record = [
+        writeHeader(0x02014b50, [20, 20, 0x0800, 0, dosTime, dosDate]),
+        write32(entry.crc),
+        write32(entry.size),
+        write32(entry.size),
+        write16s([entry.name.length, 0, 0, 0, 0, 0]),
+        write32(0),
+        write32(entry.offset),
+        entry.name,
+      ];
+      chunks.push(...record);
+      offset += record.reduce((total, chunk) => total + chunk.length, 0);
+    });
+    const centralSize = offset - centralStart;
+    chunks.push(
+      writeHeader(0x06054b50, [0, 0, files.length, files.length]),
+      write32(centralSize),
+      write32(centralStart),
+      write16s([0])
+    );
+    const zip = new Uint8Array(chunks.reduce((total, chunk) => total + chunk.length, 0));
+    let cursor = 0;
+    chunks.forEach((chunk) => {
+      zip.set(chunk, cursor);
+      cursor += chunk.length;
+    });
+    return zip;
+  }
+
+  function downloadBytes(bytes, filename, type) {
+    const blob = new Blob([bytes], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function routineDocxFilename(title) {
+    const clean = String(title || "rutina-el-tablero")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase();
+    return `${clean || "rutina-el-tablero"}.docx`;
+  }
+
+  async function exportRoutineCartDocx() {
+    const validationMessages = validateRoutineCartBeforeGenerate();
+    if (validationMessages.length) {
+      setRoutineCartValidation(`Antes de exportar la rutina: ${validationMessages.join(" y ")}.`);
+      renderRoutineCartBuilder();
+      return;
+    }
+    if (!window.Routines || !routineCartItems.length) {
+      return;
+    }
+    const { routine, url } = buildRoutineCartUrl();
+    if (routineCartLink) {
+      routineCartLink.value = url;
+    }
+    const originalButtonHtml = routineCartDocx ? routineCartDocx.innerHTML : "";
+    if (routineCartDocx) {
+      routineCartDocx.disabled = true;
+      routineCartDocx.textContent = "Generando...";
+    }
+    try {
+      const routineDays = routineDaysForEntries(routine.items, routine.days || []);
+      const groups = groupRoutineEntries(routine.items, routineDays)
+        .map((group) => ({
+          ...group,
+          entries: group.entries.filter((entry) => Boolean(getExerciseById(entry.id))),
+        }))
+        .filter((group) => group.entries.length > 0);
+      const title = routine.t || routineCartDefaultTitle;
+      const notes = routine.n
+        ? routine.n.split(/\n+/).map((line) => line.trim()).filter(Boolean)
+        : ["Ajusta las cargas según el nivel y prioriza la técnica en cada repetición."];
+      const dateLabel = new Intl.DateTimeFormat("es-ES", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      }).format(new Date());
+      const daysCount = groups.length;
+      const exerciseCount = groups.reduce((total, group) => total + group.entries.length, 0);
+      const seriesTotal = groups.reduce((total, group) => total + group.entries.reduce((sum, entry) => sum + parseRoutineNumber(entry.series), 0), 0);
+      const averageMinutes = daysCount
+        ? Math.round(groups.reduce((total, group) => total + Math.round(group.entries.reduce((sum, entry) => sum + routineItemSeconds(entry), 0) / 60), 0) / daysCount)
+        : 0;
+      const images = [];
+      const addImage = (bytes, label, widthEmu, heightEmu) => {
+        const id = images.length + 1;
+        const rId = `rId${id}`;
+        images.push({ rId, name: `media/image${id}.png`, bytes });
+        return docxImage(rId, widthEmu, heightEmu, label);
+      };
+      const logoRun = addImage(await imageUrlToPngBytes("../assets/images/brand/site-logo-header-white-700.webp", { width: 420, height: 160 }), "El Tablero Sport Club", 1800000, 685000);
+      const qrBytes = await routineQrToPngBytes(url);
+      const qrRun = qrBytes ? addImage(qrBytes, "Código QR de la rutina", 2050000, 2050000) : "";
+      const exerciseImageRuns = new Map();
+      for (const group of groups) {
+        for (const entry of group.entries) {
+          const exercise = getExerciseById(entry.id);
+          if (!exercise || !exercise.imagenInicial) {
+            continue;
+          }
+          try {
+            const bytes = await imageUrlToPngBytes(exercise.imagenInicial, { width: 160, height: 160, background: "#d8f0fb" });
+            exerciseImageRuns.set(entry, addImage(bytes, exercise.nombre, 620000, 620000));
+          } catch (error) {
+            exerciseImageRuns.set(entry, "");
+          }
+        }
+      }
+      const formatGroups = (entries) => {
+        const names = Array.from(new Set(entries.map((entry) => getExerciseById(entry.id)).filter(Boolean).map((exercise) => exercise.grupoMuscular)));
+        if (!names.length) return "Trabajo general";
+        if (names.length === 1) return names[0];
+        if (names.length === 2) return `${names[0]} y ${names[1]}`;
+        return `${names.slice(0, -1).join(", ")} y ${names[names.length - 1]}`;
+      };
+      const dayDuration = (entries) => Math.round(entries.reduce((total, entry) => total + routineItemSeconds(entry), 0) / 60);
+      const statsTable = docxTable([
+        [
+          docxCell(docxParagraph([docxRun(String(daysCount), { bold: true, color: "171816", size: 30 }), docxRun(daysCount === 1 ? " día" : " días", { color: "6B655F", size: 18, preserveSpace: true })]), { width: 2400 }),
+          docxCell(docxParagraph([docxRun(String(exerciseCount), { bold: true, color: "171816", size: 30 }), docxRun(" ejercicios", { color: "6B655F", size: 18, preserveSpace: true })]), { width: 2400 }),
+          docxCell(docxParagraph([docxRun(String(seriesTotal), { bold: true, color: "171816", size: 30 }), docxRun(" series", { color: "6B655F", size: 18, preserveSpace: true })]), { width: 2400 }),
+          docxCell(docxParagraph([docxRun(`≈ ${averageMinutes} min`, { bold: true, color: "171816", size: 30 }), docxRun(" media diaria", { color: "6B655F", size: 18, preserveSpace: true })]), { width: 2400 }),
+        ].join(""),
+      ], [2400, 2400, 2400, 2400]);
+      const summaryRows = groups.map((group, index) => [
+        docxCell(docxParagraph(docxRun(String(index + 1), { bold: true, color: "C9825C", size: 24 }), { align: "center" }), { width: 700, vAlign: "center" }),
+        docxCell(docxParagraph(docxRun(`Día ${index + 1}`, { bold: true, color: "171816", size: 22 })), { width: 1400 }),
+        docxCell(docxParagraph(docxRun(formatGroups(group.entries), { bold: true, color: "171816", size: 18 })), { width: 5600 }),
+        docxCell(docxParagraph(docxRun(`≈ ${dayDuration(group.entries)} min`, { bold: true, color: "171816", size: 18 }), { align: "right" }), { width: 1500 }),
+      ].join(""));
+      const cover = [
+        docxTable([
+          [
+            docxCell(docxParagraph(logoRun, { after: 0 }), { width: 5600, margins: false }),
+            docxCell([
+              docxParagraph(docxRun("ESCANEA PARA ABRIR LA RUTINA", { bold: true, color: "171816", size: 18 }), { align: "center", after: 80 }),
+              docxParagraph(qrRun, { align: "center", after: 0 }),
+            ].join(""), { width: 3600, margins: false }),
+          ].join(""),
+        ], [5600, 3600]),
+        docxParagraph(docxRun("PLAN DE ENTRENAMIENTO", { bold: true, color: "9D603E", size: 18, caps: true }), { before: 320, after: 120 }),
+        docxParagraph(docxRun(title, { bold: true, color: "171816", size: 54 }), { after: 120, line: 560 }),
+        docxParagraph(docxRun(title === routineCartDefaultTitle ? "FUERZA Y ACONDICIONAMIENTO" : "PLAN DE ENTRENAMIENTO", { bold: true, color: "A5A19B", size: 20 }), { after: 300 }),
+        statsTable,
+        docxParagraph(docxRun("NOTAS", { bold: true, color: "171816", size: 28 }), { before: 360, after: 120 }),
+        ...notes.map((note) => docxParagraph([docxRun("• ", { color: "C9825C", size: 20 }), docxRun(note, { color: "171816", size: 20 })], { after: 80 })),
+        docxParagraph(docxRun("RESUMEN SEMANAL", { bold: true, color: "171816", size: 30 }), { before: 300, after: 120 }),
+        docxTable(summaryRows, [700, 1400, 5600, 1500]),
+      ].join("");
+      const dayPages = groups.map((group, groupIndex) => {
+        const label = routineDayMeta(group.day).label;
+        const duration = dayDuration(group.entries);
+        const daySeries = group.entries.reduce((total, entry) => total + parseRoutineNumber(entry.series), 0);
+        const header = [
+          docxParagraph("", { after: 0 }) + '<w:p><w:r><w:br w:type="page"/></w:r></w:p>',
+          docxParagraph(logoRun, { after: 160 }),
+          docxParagraph([docxRun(`Día ${groupIndex + 1}`, { bold: true, color: "C9825C", size: 34 }), docxRun(` · ${label}`, { bold: true, color: "171816", size: 34, preserveSpace: true })], { after: 160 }),
+          docxTable([
+            [
+              docxCell(docxParagraph([docxRun(String(group.entries.length), { bold: true, size: 24 }), docxRun(" ejercicios", { size: 16, preserveSpace: true })]), { width: 3000 }),
+              docxCell(docxParagraph([docxRun(String(daySeries), { bold: true, size: 24 }), docxRun(" series", { size: 16, preserveSpace: true })]), { width: 3000 }),
+              docxCell(docxParagraph([docxRun(`≈ ${duration} min`, { bold: true, size: 24 }), docxRun(" tiempo estimado", { size: 16, preserveSpace: true })]), { width: 3000 }),
+            ].join(""),
+          ], [3000, 3000, 3000]),
+        ].join("");
+        const rows = [
+          [
+            docxCell(docxParagraph(docxRun("#", { bold: true, color: "FFFFFF", size: 18 }), { align: "center" }), { width: 550, fill: "C76F32" }),
+            docxCell(docxParagraph(docxRun("EJERCICIO", { bold: true, color: "FFFFFF", size: 18 })), { width: 5200, fill: "C76F32" }),
+            docxCell(docxParagraph(docxRun("SERIES", { bold: true, color: "FFFFFF", size: 16 }), { align: "center" }), { width: 900, fill: "C76F32" }),
+            docxCell(docxParagraph(docxRun("REPS", { bold: true, color: "FFFFFF", size: 16 }), { align: "center" }), { width: 900, fill: "C76F32" }),
+            docxCell(docxParagraph(docxRun("DESCANSO", { bold: true, color: "FFFFFF", size: 16 }), { align: "center" }), { width: 1200, fill: "C76F32" }),
+          ].join(""),
+          ...group.entries.map((entry, entryIndex) => {
+            const exercise = getExerciseById(entry.id);
+            const note = sanitizeRoutineNote(entry.note).trim();
+            const groupAndNote = note ? `${exercise.grupoMuscular} - ${note}` : exercise.grupoMuscular;
+            const exerciseContent = docxTable([
+              [
+                docxCell(docxParagraph(exerciseImageRuns.get(entry) || "", { align: "center", after: 0 }), { width: 850, margins: false, vAlign: "center" }),
+                docxCell([
+                  docxParagraph(docxRun(exercise.nombre, { bold: true, color: "171816", size: 19 }), { after: 35 }),
+                  docxParagraph(docxRun(groupAndNote, { bold: true, color: "9D603E", size: 16 }), { after: 35 }),
+                  docxParagraph(docxRun((exercise.equipamiento && exercise.equipamiento[0] ? exercise.equipamiento[0] : "Peso corporal").toUpperCase(), { bold: true, color: "171816", size: 15, caps: true }), { after: 0 }),
+                ].join(""), { width: 4300, margins: false, vAlign: "center" }),
+              ].join(""),
+            ], [850, 4300]);
+            return [
+              docxCell(docxParagraph(docxRun(String(entryIndex + 1), { bold: true, color: "C9825C", size: 24 }), { align: "center" }), { width: 550, vAlign: "center" }),
+              docxCell(exerciseContent, { width: 5200, vAlign: "center" }),
+              docxCell(docxParagraph(docxRun(entry.series || "No definido", { size: 18 }), { align: "center" }), { width: 900, vAlign: "center" }),
+              docxCell(docxParagraph(docxRun(entry.reps || "No definido", { size: 18 }), { align: "center" }), { width: 900, vAlign: "center" }),
+              docxCell(docxParagraph(docxRun(entry.rest ? `${entry.rest} min` : "No definido", { size: 18 }), { align: "center" }), { width: 1200, vAlign: "center" }),
+            ].join("");
+          }),
+        ];
+        return [
+          header,
+          docxTable(rows, [550, 5200, 900, 900, 1200]),
+          docxParagraph([docxRun("https://eltablerosportclub.com", { color: "9D603E", size: 16 }), docxRun(`     ${dateLabel}     Página ${groupIndex + 2} de ${groups.length + 1}`, { color: "6B655F", size: 16, preserveSpace: true })], { before: 240, after: 0 }),
+        ].join("");
+      }).join("");
+      const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+          <w:body>
+            ${cover}
+            ${dayPages}
+            <w:sectPr>
+              <w:pgSz w:w="11906" w:h="16838"/>
+              <w:pgMar w:top="720" w:right="720" w:bottom="720" w:left="720" w:header="360" w:footer="360" w:gutter="0"/>
+            </w:sectPr>
+          </w:body>
+        </w:document>`;
+      const rels = images.map((image) => `<Relationship Id="${image.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="${image.name}"/>`).join("");
+      const files = [
+        { name: "[Content_Types].xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>` },
+        { name: "_rels/.rels", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>` },
+        { name: "word/_rels/document.xml.rels", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels}</Relationships>` },
+        { name: "word/styles.xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="20"/><w:color w:val="171816"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>` },
+        { name: "word/document.xml", data: documentXml },
+        ...images.map((image) => ({ name: `word/${image.name}`, data: image.bytes })),
+      ];
+      downloadBytes(createZip(files), routineDocxFilename(title), "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+      setRoutineCartValidation("");
+    } catch (error) {
+      console.error("[rutina] No se pudo exportar a DOCX", error);
+      setRoutineCartValidation("No se pudo generar el DOCX. Revisa que las imágenes de la rutina estén disponibles e inténtalo de nuevo.");
+    } finally {
+      if (routineCartDocx) {
+        routineCartDocx.disabled = false;
+        routineCartDocx.innerHTML = originalButtonHtml;
+      }
+    }
+  }
+
   function printRoutineCart() {
     const validationMessages = validateRoutineCartBeforeGenerate();
     if (validationMessages.length) {
@@ -2266,6 +2837,12 @@
       placement: "left",
       title: "Revisa la técnica",
       text: "Pulsa la i para consultar la ficha del ejercicio: explicación, posiciones, músculos implicados, instrucciones y consejos.",
+    },
+    {
+      selector: ".routine-cart__note-btn[data-routine-note]",
+      placement: "left",
+      title: "Añade notas por ejercicio",
+      text: "Usa el botón de notas para dejar indicaciones concretas en un ejercicio: carga orientativa, adaptación, técnica o cualquier aviso para el cliente. Si hay nota, el botón se marca en verde y esa nota viaja en el enlace, el QR, la rutina compartida y el PDF.",
     },
     {
       selector: ".routine-cart__quick-values",
@@ -3224,8 +3801,8 @@
     grid.appendChild(fragment);
   }
 
-  const EXERCISE_TYPE_VALUES = ["Cuerpo completo", "Cardio", "Movilidad y estiramientos"];
-  const PRIMARY_GROUP_VALUES = ["Pecho", "Espalda", "Hombros"];
+  const EXERCISE_TYPE_VALUES = ["Cuerpo completo", "Movilidad y estiramientos"];
+  const PRIMARY_GROUP_VALUES = ["Pecho", "Espalda", "Hombros", "Cardio"];
   const GROUP_AGGREGATES = {
     brazos: { label: "Brazos", all: "Brazo completo", values: ["Bíceps", "Tríceps", "Antebrazos"] },
     piernas: {
@@ -3541,12 +4118,20 @@
       : `Añadir ${exercise.nombre} a la rutina`;
 
     const media = exercise.imagenInicial
-      ? `<img src="${escapeHtml(exercise.imagenInicial)}" alt="" loading="lazy" decoding="async" width="512" height="512">`
+      ? `<img class="exercise-card__image exercise-card__image--initial" src="${escapeHtml(exercise.imagenInicial)}" alt="" loading="lazy" decoding="async" width="512" height="512">
+        ${
+          exercise.imagenFinal
+            ? `<img class="exercise-card__image exercise-card__image--final" src="${escapeHtml(exercise.imagenFinal)}" alt="" loading="lazy" decoding="async" width="512" height="512">`
+            : ""
+        }`
       : `<div class="exercise-card__media--empty">Sin imagen disponible</div>`;
+    const mediaClass = exercise.imagenInicial && exercise.imagenFinal
+      ? "exercise-card__media exercise-card__media--has-final"
+      : "exercise-card__media";
 
     card.innerHTML = `
       <button type="button" class="exercise-card__open">
-        <span class="exercise-card__media">
+        <span class="${mediaClass}">
           ${media}
         </span>
         <span class="exercise-card__body">
@@ -3611,6 +4196,7 @@
 
     const card = renderCard(exercise, { context: "routine" });
     const prescription = formatPrescription(entry);
+    const note = sanitizeRoutineNote(entry.note).trim();
     if (prescription) {
       const body = card.querySelector(".exercise-card__body");
       const footer = card.querySelector(".exercise-card__footer");
@@ -3618,6 +4204,14 @@
       prescriptionEl.className = "routine-view__prescription";
       prescriptionEl.textContent = prescription;
       body.insertBefore(prescriptionEl, footer);
+    }
+    if (note) {
+      const body = card.querySelector(".exercise-card__body");
+      const footer = card.querySelector(".exercise-card__footer");
+      const noteEl = document.createElement("span");
+      noteEl.className = "routine-view__exercise-note";
+      noteEl.textContent = note;
+      body.insertBefore(noteEl, footer);
     }
     return card;
   }
@@ -3722,15 +4316,22 @@
   }
 
   function initLazyImages(container) {
+    const markLoaded = (img) => {
+      img.classList.add("is-loaded");
+      if (img.classList.contains("exercise-card__image--final")) {
+        img.closest(".exercise-card__media--has-final")?.classList.add("is-final-loaded");
+      }
+    };
+
     container.querySelectorAll("img").forEach((img) => {
       if (img.complete && img.naturalWidth > 0) {
-        img.classList.add("is-loaded");
+        markLoaded(img);
         return;
       }
       img.addEventListener(
         "load",
         () => {
-          img.classList.add("is-loaded");
+          markLoaded(img);
         },
         { once: true }
       );
@@ -4243,10 +4844,32 @@
       .map((input) => input.value);
   }
 
+  function routineAiCardioDuration(kind) {
+    const field = Array.from(routineAiCardioDurationFields).find((item) => item.dataset.routineAiCardioDuration === kind);
+    const minutes = parseRoutineNumber(field ? field.value : "");
+    return minutes > 0 ? minutes : 10;
+  }
+
+  function routineAiSelectedCardio() {
+    return Array.from(routineAiCardioInputs)
+      .filter((input) => input.checked)
+      .map((input) => {
+        const kind = input.dataset.routineAiCardio || "";
+        const minutes = routineAiCardioDuration(kind);
+        return {
+          kind,
+          label: input.value,
+          minutes,
+          encodedReps: Math.max(1, Math.round(minutes * 24)),
+        };
+      });
+  }
+
   function routineAiBriefLines() {
     const notes = routineAiBrief && routineAiBrief.value.trim() ? routineAiBrief.value.trim() : "Sin limitaciones o notas adicionales.";
     const limits = routineAiSelectedLimits();
     const materials = routineAiSelectedMaterials();
+    const cardio = routineAiSelectedCardio();
     return [
       `Objetivo: ${routineAiFieldValue("objetivo") || "Rutina de cuerpo completo"}.`,
       `Nivel: ${routineAiFieldValue("nivel") || "Principiante"}.`,
@@ -4256,6 +4879,7 @@
       `Ejercicios por sesión: ${routineAiFieldValue("ejerciciosDia") || "La IA decide"}.`,
       `Estilo de rutina: ${routineAiFieldValue("preferencia") || "Equilibrada"}.`,
       `Material permitido: ${materials.length ? materials.join(", ") : "Sin restricción de material; puedes usar todo el material real del catálogo"}.`,
+      `Cardio: ${cardio.length ? cardio.map((item) => `${item.label}: ${item.minutes} minutos`).join("; ") : "Sin cardio específico"}.`,
       `Limitaciones rápidas: ${limits.length ? limits.join("; ") : "Sin limitaciones rápidas marcadas"}.`,
       `Notas del monitor o del cliente: ${notes}`,
     ].join("\n");
@@ -4271,23 +4895,21 @@
       "Web pública:",
       "https://eltablerosportclub.com/ejercicios/",
       "",
-      "Archivos que debes inspeccionar para no inventar ejercicios:",
-      "- Catálogo real: https://eltablerosportclub.com/ejercicios/exercises.js",
-      "- Codificador de URL: https://eltablerosportclub.com/ejercicios/routines.js",
+      "Contexto único que debes inspeccionar para no inventar ejercicios ni formato de URL:",
+      "https://eltablerosportclub.com/ejercicios/ai-context.json",
       "",
       "Cómo debes construir el enlace:",
       "- Usa la ruta base https://eltablerosportclub.com/ejercicios/",
-      "- La rutina va en el hash compacto #r?... tal como define window.Routines.encode en routines.js.",
-      "- Estructura lógica: { t, n, days, items }.",
-      "- Cada item debe tener id, series, reps, rest y day.",
-      "- El parámetro i contiene ejercicios como id:series:reps:rest:day.",
-      "- series, reps y rest se codifican con base64url UTF-8 igual que compactValue en routines.js.",
-      "- t y n también se codifican con base64url UTF-8.",
+      "- La rutina va en el hash compacto #r?... descrito en ai-context.json.",
+      "- Estructura lógica: { t, n, days, items }, exactamente como indica ai-context.json.",
+      "- Cada item debe tener id, series, reps, rest, day y opcionalmente note.",
+      "- El parámetro i contiene ejercicios en el formato exacto itemFormat de ai-context.json.",
+      "- series, reps, rest, note, t y n se codifican con base64url UTF-8 sin padding, tal como indica ai-context.json.",
       "- days se codifica en w con días separados por coma.",
-      "- Si no puedes inspeccionar esos archivos, dilo claramente y no inventes IDs.",
+      "- Si no puedes inspeccionar ai-context.json, dilo claramente y no inventes IDs ni formato.",
       "",
       "Reglas de entrenamiento:",
-      "- Usa exclusivamente IDs reales existentes en exercises.js.",
+      "- Usa exclusivamente IDs reales existentes en ai-context.json, dentro de exercises[].id.",
       "- Puedes repetir un mismo ejercicio si tiene sentido.",
       "- Los días válidos son: lunes, martes, miercoles, jueves, viernes, sabado, domingo.",
       "- Series, repeticiones y descanso son obligatorios en cada ejercicio.",
@@ -4295,6 +4917,10 @@
       "- Mantén una rutina realista, simple y segura para el nivel indicado.",
       "- Respeta el reparto semanal preferido salvo que sea incompatible con los días disponibles; si lo adaptas, mantén una lógica clara.",
       "- Respeta la preferencia de material permitido. No uses ejercicios con material que el usuario haya pedido evitar.",
+      "- Si el usuario solicita cardio de calentamiento o cardio post-entreno, usa exclusivamente ejercicios reales de Cardio existentes en ai-context.json.",
+      "- El cardio de calentamiento debe ir al inicio de cada día seleccionado; el cardio post-entreno debe ir al final de cada día seleccionado, salvo que las notas indiquen otra cosa.",
+      "- Para representar cardio por minutos sin cambiar el formato de URL, usa series = 1, rest = 0 y reps = minutos × 24. Ejemplo: 10 minutos de cardio => series 1, reps 240, rest 0.",
+      "- En los ejercicios de cardio añade note con el tipo y duración, por ejemplo: Cardio de calentamiento - 10 min.",
       "- Respeta las limitaciones rápidas y las notas del monitor o del cliente. Si hay una limitación, prioriza alternativas seguras del catálogo.",
       "- Respeta el número de ejercicios por sesión indicado. Si la IA decide, elige el mínimo número razonable para alcanzar la duración objetivo sin rellenar por rellenar.",
       "- Distribuye los grupos musculares de forma equilibrada según el objetivo y evita repetir patrones sin intención.",
@@ -5255,6 +5881,10 @@
       routineCartPrint.addEventListener("click", printRoutineCart);
     }
 
+    if (routineCartDocx) {
+      routineCartDocx.addEventListener("click", exportRoutineCartDocx);
+    }
+
     if (routineCartList) {
       routineCartList.addEventListener("click", (event) => {
         const removeButton = event.target.closest("[data-routine-remove]");
@@ -5292,6 +5922,12 @@
         const moveSelectedButton = event.target.closest("[data-routine-move-selected-day]");
         if (moveSelectedButton) {
           moveRoutineCartItemsToDay(Array.from(routineCartSelectedIds), moveSelectedButton.dataset.routineMoveSelectedDay, "");
+          return;
+        }
+
+        const noteButton = event.target.closest("[data-routine-note]");
+        if (noteButton) {
+          openRoutineNoteDialog(noteButton.dataset.routineNote);
           return;
         }
 
