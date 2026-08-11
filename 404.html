@@ -21,6 +21,17 @@
     <meta name="twitter:description" content="Página no encontrada de El Tablero Sport Club.">
     <meta name="twitter:image" content="https://eltablerosportclub.com/assets/images/brand/og-cover.png">
     <meta name="twitter:image:alt" content="El Tablero Sport Club, gimnasio y pádel en Ponte Caldelas">
+    <script>
+      (() => {
+        const firstPathPart = window.location.pathname.split("/").filter(Boolean)[0];
+        const baseHref = window.location.hostname.endsWith("github.io") && firstPathPart
+          ? `/${firstPathPart}/`
+          : "/";
+        const base = document.createElement("base");
+        base.href = baseHref;
+        document.head.appendChild(base);
+      })();
+    </script>
     <link rel="icon" href="assets/icons/favicon.png" type="image/png">
     <link rel="stylesheet" href="assets/css/tokens.css">
     <link rel="stylesheet" href="assets/css/base.css">
@@ -261,7 +272,7 @@
   <body class="error-page">
     <a class="skip-link" href="#main-content">Saltar al contenido</a>
     <div class="page-shell error-shell">
-      <header class="site-header site-header--concept">
+      <header class="site-header site-header--concept" data-site-header>
         <div class="container-wide site-header__inner">
           <a class="site-brand" href="index.html" aria-label="Ir a la página de inicio de El Tablero Sport Club">
             <span class="site-brand__media">
@@ -335,10 +346,10 @@
           </section>
 
           <nav class="error-panel" aria-label="Secciones principales">
-            <a href="gimnasio/index.html"><span>01</span><strong>Gimnasio</strong></a>
+            <a href="gimnasio/index.html"><span>01</span><strong>Sala fitness</strong></a>
             <a href="padel/index.html"><span>02</span><strong>Pádel</strong></a>
             <a href="horarios/index.html"><span>03</span><strong>Horario</strong></a>
-            <a href="contacto/index.html" data-booking-trigger><span>04</span><strong>Reserva pista</strong></a>
+            <a href="contacto/index.html"><span>04</span><strong>Contacto</strong></a>
           </nav>
         </div>
       </main>
