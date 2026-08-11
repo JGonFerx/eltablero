@@ -2084,15 +2084,16 @@
 }
 
 .home-member-card__heading h2 {
-  max-width: 16ch;
+  max-width: none;
   color: #fff;
-  font-size: clamp(2.35rem, 4.1vw, 4.75rem);
-  line-height: 0.94;
+  font-size: clamp(2rem, 2.8vw, 3rem);
+  line-height: 1.05;
   text-shadow: 0 1px 0 rgba(18, 15, 12, 0.18);
+  white-space: nowrap;
 }
 
 .home-member-card__title-line {
-  display: block;
+  display: inline;
 }
 
 .home-member-card__title-line--light {
@@ -2283,8 +2284,17 @@
   }
 
   .home-member-card__heading h2 {
-    max-width: 12ch;
-    font-size: clamp(2rem, 10vw, 3rem);
+    max-width: none;
+    font-size: clamp(1.85rem, 8vw, 2.6rem);
+    white-space: normal;
+  }
+
+  .home-member-card__title-line {
+    display: block;
+  }
+
+  .home-member-card__title-line--ink {
+    white-space: nowrap;
   }
 
   .home-member-card__heading > p:not(.eyebrow) {
