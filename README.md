@@ -226,6 +226,8 @@ ejercicios/
 ├── exercises.css
 ├── exercises.js
 ├── ai-context.json
+├── ai/
+│   └── index.html
 ├── data/exercises.json
 ├── assets/images/flat/*.webp
 ├── LICENSE-DATA.md
@@ -247,18 +249,32 @@ La licencia del dataset (`ejercicios/LICENSE-DATA.md`) exige atribucion visible:
 
 ### Contexto para ChatGPT/LLMs
 
-La integracion de crear rutinas con IA no debe pedir a un modelo que interprete `exercises.js` ni `routines.js`. El recurso estable para IAs es:
+La integracion de crear rutinas con IA no debe pedir a un modelo que interprete `exercises.js` ni `routines.js`.
+
+Fuente principal para modelos con navegacion web basica:
 
 ```text
-https://eltablerosportclub.com/ejercicios/ai-context.json
+https://jgonferx.github.io/eltablero/ejercicios/ai/
 ```
 
-Ese JSON contiene el catalogo compacto, los IDs reales, los dias validos y el protocolo exacto para generar enlaces `#r?...` compatibles con `window.Routines.encode`.
+Fallback estructurado:
 
-`ejercicios/ai-context.json` se genera desde `ejercicios/data/exercises.json`; no se edita a mano. Tras modificar o reimportar el catalogo, regenerarlo con:
+```text
+https://jgonferx.github.io/eltablero/ejercicios/ai-context.json
+```
+
+La pagina HTML contiene directamente el protocolo, los IDs reales, los dias validos y el catalogo compacto necesario para generar enlaces `#r?...` compatibles con `window.Routines.encode`, sin ejecutar JavaScript. El JSON mantiene la misma informacion en formato estructurado.
+
+`ejercicios/ai-context.json` y `ejercicios/ai/index.html` se generan desde `ejercicios/data/exercises.json`; no se editan a mano. Tras modificar o reimportar el catalogo, regenerarlos con:
 
 ```bash
 node scripts/generate-ai-context.mjs
+```
+
+Para generar URLs del dominio definitivo en lugar de GitHub Pages:
+
+```bash
+EL_TABLERO_PUBLIC_BASE_URL=https://eltablerosportclub.com node scripts/generate-ai-context.mjs
 ```
 
 Mas detalle en `ejercicios/AI-CONTEXT.md`.

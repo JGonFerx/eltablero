@@ -9,6 +9,20 @@
 (function (global) {
   "use strict";
 
+  const ROUTINE_ENCODING_SPEC = {
+    hashPrefix: "#r?",
+    itemsParam: "i",
+    daysParam: "w",
+    titleParam: "t",
+    notesParam: "n",
+    itemSeparator: ",",
+    fieldSeparator: ":",
+    itemFormat: "id:series:reps:rest:day:note",
+    uriComponentFields: ["id", "day"],
+    base64urlUtf8Fields: ["series", "reps", "rest", "note", "t", "n"],
+    trailingEmptyFields: "Routines.encode elimina campos vacíos finales de cada item.",
+  };
+
   function toBase64Url(value) {
     const encoded = btoa(unescape(encodeURIComponent(value)));
     return encoded.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
@@ -177,5 +191,5 @@
     return decodeCompactRoutine(hash) || decodeLegacyRoutine(hash);
   }
 
-  global.Routines = { encode: encodeRoutine, decode: decodeRoutine };
+  global.Routines = { encode: encodeRoutine, decode: decodeRoutine, spec: ROUTINE_ENCODING_SPEC };
 })(window);

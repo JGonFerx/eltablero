@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contexto para IA — Rutinas El Tablero Sport Club</title>
+    <meta name="description" content="Catálogo y protocolo para que ChatGPT y otros modelos generen URLs de rutinas compatibles con El Tablero Sport Club.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://jgonferx.github.io/eltablero/ejercicios/ai/">
+    <style>
+      body{margin:0;background:#fbfaf6;color:#171816;font-family:Arial,system-ui,sans-serif;line-height:1.55}
+      main{max-width:1120px;margin:0 auto;padding:32px 20px 56px}
+      h1{font-size:32px;margin:0 0 8px}
+      h2{font-size:22px;margin:32px 0 10px}
+      p{max-width:860px}
+      a{color:#9d603e}
+      code,pre{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+      pre{white-space:pre-wrap;word-break:break-word;background:#fff;border:1px solid #e4d8cf;border-radius:16px;padding:18px;overflow:auto}
+      .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:24px 0}
+      .summary div{border:1px solid #e4d8cf;border-radius:14px;background:#fff;padding:14px}
+      .label{display:block;color:#8a8178;font-size:12px;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Contexto para IA — Rutinas El Tablero Sport Club</h1>
+      <p>Esta página contiene el catálogo y protocolo necesarios para que ChatGPT y otros modelos generen URLs de rutinas compatibles con El Tablero Sport Club. No hace falta inspeccionar JavaScript.</p>
+      <p>La información fundamental está escrita directamente en este HTML. Si tu herramienta puede leer HTML básico, puede crear enlaces válidos <code>#r?...</code>.</p>
+
+      <section class="summary" aria-label="Resumen">
+        <div><span class="label">Base URL</span>https://jgonferx.github.io/eltablero/ejercicios/</div>
+        <div><span class="label">Ejercicios</span>405</div>
+        <div><span class="label">Días válidos</span>lunes, martes, miercoles, jueves, viernes, sabado, domingo</div>
+      </section>
+
+      <h2>Protocolo de rutinas</h2>
+      <pre>FUENTE PRINCIPAL PARA LLMs
+Base URL de la aplicación: https://jgonferx.github.io/eltablero/ejercicios/
+URL de esta página HTML: https://jgonferx.github.io/eltablero/ejercicios/ai/
+Fallback JSON estructurado: https://jgonferx.github.io/eltablero/ejercicios/ai-context.json
+Fallback catálogo real completo: https://jgonferx.github.io/eltablero/ejercicios/data/exercises.json
+
+FORMATO DE URL
+URL final = https://jgonferx.github.io/eltablero/ejercicios/#r?i=&lt;items&gt;&amp;w=&lt;days&gt;&amp;t=&lt;title&gt;&amp;n=&lt;notes&gt;
+Parámetro i: lista de ejercicios separados por coma.
+Formato de cada ejercicio: id:series:reps:rest:day:note
+id: encodeURIComponent(id real del catálogo).
+series/reps/rest/note/t/n: base64url UTF-8 sin padding.
+day: encodeURIComponent(day).
+w: días usados separados por coma, en orden semanal.
+Días válidos: lunes, martes, miercoles, jueves, viernes, sabado, domingo.
+rest es obligatorio salvo si series = 1. En ejercicios de 1 serie puede ir vacío o como 0.
+note es opcional; máximo 110 caracteres.
+Routines.encode elimina campos vacíos finales, pero los campos previos conservan su posición.
+
+BASE64URL UTF-8 SIN PADDING
+1. Convertir texto a UTF-8.
+2. Base64 estándar.
+3. Cambiar + por - y / por _.
+4. Eliminar = finales.
+
+REGLAS PARA CREAR RUTINAS
+- Usa exclusivamente IDs presentes en exercises[].id o en el catálogo HTML de /ejercicios/ai/.
+- Puedes repetir un mismo ejercicio si tiene sentido.
+- Todos los items deben tener id, series, reps y day.
+- rest es obligatorio salvo si series = 1. En ejercicios de 1 serie puede ir vacío o como 0.
+- El descanso se expresa en minutos y el valor rest no debe incluir la palabra min.
+- Las notas por ejercicio son opcionales y deben tener como máximo 110 caracteres.
+- Incluye en w todos los días usados por los ejercicios.
+- Ordena los días según validDays.
+- Para estimar duración: segundos por ejercicio = (series × repeticiones × 2.5) + (series × descanso_minutos × 60 × 1.2).
+- Duración por día = suma de segundos de los ejercicios del día / 60, redondeada al minuto más cercano.
+
+EJEMPLO VALIDADO POR Routines.decode
+https://jgonferx.github.io/eltablero/ejercicios/#r?i=jackknife-sit-up:Mw:MTA:Mg:lunes:Q29udHJvbGEgbGEgdMOpY25pY2EgeSBldml0YSBpbXB1bHNvcy4,sit-ups:NA:MTI:MS41:miercoles:w5psdGltYSBzZXJpZSBjb24gbWFyZ2VuLg,side-lying-hip-abduction:Mg:MTU:MQ:viernes:UmFuZ28gY8OzbW9kbywgc2luIGRvbG9yLg&amp;t=UnV0aW5hIGRlIHBydWViYSBjb24gw7E&amp;w=lunes,miercoles,viernes&amp;n=Tm90YXMgZ2VuZXJhbGVzOiB0w6ljbmljYSwgY29udHJvbCB5IHJlc3BpcmFjacOzbi4</pre>
+
+      <h2>Catálogo compacto completo</h2>
+      <p>Formato de cada línea: <code>id | name | primaryGroup | equipment | difficulty | bodyweight | bodyPart | category | primaryMuscles</code>.</p>
+      <pre>id | name | primaryGroup | equipment | difficulty | bodyweight | bodyPart | category | primaryMuscles
+jackknife-sit-up | Abdominal navaja | Abdominales | Peso corporal | Intermedio | sí | Core | Fuerza | Recto Abdominal
+sit-ups | Abdominales | Abdominales | Peso corporal | Principiante | sí | Core | Fuerza | Flexores de Cadera; Recto Abdominal
+side-lying-hip-abduction | Abducción de Cadera Acostado de Lado | Aductores y abductores | Peso corporal | Principiante | sí | Piernas | Fuerza | Abductores; Glúteo Medio
+banded-standing-hip-abduction | Abducción de Cadera de Pie con Banda | Glúteos | Banda de resistencia circular | Principiante | no | Piernas | Fuerza | Glúteo Medio
+hip-abduction | Abducción de Cadera en Máquina | Glúteos | Máquina de abducción de cadera | Principiante | no | Piernas | Fuerza | Glúteo Medio
+banded-seated-hip-abduction | Abducción de Cadera Sentado con Banda | Glúteos | Banda de resistencia circular | Principiante | no | Piernas | Fuerza | Glúteo Medio
+hip-adduction | Aducción de cadera | Aductores y abductores | Máquina de aducción de cadera | Intermedio | no | Piernas | Fuerza | Aductores
+side-lying-hip-adduction | Aducción de Cadera Acostado de Lado | Aductores y abductores | Peso corporal | Intermedio | sí | Piernas | Fuerza | Aductores
+banded-standing-hip-adduction | Aducción de Cadera de Pie con Banda | Aductores y abductores | Banda de resistencia circular | Principiante | no | Piernas | Fuerza | Aductores
+plate-pinch | Agarre de Discos | Antebrazos | Discos | Intermedio | no | Antebrazos | Fuerza | Flexores del Antebrazo
+banded-clamshell | Almeja con Banda | Glúteos | Banda de resistencia circular | Principiante | no | Piernas | Fuerza | Glúteo Medio
+clamshells | Almejas | Aductores y abductores | Peso corporal | Intermedio | sí | Piernas | Fuerza | Abductores; Glúteo Medio
+incline-dumbbell-fly | Apertura con mancuernas en banco inclinado | Pecho | Mancuerna | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+rear-delt-fly | Apertura de Deltoides Posterior | Hombros | Mancuerna | Principiante | no | Hombros | Fuerza | Deltoides Posterior; Romboides
+cable-fly | Aperturas con Cable | Pecho | Polea | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+db-fly | Aperturas con Mancuernas | Pecho | Mancuerna | Principiante | no | Pecho | Fuerza | Pectoral Mayor
+decline-db-fly | Aperturas con Mancuernas en Banco Declinado | Pecho | Mancuerna | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+snatch | Arrancada | Cuerpo completo | Barra | Intermedio | no | Cuerpo completo | Olímpico | Glúteo Mayor; Cuádriceps; Trapecio
+air-bike | Bicicleta de Aire | Cuerpo completo | Bicicleta de aire | Intermedio | no | Cuerpo completo | Fuerza | Isquiotibiales; Cuádriceps
+bird-dog-hold | Bird-Dog Isométrico | Zona lumbar | Peso corporal | Intermedio | sí | Core | Fuerza | Erector Espinal; Recto Abdominal
+good-morning | Buenos Días | Zona lumbar | Barra | Intermedio | no | Piernas | Fuerza | Erector Espinal; Glúteo Mayor; Isquiotibiales
+banded-good-morning | Buenos Días con Banda | Glúteos | Banda de resistencia circular | Principiante | no | Piernas | Fuerza | Glúteo Mayor; Isquiotibiales
+bodyweight-good-morning | Buenos Días con Peso Corporal | Zona lumbar | Peso corporal | Principiante | sí | Espalda | Fuerza | Erector Espinal; Isquiotibiales
+burpees | Burpees | Cardio | Peso corporal | Intermedio | sí | Cuerpo completo | Cardio | Glúteo Mayor; Pectoral Mayor; Cuádriceps
+dumbbell-farmers-walk | Caminata del Granjero con Mancuernas | Cuerpo completo | Mancuerna | Principiante | no | Cuerpo completo | Fuerza | Flexores del Antebrazo; Trapecio
+banded-lateral-walk | Caminata Lateral con Banda | Glúteos | Banda de resistencia circular | Principiante | no | Piernas | Fuerza | Glúteo Medio
+hang-clean | Cargada desde Colgante | Cuerpo completo | Barra | Intermedio | no | Cuerpo completo | Olímpico | Glúteo Mayor; Cuádriceps; Trapecio
+clean | Clean | Cuerpo completo | Barra | Intermedio | no | Cuerpo completo | Olímpico | Glúteo Mayor; Cuádriceps
+clean-and-jerk | Clean and Jerk | Cuerpo completo | Barra | Intermedio | no | Cuerpo completo | Olímpico | Deltoides Anterior; Glúteo Mayor; Cuádriceps
+double-kettlebell-clean | Clean con Dos Pesas Rusas | Glúteos | Kettlebell | Avanzado | no | Hombros | Fuerza | Glúteo Mayor; Isquiotibiales
+cocoons | Cocoons | Abdominales | Peso corporal | Intermedio | sí | Core | Fuerza | Recto Abdominal
+dead-hang | Colgado Pasivo | Antebrazos | Barra de dominadas | Intermedio | no | Espalda | Fuerza | Flexores del Antebrazo
+cable-crunch | Crunch con Cable | Abdominales | Polea | Intermedio | no | Core | Fuerza | Recto Abdominal
+cross-body-crunch | Crunch Cruzado | Abdominales | Peso corporal | Principiante | sí | Core | Fuerza | Oblicuos
+bicycle-crunch | Crunch de Bicicleta | Abdominales | Peso corporal | Principiante | sí | Core | Fuerza | Oblicuos; Recto Abdominal
+weighted-wall-crunch | Crunch en Pared con Peso | Abdominales | Mancuerna | Intermedio | no | Core | Fuerza | Recto Abdominal
+crunches | Crunches | Abdominales | Peso corporal | Principiante | sí | Core | Fuerza | Recto Abdominal
+reverse-crunches | Crunches Inversos | Abdominales | Peso corporal | Intermedio | sí | Core | Fuerza | Recto Abdominal
+ring-dead-hang | Cuelgue Estático en Anillas | Antebrazos | Anillas | Intermedio | no | Espalda | Fuerza | Flexores del Antebrazo
+battle-ropes | Cuerdas de Batalla | Cardio | Cuerda de batalla | Intermedio | no | Cuerpo completo | Cardio | Deltoides Anterior; Deltoides Lateral; Dorsal Ancho
+spider-curl | Curl Araña | Bíceps | Mancuerna | Intermedio | no | Brazos | Fuerza | Bíceps
+barbell-curl | Curl con Barra | Bíceps | Barra | Principiante | no | Brazos | Fuerza | Bíceps
+ez-bar-curl | Curl con Barra Z | Bíceps | Barra Z | Principiante | no | Brazos | Fuerza | Bíceps
+cable-curl | Curl con Cable | Bíceps | Polea | Principiante | no | Brazos | Fuerza | Bíceps
+cheat-curl | Curl con Impulso | Bíceps | Barra | Intermedio | no | Brazos | Fuerza | Bíceps
+incline-db-curl | Curl con mancuernas en banco inclinado | Bíceps | Mancuerna | Intermedio | no | Brazos | Fuerza | Bíceps
+seated-dumbbell-curl | Curl con Mancuernas Sentado | Bíceps | Mancuerna | Principiante | no | Brazos | Fuerza | Bíceps
+close-grip-barbell-curl | Curl de Barra con Agarre Cerrado | Bíceps | Barra | Principiante | no | Brazos | Fuerza | Bíceps
+double-kettlebell-bicep-curl | Curl de Bíceps con Dos Pesas Rusas | Bíceps | Kettlebell | Principiante | no | Brazos | Fuerza | Bíceps
+bicep-curl | Curl de Bíceps con Mancuernas | Bíceps | Mancuerna | Principiante | no | Brazos | Fuerza | Bíceps
+one-arm-kettlebell-bicep-curl | Curl de Bíceps con Pesa Rusa a Un Brazo | Bíceps | Kettlebell | Intermedio | no | Brazos | Fuerza | Bíceps
+machine-bicep-curl | Curl de Bíceps en Máquina | Bíceps | Máquina curl de bíceps | Principiante | no | Brazos | Fuerza | Bíceps
+trx-bicep-curl | Curl de Bíceps TRX | Bíceps | Suspensión TRX | Principiante | no | Brazos | Fuerza | Bíceps
+concentration-curl | Curl de Concentración | Bíceps | Mancuerna | Principiante | no | Brazos | Fuerza | Bíceps
+trx-hamstring-curl | Curl de Isquiotibiales con TRX | Isquiotibiales | Suspensión TRX | Intermedio | no | Piernas | Fuerza | Isquiotibiales
+hammer-curl | Curl de Martillo con Mancuernas | Bíceps | Mancuerna | Principiante | no | Brazos | Fuerza | Bíceps; Braquial
+cable-hammer-curl | Curl de Martillo en Cable | Bíceps | Polea | Intermedio | no | Brazos | Fuerza | Bíceps; Braquial; Braquiorradial
+cable-wrist-curl | Curl de Muñeca con Cable | Antebrazos | Polea | Intermedio | no | Antebrazos | Fuerza | Flexores del Antebrazo
+dumbbell-wrist-curl | Curl de Muñeca con Mancuerna | Antebrazos | Mancuerna | Principiante | no | Antebrazos | Fuerza | Flexores del Antebrazo
+banded-standing-curl | Curl de Pierna de Pie con Banda | Isquiotibiales | Banda de resistencia circular | Principiante | no | Piernas | Fuerza | Isquiotibiales
+single-leg-lying-leg-curl | Curl de Pierna Tumbado a Una Pierna | Isquiotibiales | Curl femoral | Intermedio | no | Piernas | Fuerza | Isquiotibiales
+ball-leg-curl | Curl de Piernas con Pelota de Estabilidad | Isquiotibiales | Pelota de estabilidad | Intermedio | no | Piernas | Fuerza | Isquiotibiales
+seated-leg-curl | Curl de Piernas Sentado | Isquiotibiales | Curl femoral | Principiante | no | Piernas | Fuerza | Isquiotibiales
+leg-curl | Curl de Piernas Tumbado | Isquiotibiales | Curl femoral | Principiante | no | Piernas | Fuerza | Isquiotibiales
+preacher-curl | Curl en Banco Scott | Bíceps | Barra Z | Principiante | no | Brazos | Fuerza | Bíceps
+machine-preacher-curl | Curl en Máquina de Predicador | Bíceps | Máquina curl predicador | Principiante | no | Brazos | Fuerza | Bíceps
+reverse-curl | Curl Inverso | Bíceps | Barra | Principiante | no | Brazos | Fuerza | Braquial; Extensores del Antebrazo
+ez-bar-reverse-curl | Curl Inverso con Barra Z | Bíceps | Barra Z | Principiante | no | Brazos | Fuerza | Braquial; Extensores del Antebrazo
+db-reverse-curl | Curl Inverso con Mancuernas | Bíceps | Mancuerna | Principiante | no | Brazos | Fuerza | Braquial; Extensores del Antebrazo
+kettlebell-hammer-curl | Curl martillo con pesa rusa | Bíceps | Kettlebell | Principiante | no | Brazos | Fuerza | Bíceps; Braquial
+cross-body-hammer-curl | Curl Martillo Cruzado | Bíceps | Mancuerna | Intermedio | no | Brazos | Fuerza | Braquial; Braquiorradial
+incline-hammer-curl | Curl martillo en banco inclinado | Bíceps | Mancuerna | Intermedio | no | Brazos | Fuerza | Bíceps; Braquial
+nordic-hamstring-curl | Curl Nórdico de Isquiotibiales | Isquiotibiales | Banco GHD | Avanzado | no | Piernas | Fuerza | Isquiotibiales
+barbell-preacher-curl | Curl Predicador con Barra | Bíceps | Barra | Intermedio | no | Brazos | Fuerza | Bíceps
+dead-bug | Dead Bug | Abdominales | Peso corporal | Principiante | sí | Core | Fuerza | Recto Abdominal; Transverso Abdominal
+double-kettlebell-dead-clean | Dead Clean con Dos Pesas Rusas | Cuerpo completo | Kettlebell | Intermedio | no | Cuerpo completo | Olímpico | Glúteo Mayor; Isquiotibiales
+double-kettlebell-dead-split-snatch | Dead Split Snatch con Dos Pesas Rusas | Cuerpo completo | Kettlebell | Intermedio | no | Cuerpo completo | Olímpico | Deltoides Anterior; Glúteo Mayor
+pull-up | Dominada | Espalda | Barra de dominadas | Intermedio | no | Espalda | Fuerza | Dorsal Ancho
+archer-pull-ups | Dominadas Arquero | Espalda | Barra de dominadas | Avanzado | no | Espalda | Fuerza | Dorsal Ancho
+assisted-pull-ups | Dominadas Asistidas | Espalda | Máquina de dominadas asistidas | Principiante | no | Espalda | Fuerza | Dorsal Ancho
+band-assisted-pull-ups | Dominadas Asistidas con Banda | Espalda | Banda elástica | Principiante | no | Espalda | Fuerza | Dorsal Ancho
+close-grip-pull-ups | Dominadas con Agarre Cerrado | Bíceps | Barra de dominadas | Intermedio | no | Espalda | Fuerza | Bíceps; Dorsal Ancho
+wide-grip-pull-ups | Dominadas en Agarre Ancho | Espalda | Barra de dominadas | Intermedio | no | Espalda | Fuerza | Dorsal Ancho
+neutral-grip-pull-ups | Dominadas en Agarre Neutro | Espalda | Barra de dominadas | Intermedio | no | Espalda | Fuerza | Dorsal Ancho
+chin-ups | Dominadas en Supinación | Bíceps | Barra de dominadas | Intermedio | no | Espalda | Fuerza | Bíceps; Dorsal Ancho
+scapular-pull-ups | Dominadas Escapulares | Espalda | Barra de dominadas | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Trapecio
+negative-pull-ups | Dominadas Negativas | Espalda | Barra de dominadas | Principiante | no | Espalda | Fuerza | Dorsal Ancho
+drag-curl | Drag Curl | Bíceps | Barra | Intermedio | no | Brazos | Fuerza | Bíceps
+dragon-flag | Dragon Flag | Abdominales | Peso corporal | Avanzado | sí | Core | Fuerza | Recto Abdominal
+machine-calf-raise | Elevación de Pantorrillas en Máquina | Gemelos | Máquina de elevaciones de pantorrilla de pie | Principiante | no | Pantorrillas | Fuerza | Gemelos; Sóleo
+lying-leg-raise | Elevación de Piernas Acostado | Abdominales | Peso corporal | Principiante | sí | Core | Fuerza | Flexores de Cadera; Recto Abdominal
+hanging-leg-raise | Elevación de Piernas Colgado | Abdominales | Barra de dominadas | Intermedio | no | Core | Fuerza | Flexores de Cadera; Recto Abdominal
+captains-chair-leg-raise | Elevación de Piernas en Silla Romana | Abdominales | Peso corporal | Intermedio | sí | Core | Fuerza | Flexores de Cadera; Recto Abdominal
+hanging-knee-raise | Elevación de Rodillas Colgado | Abdominales | Barra de dominadas | Principiante | no | Core | Fuerza | Flexores de Cadera; Recto Abdominal
+captains-chair-knee-raise | Elevación de Rodillas en Silla Romana | Abdominales | Peso corporal | Principiante | sí | Core | Fuerza | Flexores de Cadera; Recto Abdominal
+smith-machine-calf-raise | Elevación de Talón en Máquina Smith | Gemelos | Máquina Smith | Principiante | no | Pantorrillas | Fuerza | Gemelos
+barbell-calf-raise | Elevación de Talones con Barra | Gemelos | Barra | Intermedio | no | Pantorrillas | Fuerza | Gemelos
+dumbbell-calf-raise | Elevación de Talones con Mancuernas | Gemelos | Mancuerna | Intermedio | no | Pantorrillas | Fuerza | Gemelos; Sóleo
+bodyweight-calf-raise | Elevación de Talones con Peso Corporal | Gemelos | Peso corporal | Principiante | sí | Pantorrillas | Fuerza | Gemelos
+standing-calf-raise | Elevación de Talones de Pie | Gemelos | Máquina de elevaciones de pantorrilla de pie | Principiante | no | Pantorrillas | Fuerza | Gemelos
+hack-squat-calf-raise | Elevación de Talones en Máquina Hack Squat | Gemelos | Máquina hack squat | Intermedio | no | Pantorrillas | Fuerza | Gemelos; Sóleo
+seated-calf-raise | Elevación de Talones Sentado | Gemelos | Máquina de elevaciones de pantorrilla sentado | Principiante | no | Pantorrillas | Fuerza | Sóleo
+barbell-front-raise | Elevación Frontal con Barra | Hombros | Barra | Intermedio | no | Hombros | Fuerza | Deltoides Anterior
+ez-bar-front-raise | Elevación Frontal con Barra Z | Hombros | Barra Z | Principiante | no | Hombros | Fuerza | Deltoides Anterior
+cable-front-raise | Elevación Frontal con Cable | Hombros | Polea | Intermedio | no | Hombros | Fuerza | Deltoides Anterior
+dumbbell-front-raise | Elevación Frontal con Mancuernas | Hombros | Mancuerna | Principiante | no | Hombros | Fuerza | Deltoides Anterior
+seated-dumbbell-lateral-raise | Elevación Lateral con Mancuerna Sentado | Hombros | Mancuerna | Principiante | no | Hombros | Fuerza | Deltoides Lateral
+lateral-raise | Elevación Lateral con Mancuernas | Hombros | Mancuerna | Principiante | no | Hombros | Fuerza | Deltoides Lateral
+bodyweight-lateral-raise | Elevación Lateral con Peso Corporal | Hombros | Peso corporal | Principiante | sí | Hombros | Fuerza | Deltoides Lateral
+cable-lateral-raise | Elevación Lateral en Polea | Hombros | Polea | Intermedio | no | Hombros | Fuerza | Deltoides Lateral
+banded-kneeling-hip-thrust | Empuje de Cadera Arrodillado con Banda | Glúteos | Banda de resistencia circular | Principiante | no | Piernas | Fuerza | Glúteo Mayor
+banded-hip-thrust | Empuje de Cadera con Banda | Glúteos | Banda de resistencia circular | Principiante | no | Piernas | Fuerza | Glúteo Mayor
+kettlebell-hip-thrust | Empuje de Cadera con Kettlebell | Glúteos | Kettlebell | Principiante | no | Piernas | Fuerza | Glúteo Mayor
+dumbbell-hip-thrust | Empuje de Cadera con Mancuerna | Glúteos | Mancuerna | Principiante | no | Piernas | Fuerza | Glúteo Mayor
+shrug | Encogimiento con Barra | Espalda | Barra | Principiante | no | Hombros | Fuerza | Trapecio
+behind-the-back-barbell-shrug | Encogimiento de Hombros con Barra Detrás de la Espalda | Espalda | Barra | Intermedio | no | Espalda | Fuerza | Trapecio
+ez-bar-shrug | Encogimiento de Hombros con Barra Z | Espalda | Barra Z | Principiante | no | Hombros | Fuerza | Trapecio
+kettlebell-shrug | Encogimiento de Hombros con Kettlebell | Espalda | Kettlebell | Principiante | no | Espalda | Fuerza | Trapecio
+db-shrug | Encogimiento de Hombros con Mancuernas | Espalda | Mancuerna | Principiante | no | Hombros | Fuerza | Trapecio
+chest-supported-dumbbell-shrug | Encogimiento de Hombros con Mancuernas y Apoyo en el Pecho | Espalda | Mancuerna | Intermedio | no | Espalda | Fuerza | Trapecio
+smith-machine-shrug | Encogimiento de Hombros en Máquina Smith | Espalda | Máquina Smith | Principiante | no | Espalda | Fuerza | Trapecio
+bench-leg-pull-in | Encogimiento de Piernas en Banco | Abdominales | Peso corporal | Principiante | sí | Core | Fuerza | Recto Abdominal
+stability-ball-knee-tuck | Encogimiento de Rodillas con Balón de Estabilidad | Abdominales | Pelota de estabilidad | Intermedio | no | Core | Fuerza | Recto Abdominal
+bench-bulgarian-split-stretch | Estiramiento Búlgaro en Banco | Movilidad y estiramientos | Banco plano | Principiante | no | Piernas | Estiramiento | Flexores de Cadera; Cuádriceps
+bench-couch-stretch | Estiramiento Couch en Banco | Movilidad y estiramientos | Banco plano | Principiante | no | Piernas | Estiramiento | Flexores de Cadera; Cuádriceps
+banded-adductor-stretch | Estiramiento de Aductores con Banda | Movilidad y estiramientos | Banda elástica | Principiante | no | Piernas | Estiramiento | Aductores
+bench-adductor-stretch | Estiramiento de Aductores en Banco | Movilidad y estiramientos | Banco plano | Principiante | no | Piernas | Estiramiento | Aductores
+banded-it-band-stretch | Estiramiento de Banda Iliotibial con Banda | Movilidad y estiramientos | Banda elástica | Principiante | no | Piernas | Estiramiento | Abductores
+banded-rear-delt-stretch | Estiramiento de Deltoides Posterior con Banda | Movilidad y estiramientos | Banda elástica | Principiante | no | Hombros | Estiramiento | Deltoides Posterior
+banded-lat-stretch | Estiramiento de Dorsales con Banda | Movilidad y estiramientos | Banda elástica | Principiante | no | Espalda | Estiramiento | Dorsal Ancho
+bench-lat-stretch | Estiramiento de Dorsales en Banco | Movilidad y estiramientos | Banco plano | Principiante | no | Espalda | Estiramiento | Dorsal Ancho
+banded-shoulder-stretch | Estiramiento de Hombros con Banda | Movilidad y estiramientos | Banda elástica | Principiante | no | Hombros | Estiramiento | Deltoides Anterior
+banded-hamstring-stretch | Estiramiento de Isquiotibiales con Banda | Movilidad y estiramientos | Banda elástica | Principiante | no | Piernas | Estiramiento | Isquiotibiales
+bench-hamstring-stretch | Estiramiento de Isquiotibiales en Banco | Movilidad y estiramientos | Banco plano | Principiante | no | Piernas | Estiramiento | Isquiotibiales
+butterfly-stretch | Estiramiento de Mariposa | Movilidad y estiramientos | Peso corporal | Principiante | sí | Piernas | Estiramiento | Aductores
+banded-calf-stretch | Estiramiento de Pantorrilla con Banda | Movilidad y estiramientos | Banda elástica | Principiante | no | Pantorrillas | Estiramiento | Gemelos
+bench-calf-stretch | Estiramiento de Pantorrilla en Banco | Movilidad y estiramientos | Banco plano | Principiante | no | Pantorrillas | Estiramiento | Gemelos
+banded-chest-stretch | Estiramiento de Pecho con Banda | Movilidad y estiramientos | Banda elástica | Principiante | no | Pecho | Estiramiento | Pectoral Mayor
+bench-chest-stretch | Estiramiento de Pecho en Banco | Movilidad y estiramientos | Banco plano | Principiante | no | Pecho | Estiramiento | Pectoral Mayor
+banded-ankle-stretch | Estiramiento de Tobillo con Banda | Movilidad y estiramientos | Banda elástica | Principiante | no | Pantorrillas | Estiramiento | Gemelos
+bench-ankle-stretch | Estiramiento de Tobillo en Banco | Movilidad y estiramientos | Banco plano | Principiante | no | Pantorrillas | Estiramiento | Gemelos
+banded-triceps-stretch | Estiramiento de Tríceps con Banda | Movilidad y estiramientos | Banda elástica | Principiante | no | Brazos | Estiramiento | Tríceps
+banded-figure-4-stretch | Estiramiento Figura 4 con Banda | Movilidad y estiramientos | Banda elástica | Principiante | no | Piernas | Estiramiento | Glúteo Mayor
+bench-figure-4-glute-stretch | Estiramiento Figura 4 de Glúteos en Banco | Movilidad y estiramientos | Banco plano | Principiante | no | Piernas | Estiramiento | Glúteo Mayor
+barbell-overhead-extension | Extensión de Barra por Encima de la Cabeza | Tríceps | Barra | Intermedio | no | Brazos | Fuerza | Tríceps
+back-extension | Extensión de Espalda | Zona lumbar | Peso corporal | Principiante | sí | Espalda | Fuerza | Erector Espinal
+leg-extension | Extensión de Piernas | Cuádriceps | Extensión de piernas | Principiante | no | Piernas | Fuerza | Cuádriceps
+one-arm-kettlebell-tricep-kickback | Extensión de Tríceps a Un Brazo con Pesa Rusa | Tríceps | Kettlebell | Principiante | no | Brazos | Fuerza | Tríceps
+dumbbell-tricep-extension | Extensión de Tríceps con Mancuerna | Tríceps | Mancuerna | Principiante | no | Brazos | Fuerza | Tríceps
+seated-dumbbell-tricep-extension | Extensión de Tríceps con Mancuerna Sentado | Tríceps | Mancuerna | Principiante | no | Brazos | Fuerza | Tríceps
+v-bar-tricep-pushdown | Extensión de Tríceps en Polea con Barra en V | Tríceps | Polea | Principiante | no | Brazos | Fuerza | Tríceps
+overhead-tricep-extension | Extensión de Tríceps por Encima de la Cabeza | Tríceps | Mancuerna | Principiante | no | Brazos | Fuerza | Tríceps
+ez-bar-overhead-extension | Extensión de Tríceps por Encima de la Cabeza con Barra Z | Tríceps | Barra Z | Intermedio | no | Brazos | Fuerza | Tríceps
+kettlebell-overhead-tricep-extension | Extensión de tríceps por encima de la cabeza con pesa rusa | Tríceps | Kettlebell | Intermedio | no | Brazos | Fuerza | Tríceps
+single-arm-dumbbell-overhead-tricep-extension | Extensión de Tríceps sobre la Cabeza con Mancuerna a Un Brazo | Tríceps | Mancuerna | Principiante | no | Brazos | Fuerza | Tríceps
+trx-tricep-extension | Extensión de Tríceps TRX | Tríceps | Suspensión TRX | Intermedio | no | Brazos | Fuerza | Tríceps
+lying-tricep-extension | Extensión de Tríceps Tumbado | Tríceps | Mancuerna | Intermedio | no | Brazos | Fuerza | Tríceps
+trx-face-pull | Face Pull con TRX | Hombros | Suspensión TRX | Principiante | no | Hombros | Fuerza | Deltoides Posterior; Romboides
+ring-face-pull | Face Pull en Anillas | Hombros | Anillas | Intermedio | no | Espalda | Fuerza | Deltoides Posterior; Romboides
+face-pull | Face Pull en Polea | Hombros | Polea | Principiante | no | Hombros | Fuerza | Deltoides Posterior; Romboides
+decline-push-up | Flexión Declinada | Pecho | Peso corporal | Intermedio | sí | Pecho | Fuerza | Pectoral Mayor
+dumbbell-side-bend | Flexión Lateral con Mancuerna | Abdominales | Mancuerna | Principiante | no | Core | Fuerza | Oblicuos
+isometric-neck-side | Flexión Lateral Isométrica de Cuello | Espalda | Peso corporal | Principiante | sí | Hombros | Fuerza | Trapecio
+clap-push-ups | Flexiones con Palmada | Pecho | Peso corporal | Avanzado | sí | Pecho | Fuerza | Pectoral Mayor
+deficit-push-ups | Flexiones en Déficit | Pecho | Peso corporal | Avanzado | sí | Pecho | Fuerza | Pectoral Mayor
+diamond-push-ups | Flexiones en Diamante | Pecho | Peso corporal | Intermedio | sí | Pecho | Fuerza | Pectoral Mayor; Tríceps
+pike-push-ups | Flexiones en Pica | Hombros | Peso corporal | Intermedio | sí | Hombros | Fuerza | Deltoides Anterior; Deltoides Lateral
+handstand-push-ups | Flexiones en Pino | Hombros | Peso corporal | Avanzado | sí | Hombros | Fuerza | Deltoides Anterior; Tríceps
+flutter-kicks | Flutter Kicks | Abdominales | Peso corporal | Intermedio | sí | Core | Fuerza | Flexores de Cadera; Recto Abdominal
+ring-dips | Fondos en Anillas | Pecho | Anillas | Avanzado | no | Pecho | Fuerza | Pectoral Mayor; Tríceps
+bench-dips | Fondos en Banco | Tríceps | Peso corporal | Intermedio | sí | Brazos | Fuerza | Tríceps
+assisted-dips | Fondos en Máquina Asistida | Pecho | Máquina de fondos | Principiante | no | Brazos | Fuerza | Pectoral Mayor; Tríceps
+dips | Fondos para Pecho | Pecho | Estación de fondos | Intermedio | no | Pecho | Fuerza | Pectoral Mayor; Tríceps
+front-lever | Front Lever | Espalda | Barra de dominadas | Avanzado | no | Espalda | Fuerza | Dorsal Ancho; Pectoral Mayor
+russian-twist | Giro Ruso | Abdominales | Peso corporal | Principiante | sí | Core | Fuerza | Oblicuos; Recto Abdominal
+kettlebell-russian-twist | Giro ruso con pesa rusa | Abdominales | Kettlebell | Intermedio | no | Core | Fuerza | Oblicuos
+medicine-ball-slam | Golpe con Balón Medicinal | Abdominales | Balón slam | Principiante | no | Core | Fuerza | Recto Abdominal
+hack-squat | Hack Squat | Glúteos | Máquina hack squat | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+kettlebell-halo | Halo con pesa rusa | Hombros | Kettlebell | Principiante | no | Hombros | Fuerza | Deltoides Lateral
+banded-fire-hydrant | Hidrante de Fuego con Banda | Glúteos | Banda de resistencia circular | Principiante | no | Piernas | Fuerza | Glúteo Medio
+hip-thrust | Hip thrust con barra | Glúteos | Barra | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Glúteo Medio
+behind-the-neck-lat-pulldown | Jalón al Cuello Detrás de la Cabeza | Espalda | Máquina jalón al pecho | Avanzado | no | Espalda | Fuerza | Dorsal Ancho
+lat-pulldown | Jalón al Pecho | Espalda | Polea | Principiante | no | Espalda | Fuerza | Dorsal Ancho
+v-bar-lat-pulldown | Jalón al Pecho con Barra en V | Espalda | Máquina jalón al pecho | Principiante | no | Espalda | Fuerza | Dorsal Ancho
+one-arm-lat-pulldown | Jalón al Pecho con Un Brazo | Espalda | Polea | Intermedio | no | Espalda | Fuerza | Dorsal Ancho
+straight-arm-pulldown | Jalón con Brazos Rectos | Espalda | Polea | Intermedio | no | Espalda | Fuerza | Dorsal Ancho
+tricep-pushdown | Jalón de Tríceps en Cable | Tríceps | Polea | Principiante | no | Brazos | Fuerza | Tríceps
+kettlebell-sumo-high-pull | Jalón sumo al mentón con pesa rusa | Espalda | Kettlebell | Intermedio | no | Hombros | Fuerza | Trapecio
+double-kettlebell-jerk | Jerk con Dos Pesas Rusas | Hombros | Kettlebell | Avanzado | no | Hombros | Fuerza | Deltoides Anterior; Cuádriceps
+split-jerk | Jerk con Tijera | Cuerpo completo | Barra | Intermedio | no | Cuerpo completo | Olímpico | Deltoides Anterior; Cuádriceps
+push-jerk | Jerk de Empuje | Cuerpo completo | Barra | Intermedio | no | Cuerpo completo | Olímpico | Deltoides Anterior; Tríceps
+l-sit | L-Sit | Cuerpo completo | Estación de fondos | Avanzado | no | Cuerpo completo | Fuerza | Flexores de Cadera; Recto Abdominal
+kettlebell-turkish-get-ups | Levantamiento Turco con Kettlebell | Cuerpo completo | Kettlebell | Intermedio | no | Cuerpo completo | Fuerza | Deltoides Anterior; Glúteo Mayor; Recto Abdominal
+dumbbell-windmill | Molino con Mancuerna | Cuerpo completo | Mancuerna | Intermedio | no | Cuerpo completo | Fuerza | Deltoides Lateral; Oblicuos
+kettlebell-windmills | Molino de Viento con Pesa Rusa | Cuerpo completo | Kettlebell | Intermedio | no | Cuerpo completo | Fuerza | Deltoides Anterior; Oblicuos
+mountain-climbers | Mountain Climbers | Cardio | Peso corporal | Principiante | sí | Core | Cardio | Flexores de Cadera; Recto Abdominal
+muscle-snatch | Muscle Snatch | Cuerpo completo | Barra | Intermedio | no | Cuerpo completo | Olímpico | Deltoides Lateral; Trapecio
+muscle-ups | Muscle-Ups | Espalda | Barra de dominadas | Avanzado | no | Espalda | Fuerza | Dorsal Ancho; Tríceps
+dumbbell-reverse-fly | Pájaro Invertido con Mancuernas | Hombros | Mancuerna | Intermedio | no | Hombros | Fuerza | Deltoides Posterior
+kettlebell-farmers-walk | Paseo del Granjero con Pesa Rusa | Cuerpo completo | Kettlebell | Intermedio | no | Cuerpo completo | Strongman | Flexores del Antebrazo; Trapecio
+glute-kickback | Patada de Glúteo | Glúteos | Peso corporal | Principiante | sí | Piernas | Fuerza | Glúteo Mayor
+cable-tricep-kickback | Patada de Tríceps con Cable | Tríceps | Polea | Intermedio | no | Brazos | Fuerza | Tríceps
+tricep-kickback | Patada de Tríceps con Mancuerna | Tríceps | Mancuerna | Principiante | no | Brazos | Fuerza | Tríceps
+cable-kickback | Patada Trasera de Glúteos en Cable | Glúteos | Polea | Intermedio | no | Piernas | Fuerza | Glúteo Mayor
+pec-deck | Pec Deck | Pecho | Pec deck | Principiante | no | Pecho | Fuerza | Pectoral Mayor
+kettlebell-single-leg-deadlift | Peso muerto a una pierna con pesa rusa | Glúteos | Kettlebell | Intermedio | no | Espalda | Fuerza | Glúteo Mayor; Isquiotibiales
+deadlift | Peso Muerto con Barra | Zona lumbar | Barra | Intermedio | no | Espalda | Fuerza | Erector Espinal; Glúteo Mayor; Isquiotibiales
+hex-bar-deadlift | Peso Muerto con Barra Hexagonal | Zona lumbar | Barra trap | Intermedio | no | Espalda | Fuerza | Erector Espinal; Glúteo Mayor; Cuádriceps
+dumbbell-deadlift | Peso Muerto con Mancuernas | Zona lumbar | Mancuerna | Intermedio | no | Espalda | Fuerza | Erector Espinal; Glúteo Mayor; Isquiotibiales
+pause-deadlift | Peso Muerto con Pausa | Zona lumbar | Barra | Avanzado | no | Espalda | Fuerza | Erector Espinal; Glúteo Mayor; Isquiotibiales
+kettlebell-deadlift | Peso muerto con pesa rusa | Zona lumbar | Kettlebell | Intermedio | no | Espalda | Fuerza | Erector Espinal; Glúteo Mayor; Isquiotibiales
+stiff-leg-deadlift | Peso Muerto con Piernas Rígidas | Glúteos | Barra | Intermedio | no | Espalda | Fuerza | Glúteo Mayor; Isquiotibiales
+deficit-deadlift | Peso Muerto en Déficit | Zona lumbar | Barra | Avanzado | no | Espalda | Fuerza | Erector Espinal; Glúteo Mayor; Isquiotibiales
+romanian-deadlift | Peso Muerto Rumano | Glúteos | Barra | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Isquiotibiales
+single-leg-romanian-deadlift | Peso Muerto Rumano a Una Pierna | Glúteos | Mancuerna | Intermedio | no | Espalda | Fuerza | Glúteo Mayor; Isquiotibiales
+one-arm-single-leg-dumbbell-romanian-deadlift | Peso Muerto Rumano a Una Pierna con Mancuerna a Un Brazo | Glúteos | Mancuerna | Avanzado | no | Piernas | Fuerza | Glúteo Mayor; Isquiotibiales
+one-arm-single-leg-kettlebell-romanian-deadlift | Peso Muerto Rumano a Una Pierna con Pesa Rusa a Un Brazo | Glúteos | Kettlebell | Avanzado | no | Piernas | Fuerza | Glúteo Mayor; Isquiotibiales
+banded-romanian-deadlift | Peso Muerto Rumano con Banda | Glúteos | Banda de resistencia circular | Principiante | no | Piernas | Fuerza | Glúteo Mayor; Isquiotibiales
+ez-bar-romanian-deadlift | Peso Muerto Rumano con Barra Z | Glúteos | Barra Z | Principiante | no | Piernas | Fuerza | Glúteo Mayor; Isquiotibiales
+dumbbell-romanian-deadlift | Peso Muerto Rumano con Mancuernas | Glúteos | Mancuerna | Intermedio | no | Espalda | Fuerza | Glúteo Mayor; Isquiotibiales
+smith-machine-rdl | Peso Muerto Rumano en Máquina Smith | Isquiotibiales | Máquina Smith | Principiante | no | Piernas | Fuerza | Isquiotibiales
+sumo-deadlift | Peso Muerto Sumo | Glúteos | Barra | Intermedio | no | Espalda | Fuerza | Glúteo Mayor; Cuádriceps
+kettlebell-sumo-deadlift | Peso muerto sumo con pesa rusa | Glúteos | Kettlebell | Principiante | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+hanging-pike | Pike Colgado | Abdominales | Barra de dominadas | Avanzado | no | Core | Fuerza | Recto Abdominal
+ball-pike | Pike con Pelota | Abdominales | Pelota de estabilidad | Avanzado | no | Core | Fuerza | Oblicuos; Recto Abdominal
+plank | Plancha | Abdominales | Peso corporal | Principiante | sí | Core | Fuerza | Recto Abdominal; Transverso Abdominal
+high-plank | Plancha Alta | Abdominales | Peso corporal | Principiante | sí | Core | Fuerza | Recto Abdominal; Transverso Abdominal
+planche | Plancha Calisténica | Hombros | Peso corporal | Avanzado | sí | Pecho | Fuerza | Deltoides Anterior; Pectoral Mayor
+trx-plank | Plancha en TRX | Abdominales | Suspensión TRX | Intermedio | no | Core | Fuerza | Recto Abdominal; Transverso Abdominal
+reverse-plank | Plancha Inversa | Zona lumbar | Peso corporal | Intermedio | sí | Core | Fuerza | Erector Espinal; Glúteo Mayor
+side-plank | Plancha Lateral | Abdominales | Peso corporal | Principiante | sí | Core | Fuerza | Oblicuos; Transverso Abdominal
+trx-side-plank | Plancha Lateral en TRX | Abdominales | Suspensión TRX | Intermedio | no | Core | Fuerza | Oblicuos; Transverso Abdominal
+v-sit | Posición en V | Abdominales | Peso corporal | Intermedio | sí | Core | Fuerza | Flexores de Cadera; Recto Abdominal
+bench-childs-pose | Postura del Niño en Banco | Movilidad y estiramientos | Banco plano | Principiante | no | Espalda | Estiramiento | Erector Espinal; Dorsal Ancho
+hang-power-clean | Power Clean desde Colgante | Cuerpo completo | Barra | Intermedio | no | Cuerpo completo | Olímpico | Glúteo Mayor; Cuádriceps; Trapecio
+leg-press | Prensa de Piernas | Glúteos | Prensa de piernas | Principiante | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+horizontal-leg-press | Prensa de piernas horizontal | Glúteos | Prensa de piernas | Principiante | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+arnold-press | Press Arnold | Hombros | Mancuerna | Intermedio | no | Hombros | Fuerza | Deltoides Anterior; Deltoides Lateral
+incline-db-press | Press con mancuernas en banco inclinado | Pecho | Mancuerna | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+close-grip-bench-press | Press de Banca con Agarre Cerrado | Tríceps | Barra | Intermedio | no | Brazos | Fuerza | Tríceps
+bench-press | Press de Banca con Barra | Pecho | Barra | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+close-grip-ez-bar-bench-press | Press de Banca con Barra Z y Agarre Cerrado | Tríceps | Barra Z | Intermedio | no | Brazos | Fuerza | Tríceps
+db-bench-press | Press de Banca con Mancuernas | Pecho | Mancuerna | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+close-grip-db-bench-press | Press de Banca con Mancuernas y Agarre Cerrado | Tríceps | Mancuerna | Intermedio | no | Brazos | Fuerza | Tríceps
+paused-bench-press | Press de Banca con Pausa | Pecho | Barra | Avanzado | no | Pecho | Fuerza | Pectoral Mayor
+decline-bench-press | Press de Banca Declinado | Pecho | Mancuerna | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+decline-bench-press-barbell | Press de Banca Declinado con Barra | Pecho | Barra | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+decline-bench-press-ez-bar | Press de Banca Declinado con Barra Z | Pecho | Barra Z | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+wide-grip-bench-press | Press de Banca en Agarre Ancho | Pecho | Barra | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+smith-machine-bench-press | Press de Banca en Máquina Smith | Pecho | Máquina Smith | Principiante | no | Pecho | Fuerza | Pectoral Mayor
+close-grip-incline-bench | Press de Banca Inclinado con Agarre Cerrado | Tríceps | Barra | Intermedio | no | Brazos | Fuerza | Tríceps
+seated-barbell-overhead-press | Press de Barra sobre la Cabeza Sentado | Hombros | Barra | Intermedio | no | Hombros | Fuerza | Deltoides Anterior
+push-press | Press de Empuje | Hombros | Barra | Intermedio | no | Hombros | Fuerza | Deltoides Anterior; Deltoides Lateral
+dumbbell-push-press | Press de Empuje con Mancuernas | Hombros | Mancuerna | Intermedio | no | Hombros | Fuerza | Deltoides Anterior; Tríceps
+seated-db-press | Press de Hombro con Mancuernas Sentado | Hombros | Mancuerna | Intermedio | no | Hombros | Fuerza | Deltoides Anterior; Deltoides Lateral
+one-arm-kettlebell-shoulder-press | Press de Hombro con Pesa Rusa a Un Brazo | Hombros | Kettlebell | Intermedio | no | Hombros | Fuerza | Deltoides Anterior; Deltoides Lateral
+dumbbell-shoulder-press | Press de Hombros con Mancuernas | Hombros | Mancuerna | Intermedio | no | Hombros | Fuerza | Deltoides Anterior; Deltoides Lateral
+machine-shoulder-press | Press de Hombros en Máquina | Hombros | Máquina press de hombros | Principiante | no | Hombros | Fuerza | Deltoides Anterior; Deltoides Lateral
+smith-machine-shoulder-press | Press de Hombros en Máquina Smith | Hombros | Máquina Smith | Principiante | no | Hombros | Fuerza | Deltoides Anterior; Deltoides Lateral
+seated-smith-machine-shoulder-press | Press de Hombros en Máquina Smith Sentado | Hombros | Máquina Smith | Principiante | no | Hombros | Fuerza | Deltoides Anterior; Deltoides Lateral
+cable-chest-press | Press de Pecho con Cable | Pecho | Polea | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+trx-chest-press | Press de Pecho con TRX | Pecho | Suspensión TRX | Principiante | no | Pecho | Fuerza | Pectoral Mayor
+chest-press-machine | Press de Pecho en Máquina | Pecho | Máquina press de pecho | Principiante | no | Pecho | Fuerza | Pectoral Mayor
+kettlebell-close-grip-floor-press | Press de Suelo con Agarre Cerrado con Pesa Rusa | Tríceps | Kettlebell | Intermedio | no | Brazos | Fuerza | Tríceps
+dumbbell-floor-press | Press de Suelo con Mancuernas | Pecho | Mancuerna | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+kettlebell-floor-press | Press de suelo con pesas rusas | Pecho | Kettlebell | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+behind-the-neck-press | Press Detrás del Cuello | Hombros | Barra | Intermedio | no | Hombros | Fuerza | Deltoides Anterior; Deltoides Lateral
+incline-bench-press | Press en banco inclinado con barra | Pecho | Barra | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+incline-bench-ez-bar-press | Press en banco inclinado con barra Z | Pecho | Barra Z | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+one-arm-kettlebell-floor-glute-bridge-press | Press en Puente de Glúteos en Suelo con Pesa Rusa a Un Brazo | Glúteos | Kettlebell | Intermedio | no | Pecho | Fuerza | Glúteo Mayor; Pectoral Mayor
+floor-press | Press en Suelo | Pecho | Barra | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+floor-ez-bar-press | Press en Suelo con Barra Z | Pecho | Barra Z | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+one-arm-kettlebell-floor-press | Press en Suelo con Pesa Rusa a Un Brazo | Pecho | Kettlebell | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+paused-incline-bench-press | Press Inclinado con Pausa | Hombros | Barra | Avanzado | no | Pecho | Fuerza | Deltoides Anterior; Pectoral Mayor
+smith-machine-incline-bench-press | Press Inclinado en Máquina Smith | Hombros | Máquina Smith | Principiante | no | Pecho | Fuerza | Deltoides Anterior; Pectoral Mayor
+landmine-press | Press Landmine | Hombros | Barra | Intermedio | no | Hombros | Fuerza | Deltoides Anterior; Pectoral Mayor
+one-arm-landmine-press | Press Landmine con Un Brazo | Hombros | Barra | Intermedio | no | Hombros | Fuerza | Deltoides Anterior; Pectoral Mayor
+ohp | Press Militar con Barra | Hombros | Barra | Intermedio | no | Hombros | Fuerza | Deltoides Anterior; Deltoides Lateral
+double-kettlebell-overhead-press | Press por Encima de la Cabeza con Dos Pesas Rusas | Hombros | Kettlebell | Intermedio | no | Hombros | Fuerza | Deltoides Anterior; Tríceps
+bodyweight-overhead-press | Press por Encima de la Cabeza con Peso Corporal | Hombros | Peso corporal | Principiante | sí | Hombros | Fuerza | Deltoides Anterior; Tríceps
+spoto-press | Press Spoto | Pecho | Barra | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+one-arm-kettlebell-bottoms-up-press | Press Strict con Pesa Rusa Invertida a Un Brazo | Hombros | Kettlebell | Avanzado | no | Hombros | Fuerza | Deltoides Anterior
+svend-press | Press Svend | Pecho | Discos | Principiante | no | Pecho | Fuerza | Pectoral Mayor
+stability-ball-hip-bridge | Puente de Cadera con Balón de Estabilidad | Glúteos | Pelota de estabilidad | Principiante | no | Piernas | Fuerza | Glúteo Mayor
+single-leg-glute-bridge | Puente de Glúteo a Una Pierna | Glúteos | Peso corporal | Intermedio | sí | Piernas | Fuerza | Glúteo Mayor
+glute-bridge | Puente de Glúteos | Glúteos | Peso corporal | Principiante | sí | Piernas | Fuerza | Glúteo Mayor
+banded-glute-bridge | Puente de Glúteos con Banda | Glúteos | Banda de resistencia circular | Principiante | no | Piernas | Fuerza | Glúteo Mayor
+barbell-glute-bridge | Puente de Glúteos con Barra | Glúteos | Barra | Intermedio | no | Piernas | Fuerza | Glúteo Mayor
+thoracic-bridge | Puente Torácico | Zona lumbar | Peso corporal | Intermedio | sí | Core | Fuerza | Erector Espinal; Glúteo Mayor
+barbell-pullover | Pullover con Barra | Espalda | Barra | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Pectoral Mayor
+ez-bar-pullover | Pullover con Barra EZ | Espalda | Barra Z | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Pectoral Mayor
+bent-arm-barbell-pullover | Pullover con Barra y Brazos Flexionados | Espalda | Barra | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Pectoral Mayor
+bent-arm-ez-bar-pullover | Pullover con Barra Z y Brazos Flexionados | Espalda | Barra Z | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Pectoral Mayor
+db-pullover | Pullover con Mancuerna | Espalda | Mancuerna | Intermedio | no | Pecho | Fuerza | Dorsal Ancho; Pectoral Mayor
+kettlebell-pullover | Pullover con pesa rusa | Espalda | Kettlebell | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Pectoral Mayor
+floor-kettlebell-pullover | Pullover con Pesa Rusa en Suelo | Espalda | Kettlebell | Principiante | no | Espalda | Fuerza | Dorsal Ancho; Pectoral Mayor
+double-kettlebell-push-press | Push Press con Dos Pesas Rusas | Hombros | Kettlebell | Intermedio | no | Hombros | Fuerza | Deltoides Anterior
+one-arm-dumbbell-push-press | Push Press con Mancuerna a Un Brazo | Hombros | Mancuerna | Intermedio | no | Hombros | Fuerza | Deltoides Anterior
+one-arm-kettlebell-push-press | Push Press con Pesa Rusa a Un Brazo | Hombros | Kettlebell | Intermedio | no | Hombros | Fuerza | Deltoides Anterior
+push-up | Push-Up | Pecho | Peso corporal | Principiante | sí | Pecho | Fuerza | Pectoral Mayor; Tríceps
+stability-ball-push-up | Push-Up con Balón de Estabilidad | Pecho | Pelota de estabilidad | Intermedio | no | Pecho | Fuerza | Pectoral Mayor
+knee-push-ups | Push-Up en Rodillas | Pecho | Peso corporal | Principiante | sí | Pecho | Fuerza | Pectoral Mayor
+incline-push-ups | Push-up inclinado | Pecho | Peso corporal | Principiante | sí | Pecho | Fuerza | Pectoral Mayor
+archer-push-ups | Push-Ups Arquero | Pecho | Peso corporal | Avanzado | sí | Pecho | Fuerza | Pectoral Mayor
+pseudo-planche-push-ups | Push-Ups de Pseudo Plancha | Hombros | Peso corporal | Avanzado | sí | Pecho | Fuerza | Deltoides Anterior; Pectoral Mayor
+wall-push-ups | Push-Ups en Pared | Pecho | Peso corporal | Principiante | sí | Pecho | Fuerza | Pectoral Mayor
+rack-pull | Rack Pull | Zona lumbar | Barra | Intermedio | no | Espalda | Fuerza | Erector Espinal; Glúteo Mayor; Isquiotibiales; Trapecio
+upright-row | Remo al Mentón con Barra | Hombros | Barra | Intermedio | no | Hombros | Fuerza | Deltoides Lateral; Trapecio
+ez-bar-upright-row | Remo al Mentón con Barra Z | Hombros | Barra Z | Intermedio | no | Hombros | Fuerza | Deltoides Lateral; Trapecio
+cable-upright-row | Remo al Mentón con Cable | Hombros | Polea | Intermedio | no | Hombros | Fuerza | Deltoides Lateral; Trapecio
+dumbbell-upright-row | Remo al Mentón con Mancuernas | Hombros | Mancuerna | Intermedio | no | Hombros | Fuerza | Deltoides Lateral; Trapecio
+ez-bar-reverse-grip-row | Remo con Barra EZ y Agarre Supino | Bíceps | Barra Z | Intermedio | no | Espalda | Fuerza | Bíceps; Dorsal Ancho
+barbell-row | Remo con Barra Inclinado | Espalda | Barra | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+barbell-rear-delt-row | Remo con Barra para Deltoides Posterior | Hombros | Barra | Intermedio | no | Hombros | Fuerza | Deltoides Posterior
+bent-over-ez-bar-row | Remo con Barra Z Inclinado | Espalda | Barra Z | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+double-kettlebell-row | Remo con Dos Pesas Rusas | Espalda | Kettlebell | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+chest-supported-kettlebell-row | Remo con Kettlebell Apoyado en el Pecho | Espalda | Kettlebell | Principiante | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+single-arm-db-row | Remo con Mancuerna a Un Brazo | Espalda | Mancuerna | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+chest-supported-db-row | Remo con Mancuernas con Apoyo en el Pecho | Espalda | Mancuerna | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+bent-over-db-row | Remo con Mancuernas Inclinado | Espalda | Mancuerna | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+one-arm-kettlebell-row | Remo con Pesa Rusa a Un Brazo | Espalda | Kettlebell | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+sled-row | Remo con Trineo | Espalda | Trineo | Intermedio | no | Espalda | Fuerza | Dorsal Ancho
+bench-pull | Remo en Banco | Espalda | Barra | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+dumbbell-bench-pull | Remo en Banco con Mancuernas | Espalda | Mancuerna | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+kneeling-cable-row | Remo en Polea Arrodillado | Espalda | Polea | Principiante | no | Espalda | Fuerza | Dorsal Ancho
+wide-grip-seated-cable-row | Remo en Polea Sentado en Agarre Ancho | Espalda | Polea | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+t-bar-row | Remo en T | Espalda | Barra | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+smith-machine-reverse-grip-bent-over-row | Remo Inclinado con Agarre Inverso en Máquina Smith | Bíceps | Máquina Smith | Principiante | no | Espalda | Fuerza | Bíceps; Dorsal Ancho
+reverse-grip-bent-over-row | Remo Inclinado con Agarre Invertido | Espalda | Barra | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+cable-bent-over-row | Remo Inclinado con Cable | Espalda | Polea | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+smith-machine-bent-over-row | Remo Inclinado en Máquina Smith | Espalda | Máquina Smith | Principiante | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+inverted-row | Remo invertido | Espalda | Barra | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides; Trapecio
+rings-inverted-row | Remo Invertido en Anillas | Espalda | Anillas | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides; Trapecio
+pendlay-row | Remo Pendlay | Espalda | Barra | Intermedio | no | Espalda | Fuerza | Dorsal Ancho; Romboides; Trapecio
+trx-row | Remo TRX | Espalda | Suspensión TRX | Principiante | no | Espalda | Fuerza | Dorsal Ancho; Romboides
+chin-tuck-hold | Retracción de Mentón Sostenida | Cuerpo completo | Peso corporal | Intermedio | sí | Cuerpo completo | Fuerza | Trapecio
+wrist-roller | Rodillo de Muñeca | Antebrazos | Rodillo de muñeca | Intermedio | no | Antebrazos | Fuerza | Extensores del Antebrazo; Flexores del Antebrazo
+cable-external-rotation | Rotación Externa con Cable | Hombros | Polea | Intermedio | no | Hombros | Fuerza | Deltoides Posterior
+ab-wheel-rollout | Rueda Abdominal | Abdominales | Rueda abdominal | Intermedio | no | Core | Fuerza | Recto Abdominal; Transverso Abdominal
+barbell-ab-rollout | Rueda Abdominal con Barra | Abdominales | Barra | Intermedio | no | Core | Fuerza | Recto Abdominal
+jump-rope | Saltar la Cuerda | Cardio | Cuerda de saltar | Principiante | no | Cuerpo completo | Cardio | Gemelos; Sóleo
+box-jump | Salto al Cajón | Glúteos | Caja pliométrica | Intermedio | no | Piernas | Pliometría | Glúteo Mayor; Cuádriceps
+jumping-jacks | Saltos de Tijera | Cardio | Peso corporal | Principiante | sí | Cuerpo completo | Cardio | Gemelos; Glúteo Medio; Deltoides Lateral
+pistol-squat | Sentadilla a una Pierna (Pistol) | Glúteos | Peso corporal | Avanzado | sí | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+bulgarian-split-squat | Sentadilla Búlgara | Glúteos | Mancuerna | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+kettlebell-bulgarian-split-squat | Sentadilla Búlgara con Kettlebell | Glúteos | Kettlebell | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+smith-machine-bulgarian-split | Sentadilla Búlgara en Máquina Smith | Glúteos | Máquina Smith | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+banded-squat | Sentadilla con Banda | Glúteos | Banda de resistencia circular | Principiante | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+overhead-squat | Sentadilla con Barra en Alto | Glúteos | Barra | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+pause-squat | Sentadilla con Pausa | Glúteos | Barra | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+bodyweight-squat | Sentadilla con Peso Corporal | Glúteos | Peso corporal | Principiante | sí | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+jump-squat | Sentadilla con Salto | Glúteos | Peso corporal | Principiante | sí | Piernas | Pliometría | Glúteo Mayor; Cuádriceps
+heel-elevated-squat | Sentadilla con Talones Elevados | Glúteos | Barra | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+box-squat | Sentadilla en Caja | Glúteos | Barra | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+smith-machine-squat | Sentadilla en Máquina Smith | Glúteos | Máquina Smith | Principiante | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+wall-sit | Sentadilla en Pared | Glúteos | Peso corporal | Principiante | sí | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+dumbbell-split-squat | Sentadilla en Postura Dividida con Mancuernas | Glúteos | Mancuerna | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+split-squat | Sentadilla en Tijera | Glúteos | Peso corporal | Intermedio | sí | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+front-squat | Sentadilla Frontal | Glúteos | Barra | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+dumbbell-front-squat | Sentadilla Frontal con Mancuernas | Glúteos | Mancuerna | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+one-arm-kettlebell-front-squat | Sentadilla Frontal con Pesa Rusa a Un Brazo | Glúteos | Kettlebell | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+goblet-squat | Sentadilla Goblet | Glúteos | Kettlebell | Principiante | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+dumbbell-pistol-squat | Sentadilla Pistola con Mancuerna | Glúteos | Mancuerna | Avanzado | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+kettlebell-pistol-squat | Sentadilla pistola con pesa rusa | Glúteos | Kettlebell | Avanzado | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+trx-pistol-squat | Sentadilla Pistola con TRX | Glúteos | Suspensión TRX | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+sumo-squat | Sentadilla Sumo | Glúteos | Barra | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+squat | Sentadilla Trasera con Barra | Glúteos | Barra | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+trx-squat | Sentadilla TRX | Glúteos | Suspensión TRX | Principiante | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+band-pull-apart | Separación de Banda Elástica | Hombros | Banda elástica | Principiante | no | Hombros | Fuerza | Deltoides Posterior
+skull-crusher | Skull Crusher | Tríceps | Barra | Intermedio | no | Brazos | Fuerza | Tríceps
+db-skull-crusher | Skull Crusher con Mancuernas | Tríceps | Mancuerna | Intermedio | no | Brazos | Fuerza | Tríceps
+kettlebell-skull-crusher | Skull crusher con pesa rusa | Tríceps | Kettlebell | Intermedio | no | Brazos | Fuerza | Tríceps
+dumbbell-snatch | Snatch con Mancuerna | Cuerpo completo | Mancuerna | Intermedio | no | Cuerpo completo | Olímpico | Deltoides Anterior; Glúteo Mayor; Trapecio
+ez-bar-spider-curl | Spider Curl con Barra Z | Bíceps | Barra Z | Intermedio | no | Brazos | Fuerza | Bíceps
+double-kettlebell-split-jerk | Split Jerk con Dos Pesas Rusas | Cuerpo completo | Kettlebell | Intermedio | no | Cuerpo completo | Olímpico | Deltoides Anterior; Cuádriceps
+step-ups | Step Ups | Glúteos | Peso corporal | Intermedio | sí | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+superman | Superman | Zona lumbar | Peso corporal | Principiante | sí | Espalda | Fuerza | Erector Espinal; Glúteo Mayor
+one-arm-dumbbell-swing | Swing con Mancuerna a un Brazo | Cuerpo completo | Mancuerna | Intermedio | no | Cuerpo completo | Fuerza | Glúteo Mayor; Isquiotibiales
+kettlebell-swing | Swing con pesa rusa | Glúteos | Kettlebell | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Isquiotibiales
+one-arm-kettlebell-swing | Swing con Pesa Rusa a Un Brazo | Cuerpo completo | Kettlebell | Intermedio | no | Cuerpo completo | Fuerza | Glúteo Mayor; Isquiotibiales
+double-kettlebell-swing-snatch | Swing Snatch con Dos Pesas Rusas | Cuerpo completo | Kettlebell | Intermedio | no | Cuerpo completo | Olímpico | Glúteo Mayor; Isquiotibiales
+kettlebell-swing-clean | Swing y cargada con pesa rusa | Cuerpo completo | Kettlebell | Intermedio | no | Cuerpo completo | Olímpico | Glúteo Mayor; Isquiotibiales
+thruster | Thruster | Hombros | Barra | Intermedio | no | Hombros | Fuerza | Deltoides Anterior; Cuádriceps
+toes-to-bar | Toes to Bar | Abdominales | Barra de dominadas | Intermedio | no | Core | Fuerza | Flexores de Cadera; Recto Abdominal
+rope-climb | Trepa de Cuerda | Espalda | Cuerda de escalada | Avanzado | no | Espalda | Fuerza | Dorsal Ancho
+trx-y-fly | TRX Y-Fly | Hombros | Suspensión TRX | Intermedio | no | Hombros | Fuerza | Deltoides Posterior; Trapecio
+v-ups | V-Ups | Abdominales | Peso corporal | Intermedio | sí | Core | Fuerza | Flexores de Cadera; Recto Abdominal
+lunge | Zancada | Glúteos | Peso corporal | Intermedio | sí | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+walking-lunge | Zancada Caminando | Glúteos | Peso corporal | Intermedio | sí | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+barbell-lunge | Zancada con Barra | Glúteos | Barra | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+db-lunge | Zancada con Mancuernas | Glúteos | Mancuerna | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+kettlebell-lunge-press | Zancada con press de pesa rusa | Cuerpo completo | Kettlebell | Intermedio | no | Cuerpo completo | Fuerza | Deltoides Anterior; Glúteo Mayor; Cuádriceps
+kettlebell-goblet-lunge | Zancada Goblet con Kettlebell | Glúteos | Kettlebell | Principiante | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+reverse-lunge | Zancada Inversa | Glúteos | Mancuerna | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+barbell-reverse-lunge | Zancada Inversa con Barra | Glúteos | Barra | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+kettlebell-reverse-lunge | Zancada Inversa con Kettlebell | Glúteos | Kettlebell | Principiante | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+kettlebell-offset-reverse-lunge-and-press | Zancada inversa con press desequilibrado de pesa rusa | Cuerpo completo | Kettlebell | Intermedio | no | Cuerpo completo | Fuerza | Deltoides Anterior; Glúteo Mayor; Cuádriceps
+side-lunge | Zancada Lateral | Glúteos | Peso corporal | Intermedio | sí | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+kettlebell-rotational-lunge | Zancada rotacional con pesa rusa | Glúteos | Kettlebell | Intermedio | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+trx-lunge | Zancada TRX | Glúteos | Suspensión TRX | Principiante | no | Piernas | Fuerza | Glúteo Mayor; Cuádriceps
+correr-en-cinta | Correr en cinta | Cardio | Cinta de correr | Principiante | no | Cuerpo completo | Cardio | Cuádriceps; Isquiotibiales; Glúteo Mayor; Gemelos
+caminar-en-cinta | Caminar en cinta | Cardio | Cinta de correr | Principiante | no | Cuerpo completo | Cardio | Cuádriceps; Isquiotibiales; Glúteo Mayor; Gemelos
+bicicleta-estatica | Bicicleta estática | Cardio | Bicicleta estática | Principiante | no | Cuerpo completo | Cardio | Cuádriceps; Glúteo Mayor; Isquiotibiales
+bicicleta-eliptica | Bicicleta elíptica | Cardio | Bicicleta elíptica | Principiante | no | Cuerpo completo | Cardio | Cuádriceps; Glúteo Mayor; Gemelos
+ergometro-remo | Ergómetro - remo | Cardio | Remo ergómetro | Principiante | no | Cuerpo completo | Cardio | Cuádriceps; Dorsal Ancho; Isquiotibiales</pre>
+
+      <h2>Fallbacks</h2>
+      <p>Si necesitas JSON estructurado, intenta <a href="../ai-context.json">ai-context.json</a>. Si necesitas el catálogo completo original, intenta <a href="../data/exercises.json">data/exercises.json</a>.</p>
+    </main>
+  </body>
+</html>

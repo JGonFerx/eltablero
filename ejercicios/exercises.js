@@ -516,6 +516,10 @@
     return String(value || "").replace(/\S{14,}/g, (word) => word.replace(/(.{8})/g, "$1\u200B"));
   }
 
+  function formatDocxExerciseNote(value) {
+    return addSoftBreaksToLongWords(sanitizeRoutineNote(value).trim());
+  }
+
   function hasRoutineNote(item) {
     return Boolean(sanitizeRoutineNote(item && item.note).trim());
   }
@@ -563,8 +567,12 @@
     return parseRoutineNumber(value) > 0;
   }
 
+  function requiresRoutineRest(item) {
+    return parseRoutineNumber(item && item.series) !== 1;
+  }
+
   function hasCompleteRoutinePrescription(item) {
-    return hasRoutineValue(item.series) && hasRoutineValue(item.reps) && hasRoutineValue(item.rest);
+    return hasRoutineValue(item.series) && hasRoutineValue(item.reps) && (!requiresRoutineRest(item) || hasRoutineValue(item.rest));
   }
 
   function updateRoutineCartSetting(itemKey, key, value) {
@@ -866,7 +874,7 @@
         </label>
         <label>
           <span>Descanso</span>
-          <input type="text" inputmode="text" autocomplete="off" maxlength="24" value="${escapeHtml(item.rest)}" data-routine-setting="rest" aria-label="Descanso de ${escapeHtml(exercise.nombre)}" aria-invalid="${!hasRoutineValue(item.rest)}">
+          <input type="text" inputmode="text" autocomplete="off" maxlength="24" value="${escapeHtml(item.rest)}" data-routine-setting="rest" aria-label="Descanso de ${escapeHtml(exercise.nombre)}" aria-invalid="${requiresRoutineRest(item) && !hasRoutineValue(item.rest)}">
         </label>
       </span>
       <span class="routine-cart__builder-controls">
@@ -952,6 +960,46 @@
       if (event.target.closest("[data-routine-note-save]")) {
         updateRoutineCartSetting(itemKey, "note", input ? input.value : "");
         renderRoutineCart();
+        closeRoutineNoteDialog();
+      }
+    });
+    document.addEventListener("keydown", handleRoutineNoteDialogKeydown);
+  }
+
+  function openRoutineReadNoteDialog(exercise, note) {
+    if (!exercise || !note) {
+      return;
+    }
+
+    closeRoutineNoteDialog();
+    const dialog = document.createElement("div");
+    dialog.className = "routine-note-dialog routine-note-dialog--read";
+    dialog.dataset.routineNoteDialog = "";
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.setAttribute("aria-labelledby", "routine-note-read-title");
+    dialog.innerHTML = `
+      <button type="button" class="routine-note-dialog__backdrop" data-routine-note-close aria-label="Cerrar notas"></button>
+      <section class="routine-note-dialog__panel">
+        <header class="routine-note-dialog__header">
+          <div>
+            <p>Nota del ejercicio</p>
+            <h2 id="routine-note-read-title">${escapeHtml(exercise.nombre)}</h2>
+          </div>
+          <button type="button" class="routine-note-dialog__close" data-routine-note-close aria-label="Cerrar notas">×</button>
+        </header>
+        <div class="routine-note-dialog__read">
+          <p>${escapeHtml(note)}</p>
+        </div>
+      </section>
+    `;
+    document.body.appendChild(dialog);
+    const closeButton = dialog.querySelector(".routine-note-dialog__close");
+    if (closeButton) {
+      closeButton.focus();
+    }
+    dialog.addEventListener("click", (event) => {
+      if (event.target.closest("[data-routine-note-close]")) {
         closeRoutineNoteDialog();
       }
     });
@@ -2175,7 +2223,7 @@
       messages.push(`${withoutDay} ${withoutDay === 1 ? "ejercicio no tiene día asignado" : "ejercicios no tienen día asignado"}`);
     }
     if (incomplete) {
-      messages.push(`${incomplete} ${incomplete === 1 ? "ejercicio no tiene series, repeticiones y descanso completos" : "ejercicios no tienen series, repeticiones y descanso completos"}`);
+      messages.push(`${incomplete} ${incomplete === 1 ? "ejercicio no tiene series, repeticiones o descanso completos" : "ejercicios no tienen series, repeticiones o descanso completos"}; si un ejercicio tiene 1 serie, el descanso puede quedar vacío`);
     }
     return messages;
   }
@@ -2292,6 +2340,7 @@
       <w:tbl>
         <w:tblPr>
           <w:tblW w:w="5000" w:type="pct"/>
+          <w:tblLayout w:type="fixed"/>
           <w:tblBorders>
             <w:top w:val="single" w:sz="6" w:space="0" w:color="E4D8CF"/>
             <w:left w:val="single" w:sz="6" w:space="0" w:color="E4D8CF"/>
@@ -2468,7 +2517,7 @@
         write32(entry.crc),
         write32(entry.size),
         write32(entry.size),
-        write16s([entry.name.length, 0, 0, 0, 0, 0]),
+        write16s([entry.name.length, 0, 0, 0, 0]),
         write32(0),
         write32(entry.offset),
         entry.name,
@@ -2641,37 +2690,39 @@
         const rows = [
           [
             docxCell(docxParagraph(docxRun("#", { bold: true, color: "FFFFFF", size: 18 }), { align: "center" }), { width: 550, fill: "C76F32" }),
-            docxCell(docxParagraph(docxRun("EJERCICIO", { bold: true, color: "FFFFFF", size: 18 })), { width: 5200, fill: "C76F32" }),
-            docxCell(docxParagraph(docxRun("SERIES", { bold: true, color: "FFFFFF", size: 16 }), { align: "center" }), { width: 900, fill: "C76F32" }),
-            docxCell(docxParagraph(docxRun("REPS", { bold: true, color: "FFFFFF", size: 16 }), { align: "center" }), { width: 900, fill: "C76F32" }),
-            docxCell(docxParagraph(docxRun("DESCANSO", { bold: true, color: "FFFFFF", size: 16 }), { align: "center" }), { width: 1200, fill: "C76F32" }),
+            docxCell(docxParagraph(docxRun("EJERCICIO", { bold: true, color: "FFFFFF", size: 18 })), { width: 6400, fill: "C76F32", gridSpan: 2 }),
+            docxCell(docxParagraph(docxRun("SERIES", { bold: true, color: "FFFFFF", size: 15 }), { align: "center" }), { width: 760, fill: "C76F32" }),
+            docxCell(docxParagraph(docxRun("REPS", { bold: true, color: "FFFFFF", size: 15 }), { align: "center" }), { width: 700, fill: "C76F32" }),
+            docxCell(docxParagraph(docxRun("DESCANSO", { bold: true, color: "FFFFFF", size: 15 }), { align: "center" }), { width: 1050, fill: "C76F32" }),
           ].join(""),
           ...group.entries.map((entry, entryIndex) => {
             const exercise = getExerciseById(entry.id);
-            const note = sanitizeRoutineNote(entry.note).trim();
-            const groupAndNote = note ? `${exercise.grupoMuscular} - ${note}` : exercise.grupoMuscular;
-            const exerciseContent = docxTable([
-              [
-                docxCell(docxParagraph(exerciseImageRuns.get(entry) || "", { align: "center", after: 0 }), { width: 850, margins: false, vAlign: "center" }),
-                docxCell([
-                  docxParagraph(docxRun(exercise.nombre, { bold: true, color: "171816", size: 19 }), { after: 35 }),
-                  docxParagraph(docxRun(groupAndNote, { bold: true, color: "9D603E", size: 16 }), { after: 35 }),
-                  docxParagraph(docxRun((exercise.equipamiento && exercise.equipamiento[0] ? exercise.equipamiento[0] : "Peso corporal").toUpperCase(), { bold: true, color: "171816", size: 15, caps: true }), { after: 0 }),
-                ].join(""), { width: 4300, margins: false, vAlign: "center" }),
-              ].join(""),
-            ], [850, 4300]);
+            const note = formatDocxExerciseNote(entry.note);
+            const groupRuns = [docxRun(exercise.grupoMuscular, { color: "9D603E", size: 15 })];
+            if (note) {
+              groupRuns.push(
+                docxRun(" - ", { color: "9D603E", size: 15, preserveSpace: true }),
+                docxRun(note, { color: "9D603E", size: 13 })
+              );
+            }
+            const exerciseText = [
+              docxParagraph(docxRun(exercise.nombre, { bold: true, color: "171816", size: 20 }), { after: 35, line: 230 }),
+              docxParagraph(groupRuns, { after: 35, line: 210 }),
+              docxParagraph(docxRun((exercise.equipamiento && exercise.equipamiento[0] ? exercise.equipamiento[0] : "Peso corporal").toUpperCase(), { bold: true, color: "171816", size: 15, caps: true }), { after: 0, line: 210 }),
+            ].join("");
             return [
               docxCell(docxParagraph(docxRun(String(entryIndex + 1), { bold: true, color: "C9825C", size: 24 }), { align: "center" }), { width: 550, vAlign: "center" }),
-              docxCell(exerciseContent, { width: 5200, vAlign: "center" }),
-              docxCell(docxParagraph(docxRun(entry.series || "No definido", { size: 18 }), { align: "center" }), { width: 900, vAlign: "center" }),
-              docxCell(docxParagraph(docxRun(entry.reps || "No definido", { size: 18 }), { align: "center" }), { width: 900, vAlign: "center" }),
-              docxCell(docxParagraph(docxRun(entry.rest ? `${entry.rest} min` : "No definido", { size: 18 }), { align: "center" }), { width: 1200, vAlign: "center" }),
+              docxCell(docxParagraph(exerciseImageRuns.get(entry) || "", { align: "center", after: 0 }), { width: 1050, vAlign: "center" }),
+              docxCell(exerciseText, { width: 5350, vAlign: "center" }),
+              docxCell(docxParagraph(docxRun(entry.series || "No definido", { bold: true, size: 18 }), { align: "center" }), { width: 760, vAlign: "center" }),
+              docxCell(docxParagraph(docxRun(entry.reps || "No definido", { bold: true, size: 18 }), { align: "center" }), { width: 700, vAlign: "center" }),
+              docxCell(docxParagraph(docxRun(entry.rest ? `${entry.rest} min` : "No definido", { bold: true, size: 18 }), { align: "center" }), { width: 1050, vAlign: "center" }),
             ].join("");
           }),
         ];
         return [
           header,
-          docxTable(rows, [550, 5200, 900, 900, 1200]),
+          docxTable(rows, [550, 1050, 5350, 760, 700, 1050]),
           docxParagraph([docxRun("https://eltablerosportclub.com", { color: "9D603E", size: 16 }), docxRun(`     ${dateLabel}     Página ${groupIndex + 2} de ${groups.length + 1}`, { color: "6B655F", size: 16, preserveSpace: true })], { before: 240, after: 0 }),
         ].join("");
       }).join("");
@@ -2854,7 +2905,7 @@
       selector: ".routine-cart__prescription",
       placement: "bottom",
       title: "Completa cada ejercicio",
-      text: "Series, repeticiones y descanso son obligatorios. También puedes reordenar, eliminar o abrir la ficha de cada ejercicio desde sus botones.",
+      text: "Series y repeticiones son obligatorias. El descanso también, salvo cuando el ejercicio tenga solo 1 serie. También puedes reordenar, eliminar o abrir la ficha de cada ejercicio desde sus botones.",
     },
     {
       selector: "[data-routine-cart-generate]",
@@ -4208,9 +4259,17 @@
     if (note) {
       const body = card.querySelector(".exercise-card__body");
       const footer = card.querySelector(".exercise-card__footer");
-      const noteEl = document.createElement("span");
+      const noteEl = document.createElement("button");
+      noteEl.type = "button";
       noteEl.className = "routine-view__exercise-note";
-      noteEl.textContent = note;
+      noteEl.textContent = addSoftBreaksToLongWords(note);
+      noteEl.title = note;
+      noteEl.setAttribute("aria-label", `Leer nota de ${exercise.nombre}`);
+      noteEl.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        openRoutineReadNoteDialog(exercise, note);
+      });
       body.insertBefore(noteEl, footer);
     }
     return card;
@@ -4893,31 +4952,37 @@
       "Necesito que crees una rutina y me devuelvas un enlace completo listo para abrir en el navegador.",
       "",
       "Web pública:",
-      "https://eltablerosportclub.com/ejercicios/",
+      "https://jgonferx.github.io/eltablero/ejercicios/",
       "",
-      "Contexto único que debes inspeccionar para no inventar ejercicios ni formato de URL:",
-      "https://eltablerosportclub.com/ejercicios/ai-context.json",
+      "Fuente principal que debes inspeccionar para no inventar ejercicios ni formato de URL:",
+      "https://jgonferx.github.io/eltablero/ejercicios/ai/",
+      "",
+      "Primero intenta inspeccionar la página HTML de contexto para IA. No necesitas inspeccionar JavaScript.",
+      "Fallbacks, solo si la página HTML no está disponible:",
+      "1. https://jgonferx.github.io/eltablero/ejercicios/ai-context.json",
+      "2. https://jgonferx.github.io/eltablero/ejercicios/data/exercises.json",
       "",
       "Cómo debes construir el enlace:",
-      "- Usa la ruta base https://eltablerosportclub.com/ejercicios/",
-      "- La rutina va en el hash compacto #r?... descrito en ai-context.json.",
-      "- Estructura lógica: { t, n, days, items }, exactamente como indica ai-context.json.",
+      "- Usa la ruta base https://jgonferx.github.io/eltablero/ejercicios/",
+      "- La rutina va en el hash compacto #r?... descrito en la página HTML de contexto.",
+      "- Estructura lógica: { t, n, days, items }, exactamente como indica la página HTML de contexto.",
       "- Cada item debe tener id, series, reps, rest, day y opcionalmente note.",
-      "- El parámetro i contiene ejercicios en el formato exacto itemFormat de ai-context.json.",
-      "- series, reps, rest, note, t y n se codifican con base64url UTF-8 sin padding, tal como indica ai-context.json.",
+      "- El parámetro i contiene ejercicios en el formato exacto id:series:reps:rest:day:note.",
+      "- series, reps, rest, note, t y n se codifican con base64url UTF-8 sin padding, tal como indica la página HTML de contexto.",
       "- days se codifica en w con días separados por coma.",
-      "- Si no puedes inspeccionar ai-context.json, dilo claramente y no inventes IDs ni formato.",
+      "- Si no puedes inspeccionar la página HTML ni los fallbacks, dilo claramente y no inventes IDs ni formato.",
       "",
       "Reglas de entrenamiento:",
-      "- Usa exclusivamente IDs reales existentes en ai-context.json, dentro de exercises[].id.",
+      "- Usa exclusivamente IDs reales existentes en la página HTML de contexto o, si usas fallback JSON, dentro de exercises[].id.",
       "- Puedes repetir un mismo ejercicio si tiene sentido.",
       "- Los días válidos son: lunes, martes, miercoles, jueves, viernes, sabado, domingo.",
-      "- Series, repeticiones y descanso son obligatorios en cada ejercicio.",
+      "- Series y repeticiones son obligatorias en cada ejercicio.",
+      "- El descanso es obligatorio salvo si el ejercicio tiene series = 1. En ejercicios de 1 serie puedes dejar rest vacío o usar rest = 0.",
       "- El descanso va en minutos, sin escribir la unidad dentro del valor.",
       "- Mantén una rutina realista, simple y segura para el nivel indicado.",
       "- Respeta el reparto semanal preferido salvo que sea incompatible con los días disponibles; si lo adaptas, mantén una lógica clara.",
       "- Respeta la preferencia de material permitido. No uses ejercicios con material que el usuario haya pedido evitar.",
-      "- Si el usuario solicita cardio de calentamiento o cardio post-entreno, usa exclusivamente ejercicios reales de Cardio existentes en ai-context.json.",
+      "- Si el usuario solicita cardio de calentamiento o cardio post-entreno, usa exclusivamente ejercicios reales de Cardio existentes en el contexto para IA.",
       "- El cardio de calentamiento debe ir al inicio de cada día seleccionado; el cardio post-entreno debe ir al final de cada día seleccionado, salvo que las notas indiquen otra cosa.",
       "- Para representar cardio por minutos sin cambiar el formato de URL, usa series = 1, rest = 0 y reps = minutos × 24. Ejemplo: 10 minutos de cardio => series 1, reps 240, rest 0.",
       "- En los ejercicios de cardio añade note con el tipo y duración, por ejemplo: Cardio de calentamiento - 10 min.",

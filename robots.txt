@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://eltablerosportclub.com/sitemap.xml
+Sitemap: https://jgonferx.github.io/eltablero/sitemap.xml
