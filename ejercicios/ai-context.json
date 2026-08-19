@@ -1,10 +1,10 @@
 {
   "version": 2,
   "purpose": "Contexto estático para que ChatGPT u otros LLMs generen enlaces compactos de rutinas de El Tablero Sport Club sin inspeccionar JavaScript.",
-  "canonicalUrl": "https://jgonferx.github.io/eltablero/ejercicios/ai-context.json",
-  "htmlContextUrl": "https://jgonferx.github.io/eltablero/ejercicios/ai/",
-  "appBaseUrl": "https://jgonferx.github.io/eltablero/ejercicios/",
-  "catalogUrl": "https://jgonferx.github.io/eltablero/ejercicios/data/exercises.json",
+  "canonicalUrl": "https://eltablerosportclub.com/ejercicios/ai-context.json",
+  "htmlContextUrl": "https://eltablerosportclub.com/ejercicios/ai/",
+  "appBaseUrl": "https://eltablerosportclub.com/ejercicios/",
+  "catalogUrl": "https://eltablerosportclub.com/ejercicios/data/exercises.json",
   "catalogSource": {
     "path": "./data/exercises.json",
     "sourceMeta": {
@@ -42,7 +42,7 @@
       "trailingEmptyFields": "Routines.encode elimina campos vacíos finales de cada item."
     },
     "hashPrefix": "#r?",
-    "fullUrlPattern": "https://jgonferx.github.io/eltablero/ejercicios/#r?i=<items>&w=<days>&t=<title>&n=<notes>",
+    "fullUrlPattern": "https://eltablerosportclub.com/ejercicios/#r?i=<items>&w=<days>&t=<title>&n=<notes>",
     "parameters": {
       "i": {
         "name": "items",
@@ -6648,7 +6648,7 @@
         }
       ]
     },
-    "url": "https://jgonferx.github.io/eltablero/ejercicios/#r?i=jackknife-sit-up:Mw:MTA:Mg:lunes:Q29udHJvbGEgbGEgdMOpY25pY2EgeSBldml0YSBpbXB1bHNvcy4,sit-ups:NA:MTI:MS41:miercoles:w5psdGltYSBzZXJpZSBjb24gbWFyZ2VuLg,side-lying-hip-abduction:Mg:MTU:MQ:viernes:UmFuZ28gY8OzbW9kbywgc2luIGRvbG9yLg&t=UnV0aW5hIGRlIHBydWViYSBjb24gw7E&w=lunes,miercoles,viernes&n=Tm90YXMgZ2VuZXJhbGVzOiB0w6ljbmljYSwgY29udHJvbCB5IHJlc3BpcmFjacOzbi4",
+    "url": "https://eltablerosportclub.com/ejercicios/#r?i=jackknife-sit-up:Mw:MTA:Mg:lunes:Q29udHJvbGEgbGEgdMOpY25pY2EgeSBldml0YSBpbXB1bHNvcy4,sit-ups:NA:MTI:MS41:miercoles:w5psdGltYSBzZXJpZSBjb24gbWFyZ2VuLg,side-lying-hip-abduction:Mg:MTU:MQ:viernes:UmFuZ28gY8OzbW9kbywgc2luIGRvbG9yLg&t=UnV0aW5hIGRlIHBydWViYSBjb24gw7E&w=lunes,miercoles,viernes&n=Tm90YXMgZ2VuZXJhbGVzOiB0w6ljbmljYSwgY29udHJvbCB5IHJlc3BpcmFjacOzbi4",
     "decoded": {
       "t": "Rutina de prueba con ñ",
       "n": "Notas generales: técnica, control y respiración.",

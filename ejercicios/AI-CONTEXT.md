@@ -5,13 +5,13 @@
 Fuente principal para modelos con navegacion web basica:
 
 ```text
-https://jgonferx.github.io/eltablero/ejercicios/ai/
+https://eltablerosportclub.com/ejercicios/ai/
 ```
 
 Fallback JSON estructurado:
 
 ```text
-https://jgonferx.github.io/eltablero/ejercicios/ai-context.json
+https://eltablerosportclub.com/ejercicios/ai-context.json
 ```
 
 La pagina HTML contiene directamente:
@@ -45,5 +45,5 @@ ejercicios/ai/index.html
 Prompt recomendado para herramientas externas:
 
 ```text
-Primero intenta inspeccionar la página HTML de contexto para IA: https://jgonferx.github.io/eltablero/ejercicios/ai/. No necesitas inspeccionar JavaScript. Si no puedes abrirla, usa como fallback https://jgonferx.github.io/eltablero/ejercicios/ai-context.json y, solo si hace falta, https://jgonferx.github.io/eltablero/ejercicios/data/exercises.json. Genera un enlace valido de rutina para https://jgonferx.github.io/eltablero/ejercicios/ usando exclusivamente IDs reales y el protocolo de codificacion descrito.
+Primero intenta inspeccionar la página HTML de contexto para IA: https://eltablerosportclub.com/ejercicios/ai/. No necesitas inspeccionar JavaScript. Si no puedes abrirla, usa como fallback https://eltablerosportclub.com/ejercicios/ai-context.json y, solo si hace falta, https://eltablerosportclub.com/ejercicios/data/exercises.json. Genera un enlace valido de rutina para https://eltablerosportclub.com/ejercicios/ usando exclusivamente IDs reales y el protocolo de codificacion descrito.
 ```

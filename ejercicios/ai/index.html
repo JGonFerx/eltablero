@@ -6,7 +6,7 @@
     <title>Contexto para IA — Rutinas El Tablero Sport Club</title>
     <meta name="description" content="Catálogo y protocolo para que ChatGPT y otros modelos generen URLs de rutinas compatibles con El Tablero Sport Club.">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://jgonferx.github.io/eltablero/ejercicios/ai/">
+    <link rel="canonical" href="https://eltablerosportclub.com/ejercicios/ai/">
     <style>
       body{margin:0;background:#fbfaf6;color:#171816;font-family:Arial,system-ui,sans-serif;line-height:1.55}
       main{max-width:1120px;margin:0 auto;padding:32px 20px 56px}
@@ -28,20 +28,20 @@
       <p>La información fundamental está escrita directamente en este HTML. Si tu herramienta puede leer HTML básico, puede crear enlaces válidos <code>#r?...</code>.</p>
 
       <section class="summary" aria-label="Resumen">
-        <div><span class="label">Base URL</span>https://jgonferx.github.io/eltablero/ejercicios/</div>
+        <div><span class="label">Base URL</span>https://eltablerosportclub.com/ejercicios/</div>
         <div><span class="label">Ejercicios</span>405</div>
         <div><span class="label">Días válidos</span>lunes, martes, miercoles, jueves, viernes, sabado, domingo</div>
       </section>
 
       <h2>Protocolo de rutinas</h2>
       <pre>FUENTE PRINCIPAL PARA LLMs
-Base URL de la aplicación: https://jgonferx.github.io/eltablero/ejercicios/
-URL de esta página HTML: https://jgonferx.github.io/eltablero/ejercicios/ai/
-Fallback JSON estructurado: https://jgonferx.github.io/eltablero/ejercicios/ai-context.json
-Fallback catálogo real completo: https://jgonferx.github.io/eltablero/ejercicios/data/exercises.json
+Base URL de la aplicación: https://eltablerosportclub.com/ejercicios/
+URL de esta página HTML: https://eltablerosportclub.com/ejercicios/ai/
+Fallback JSON estructurado: https://eltablerosportclub.com/ejercicios/ai-context.json
+Fallback catálogo real completo: https://eltablerosportclub.com/ejercicios/data/exercises.json
 
 FORMATO DE URL
-URL final = https://jgonferx.github.io/eltablero/ejercicios/#r?i=&lt;items&gt;&amp;w=&lt;days&gt;&amp;t=&lt;title&gt;&amp;n=&lt;notes&gt;
+URL final = https://eltablerosportclub.com/ejercicios/#r?i=&lt;items&gt;&amp;w=&lt;days&gt;&amp;t=&lt;title&gt;&amp;n=&lt;notes&gt;
 Parámetro i: lista de ejercicios separados por coma.
 Formato de cada ejercicio: id:series:reps:rest:day:note
 id: encodeURIComponent(id real del catálogo).
@@ -72,7 +72,7 @@ REGLAS PARA CREAR RUTINAS
 - Duración por día = suma de segundos de los ejercicios del día / 60, redondeada al minuto más cercano.
 
 EJEMPLO VALIDADO POR Routines.decode
-https://jgonferx.github.io/eltablero/ejercicios/#r?i=jackknife-sit-up:Mw:MTA:Mg:lunes:Q29udHJvbGEgbGEgdMOpY25pY2EgeSBldml0YSBpbXB1bHNvcy4,sit-ups:NA:MTI:MS41:miercoles:w5psdGltYSBzZXJpZSBjb24gbWFyZ2VuLg,side-lying-hip-abduction:Mg:MTU:MQ:viernes:UmFuZ28gY8OzbW9kbywgc2luIGRvbG9yLg&amp;t=UnV0aW5hIGRlIHBydWViYSBjb24gw7E&amp;w=lunes,miercoles,viernes&amp;n=Tm90YXMgZ2VuZXJhbGVzOiB0w6ljbmljYSwgY29udHJvbCB5IHJlc3BpcmFjacOzbi4</pre>
+https://eltablerosportclub.com/ejercicios/#r?i=jackknife-sit-up:Mw:MTA:Mg:lunes:Q29udHJvbGEgbGEgdMOpY25pY2EgeSBldml0YSBpbXB1bHNvcy4,sit-ups:NA:MTI:MS41:miercoles:w5psdGltYSBzZXJpZSBjb24gbWFyZ2VuLg,side-lying-hip-abduction:Mg:MTU:MQ:viernes:UmFuZ28gY8OzbW9kbywgc2luIGRvbG9yLg&amp;t=UnV0aW5hIGRlIHBydWViYSBjb24gw7E&amp;w=lunes,miercoles,viernes&amp;n=Tm90YXMgZ2VuZXJhbGVzOiB0w6ljbmljYSwgY29udHJvbCB5IHJlc3BpcmFjacOzbi4</pre>
 
       <h2>Catálogo compacto completo</h2>
       <p>Formato de cada línea: <code>id | name | primaryGroup | equipment | difficulty | bodyweight | bodyPart | category | primaryMuscles</code>.</p>
