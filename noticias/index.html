@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, follow">
+    <title>Noticias | El Tablero Sport Club</title>
+    <meta name="description" content="La sección de noticias antiguas ya no está disponible. Consulta horario, tarifas o contacto de El Tablero Sport Club.">
+    <link rel="canonical" href="https://eltablerosportclub.com/">
+    <link rel="icon" href="../assets/icons/favicon.png" type="image/png">
+    <link rel="stylesheet" href="../assets/css/tokens.css">
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <style>
+      body {
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        margin: 0;
+        background: radial-gradient(circle at 78% 18%, rgba(201, 130, 92, 0.16), transparent 24rem), #fbfaf6;
+        color: #171816;
+      }
+
+      .compat-shell {
+        width: min(100% - 2rem, 54rem);
+        padding: clamp(2rem, 6vw, 4rem);
+      }
+
+      .compat-kicker {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0 0 1rem;
+        color: #9d603e;
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .compat-kicker::before {
+        content: "";
+        width: 2.4rem;
+        height: 2px;
+        background: currentColor;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.4rem, 7vw, 5rem);
+        letter-spacing: -0.05em;
+        line-height: 0.95;
+      }
+
+      p {
+        max-width: 44rem;
+        margin: 1rem 0 0;
+        color: #5f5b55;
+        font-size: clamp(1rem, 1.5vw, 1.18rem);
+        line-height: 1.55;
+      }
+
+      .compat-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="compat-shell">
+      <p class="compat-kicker">Noticias</p>
+      <h1>La sección de noticias antiguas ya no está disponible</h1>
+      <p>La nueva web concentra la información útil del club en sus secciones principales. Puedes consultar horarios, tarifas o contactar directamente con El Tablero Sport Club.</p>
+      <div class="compat-actions" aria-label="Secciones principales">
+        <a class="button" href="../horarios/index.html">Ver horario</a>
+        <a class="button button-secondary" href="../gimnasio/index.html#tarifas">Tarifas abonados</a>
+        <a class="button button-secondary" href="../padel/index.html#tarifas">Tarifas pádel</a>
+        <a class="button button-secondary" href="../contacto/index.html">Contacto</a>
+      </div>
+    </main>
+  </body>
+</html>
