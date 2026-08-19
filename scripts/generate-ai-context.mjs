@@ -11,7 +11,7 @@ const jsonOutputPath = path.join(rootDir, "ejercicios", "ai-context.json");
 const htmlOutputDir = path.join(rootDir, "ejercicios", "ai");
 const htmlOutputPath = path.join(htmlOutputDir, "index.html");
 
-const publicBaseUrl = (process.env.EL_TABLERO_PUBLIC_BASE_URL || "https://jgonferx.github.io/eltablero").replace(/\/+$/, "");
+const publicBaseUrl = (process.env.EL_TABLERO_PUBLIC_BASE_URL || "https://eltablerosportclub.com").replace(/\/+$/, "");
 const appBaseUrl = `${publicBaseUrl}/ejercicios/`;
 const aiHtmlUrl = `${appBaseUrl}ai/`;
 const aiJsonUrl = `${appBaseUrl}ai-context.json`;

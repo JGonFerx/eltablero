@@ -1,10 +1,10 @@
 # El Tablero Sport Club
 
 Contexto para generar rutinas con IA:
-https://jgonferx.github.io/eltablero/ejercicios/ai/
+https://eltablerosportclub.com/ejercicios/ai/
 
 Fallback JSON:
-https://jgonferx.github.io/eltablero/ejercicios/ai-context.json
+https://eltablerosportclub.com/ejercicios/ai-context.json
 
 Catalogo real:
-https://jgonferx.github.io/eltablero/ejercicios/data/exercises.json
+https://eltablerosportclub.com/ejercicios/data/exercises.json

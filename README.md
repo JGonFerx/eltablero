@@ -254,13 +254,13 @@ La integracion de crear rutinas con IA no debe pedir a un modelo que interprete 
 Fuente principal para modelos con navegacion web basica:
 
 ```text
-https://jgonferx.github.io/eltablero/ejercicios/ai/
+https://eltablerosportclub.com/ejercicios/ai/
 ```
 
 Fallback estructurado:
 
 ```text
-https://jgonferx.github.io/eltablero/ejercicios/ai-context.json
+https://eltablerosportclub.com/ejercicios/ai-context.json
 ```
 
 La pagina HTML contiene directamente el protocolo, los IDs reales, los dias validos y el catalogo compacto necesario para generar enlaces `#r?...` compatibles con `window.Routines.encode`, sin ejecutar JavaScript. El JSON mantiene la misma informacion en formato estructurado.
