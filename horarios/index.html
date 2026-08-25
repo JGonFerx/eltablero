@@ -438,28 +438,35 @@
         line-height: 1.45;
       }
 
-      .schedule-cta-section {
-        position: relative;
-        padding: clamp(2rem, 4vw, 3.25rem) var(--page-gutter) clamp(3rem, 6vw, 5rem);
-      }
-
       .schedule-classes-section {
+        --schedule-classes-orange: #c9825c;
+        --schedule-classes-orange-deep: #a95732;
         position: relative;
+        overflow: hidden;
+        isolation: isolate;
         padding: clamp(2rem, 4vw, 3.25rem) var(--page-gutter) clamp(3rem, 6vw, 5rem);
+        background:
+          radial-gradient(circle at 82% 14%, rgba(251, 250, 246, 0.32), transparent 21rem),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 42%),
+          linear-gradient(135deg, var(--schedule-classes-orange), var(--schedule-classes-orange-deep));
       }
 
-      .schedule-classes-section::before,
-      .schedule-cta-section::before {
+      .schedule-classes-section::before {
         content: "";
         position: absolute;
-        top: 0;
-        left: 50%;
-        width: min(calc(100% - (var(--page-gutter) * 2)), var(--container-max));
-        height: 3px;
-        transform: translateX(-50%);
-        background:
-          linear-gradient(90deg, transparent 0%, rgba(23, 24, 22, 0.12) 11%, rgba(23, 24, 22, 0.28) 42%, rgba(201, 130, 92, 0.95) 50%, rgba(23, 24, 22, 0.28) 58%, rgba(23, 24, 22, 0.12) 89%, transparent 100%);
-        opacity: 0.95;
+        inset: 0;
+        z-index: 0;
+        background-image:
+          linear-gradient(rgba(18, 15, 12, 0.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(18, 15, 12, 0.055) 1px, transparent 1px);
+        background-size: clamp(3.75rem, 8vw, 6rem) clamp(3.75rem, 8vw, 6rem);
+        opacity: 0.42;
+        pointer-events: none;
+      }
+
+      .schedule-classes-section > * {
+        position: relative;
+        z-index: 1;
       }
 
       .schedule-classes {
@@ -608,9 +615,9 @@
           position: relative;
           z-index: 1;
           border-color: rgba(201, 130, 92, 0.46);
-          background:
-            linear-gradient(180deg, rgba(201, 130, 92, 0.12), rgba(251, 250, 246, 0.04)),
-            rgba(251, 250, 246, 0.035);
+          outline: 1px solid rgba(201, 130, 92, 0.62);
+          outline-offset: -1px;
+          box-shadow: inset 0 0 0 1px rgba(201, 130, 92, 0.2);
         }
       }
 
@@ -1036,7 +1043,7 @@
           <nav class="site-nav" aria-label="Principal">
             <ul class="site-nav__list">
               <li class="site-nav__item"><a class="site-nav__link" href="../index.html">Inicio</a></li>
-              <li class="site-nav__item nav-dropdown" data-dropdown><button class="site-nav__button" type="button" data-dropdown-button aria-controls="nav-services-concept" aria-expanded="false">Servicios y tarifas</button><div class="nav-dropdown__panel" id="nav-services-concept"><a href="../gimnasio/index.html">Sala fitness</a><a href="../padel/index.html">Pádel</a></div></li>
+              <li class="site-nav__item nav-dropdown" data-dropdown><button class="site-nav__button" type="button" data-dropdown-button aria-controls="nav-services-concept" aria-expanded="false">Servicios y tarifas</button><div class="nav-dropdown__panel" id="nav-services-concept"><a href="../gimnasio/index.html">Fitness</a><a href="../padel/index.html">Pádel</a></div></li>
               <li class="site-nav__item"><a class="site-nav__link" href="../horarios/index.html" aria-current="page">Horario</a></li>
               <li class="site-nav__item"><a class="site-nav__link" href="../contacto/index.html">Contacto</a></li>
               <li class="site-nav__item"><a class="site-nav__link site-nav__link--cta" href="../contacto/index.html" data-booking-trigger>Reserva pista</a></li>
@@ -1066,7 +1073,7 @@
               <li class="mobile-nav__accordion" data-mobile-accordion>
                 <button type="button" data-accordion-button aria-expanded="false" aria-controls="mobile-services">Servicios y tarifas</button>
                 <ul class="mobile-subnav" id="mobile-services" role="list" data-accordion-panel hidden>
-                  <li><a href="../gimnasio/index.html">Sala fitness</a></li>
+                  <li><a href="../gimnasio/index.html">Fitness</a></li>
                   <li><a href="../padel/index.html">Pádel</a></li>
                 </ul>
               </li>
@@ -1143,7 +1150,7 @@
               <h2 id="schedule-classes-title">Calendario de clases</h2>
               <p>Consulta los horarios de las clases disponibles durante la semana.</p>
             </div>
-            <div class="class-calendar" data-class-calendar data-calendar-default-class="Hybrid" data-calendar-valid-until="2026-08-31" data-calendar-events='{"1":[{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"2":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"19:30 - 20:30"},{"name":"Hybrid","detail":"20:30 - 21:30"},{"name":"Hybrid","detail":"21:30 - 22:30"}],"3":[{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"4":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"19:30 - 20:30"},{"name":"Hybrid","detail":"20:30 - 21:30"},{"name":"Hybrid","detail":"21:30 - 22:30"}]}' data-reveal style="--reveal-delay: 150ms;">
+            <div class="class-calendar" data-class-calendar data-calendar-default-class="Hybrid" data-calendar-periods='[{"months":[7,8],"events":{"1":[{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"2":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"19:30 - 20:30"},{"name":"Hybrid","detail":"20:30 - 21:30"},{"name":"Hybrid","detail":"21:30 - 22:30"}],"3":[{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"4":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"19:30 - 20:30"},{"name":"Hybrid","detail":"20:30 - 21:30"},{"name":"Hybrid","detail":"21:30 - 22:30"}]}},{"months":[1,2,3,4,5,6,9,10,11,12],"events":{"1":[{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"2":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"18:00 - 19:00"},{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"3":[{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"4":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"18:00 - 19:00"},{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}]}}]' data-reveal style="--reveal-delay: 150ms;">
               <div class="class-calendar__toolbar">
                 <div class="class-calendar__heading">
                   <p class="class-calendar__eyebrow">Agenda</p>
@@ -1161,24 +1168,6 @@
           </div>
         </section>
 
-        <section class="schedule-cta-section" aria-labelledby="schedule-cta-title">
-          <div class="schedule-general__inner">
-            <div class="schedule-cta" data-reveal>
-              <div class="schedule-cta__media" aria-hidden="true">
-                <img src="../imagenes/carruselgym/IMG_6027.webp" srcset="../imagenes/carruselgym/thumbs/IMG_6027.webp 960w, ../imagenes/carruselgym/IMG_6027.webp 1800w" sizes="(max-width: 860px) calc(100vw - 2rem), 50vw" alt="" width="1200" height="900" loading="lazy" decoding="async">
-                <img src="../imagenes/carruselpadel/IMG_8821.webp" srcset="../imagenes/carruselpadel/thumbs/IMG_8821.webp 960w, ../imagenes/carruselpadel/IMG_8821.webp 1800w" sizes="(max-width: 860px) calc(100vw - 2rem), 50vw" alt="" width="1200" height="900" loading="lazy" decoding="async">
-              </div>
-              <div class="schedule-cta__content">
-                <h2 id="schedule-cta-title">Tarifas del club</h2>
-                <p>Consulta las tarifas de gimnasio y pádel de El Tablero Sport Club.</p>
-              </div>
-              <div class="schedule-cta__actions">
-                <a class="button" href="../gimnasio/index.html#tarifas">Tarifas gimnasio</a>
-                <a class="button-ghost" href="../padel/index.html#tarifas">Tarifas pádel</a>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       <nav class="mobile-sticky-actions" data-mobile-sticky-actions aria-label="Accesos rápidos móviles">

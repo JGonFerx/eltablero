@@ -1340,13 +1340,23 @@
     const todayButton = calendar.querySelector("[data-calendar-today]");
     const classFilterButtons = Array.from(calendar.querySelectorAll("[data-calendar-class]"));
     let calendarEvents = null;
+    let calendarPeriods = null;
     try {
       calendarEvents = calendar.dataset.calendarEvents ? JSON.parse(calendar.dataset.calendarEvents) : null;
     } catch (error) {
       calendarEvents = null;
     }
-    const configuredClassNames = calendarEvents
-      ? Array.from(new Set(Object.values(calendarEvents).flat().map((event) => event.name).filter(Boolean)))
+    try {
+      calendarPeriods = calendar.dataset.calendarPeriods ? JSON.parse(calendar.dataset.calendarPeriods) : null;
+    } catch (error) {
+      calendarPeriods = null;
+    }
+    const eventCollections = [
+      ...(calendarEvents ? [calendarEvents] : []),
+      ...(Array.isArray(calendarPeriods) ? calendarPeriods.map((period) => period.events).filter(Boolean) : [])
+    ];
+    const configuredClassNames = eventCollections.length
+      ? Array.from(new Set(eventCollections.flatMap((events) => Object.values(events).flat().map((event) => event.name).filter(Boolean))))
       : [];
     const filterClassNames = classFilterButtons.map((button) => button.dataset.calendarClass).filter(Boolean);
     const classNames = filterClassNames.length || configuredClassNames.length
@@ -1374,6 +1384,7 @@
     let activeDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     let activeView = "week";
     let selectedMobileDateKey = "";
+    const calendarValidFrom = calendar.dataset.calendarValidFrom || "";
     const calendarValidUntil = calendar.dataset.calendarValidUntil || "";
     const mobilePanelId = calendar.id ? `${calendar.id}-mobile-day` : `class-calendar-${calendarIndex}-mobile-day`;
 
@@ -1413,11 +1424,28 @@
     };
 
     const getEventsForDate = (date) => {
-      if (calendarValidUntil && formatDateKey(date) > calendarValidUntil) {
+      const dateKey = formatDateKey(date);
+      const day = date.getDay();
+
+      if (Array.isArray(calendarPeriods) && calendarPeriods.length) {
+        const dateMonth = date.getMonth() + 1;
+        const matchingPeriod = calendarPeriods.find((period) => {
+          const periodMonths = Array.isArray(period.months) ? period.months.map(Number) : null;
+          const matchesMonth = !periodMonths || periodMonths.includes(dateMonth);
+          const matchesDate = (!period.from || dateKey >= period.from) && (!period.until || dateKey <= period.until);
+
+          return matchesMonth && matchesDate;
+        });
+
+        return matchingPeriod?.events
+          ? (matchingPeriod.events[String(day)] || []).filter((event) => visibleClasses.has(event.name))
+          : [];
+      }
+
+      if ((calendarValidFrom && dateKey < calendarValidFrom) || (calendarValidUntil && dateKey > calendarValidUntil)) {
         return [];
       }
 
-      const day = date.getDay();
       if (calendarEvents) {
         return (calendarEvents[String(day)] || []).filter((event) => visibleClasses.has(event.name));
       }

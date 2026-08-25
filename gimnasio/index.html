@@ -610,7 +610,7 @@
         font-size: clamp(1.65rem, 3.25vw, 3.45rem);
       }
 
-      .concept-section .concept-inline-section .concept-kicker {
+      .concept-inline-section .concept-kicker {
         color: rgba(251, 250, 246, 0.62);
       }
 
@@ -622,6 +622,7 @@
       .gym-pricing {
         position: relative;
         isolation: isolate;
+        margin-top: 0;
         scroll-margin-top: calc(var(--header-height) + clamp(2rem, 5vw, 3.5rem));
       }
 
@@ -1209,6 +1210,64 @@
         padding-top: clamp(2.4rem, 5vw, 4rem);
       }
 
+      #clases.concept-section--dark {
+        --classes-orange: #c9825c;
+        --classes-orange-deep: #a95732;
+        --classes-ink: #120f0c;
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        border-color: rgba(18, 15, 12, 0.16);
+        background:
+          radial-gradient(circle at 82% 14%, rgba(251, 250, 246, 0.32), transparent 21rem),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 42%),
+          linear-gradient(135deg, var(--classes-orange), var(--classes-orange-deep));
+        color: var(--classes-ink);
+      }
+
+      #clases.concept-section--dark::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background-image:
+          linear-gradient(rgba(18, 15, 12, 0.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(18, 15, 12, 0.055) 1px, transparent 1px);
+        background-size: clamp(3.75rem, 8vw, 6rem) clamp(3.75rem, 8vw, 6rem);
+        opacity: 0.42;
+        pointer-events: none;
+      }
+
+      #clases.concept-section--dark > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      #clases .concept-kicker {
+        color: #120f0c;
+        font-size: clamp(0.82rem, 0.74rem + 0.22vw, 0.96rem);
+        font-weight: 950;
+        text-shadow: none;
+      }
+
+      #clases .concept-kicker::before {
+        background: rgba(18, 15, 12, 0.62);
+      }
+
+      #clases .concept-agenda__head h2 {
+        color: #fff;
+        text-shadow: 0 1px 0 rgba(18, 15, 12, 0.18);
+      }
+
+      #clases .concept-agenda__head p:not(.concept-kicker) {
+        color: rgba(18, 15, 12, 0.74);
+        font-weight: 560;
+      }
+
+      #galeria.concept-section {
+        padding-bottom: 0;
+      }
+
       .concept-section .concept-kicker {
         color: rgba(23, 24, 22, 0.72);
       }
@@ -1493,7 +1552,9 @@
         height: 100%;
         overflow: hidden;
         border-color: var(--concept-line);
-        background: rgba(251, 250, 246, 0.07);
+        background:
+          linear-gradient(180deg, rgba(251, 250, 246, 0.075), rgba(251, 250, 246, 0.045)),
+          #05070a;
         color: #fbfaf6;
       }
 
@@ -1611,6 +1672,10 @@
       .concept-gallery-stack {
         display: grid;
         gap: clamp(1rem, 2vw, 1.5rem);
+      }
+
+      .concept-gallery-stack + .gym-routine-access {
+        margin-top: clamp(2.25rem, 5vw, 4.5rem);
       }
 
       .concept-gallery-group {
@@ -2121,7 +2186,7 @@
           <nav class="site-nav" aria-label="Principal">
             <ul class="site-nav__list">
               <li class="site-nav__item"><a class="site-nav__link" href="../index.html">Inicio</a></li>
-              <li class="site-nav__item nav-dropdown" data-dropdown><button class="site-nav__button" type="button" data-dropdown-button aria-controls="nav-services-concept" aria-expanded="false">Servicios y tarifas</button><div class="nav-dropdown__panel" id="nav-services-concept"><a href="../gimnasio/index.html" aria-current="page">Sala fitness</a><a href="../padel/index.html">Pádel</a></div></li>
+              <li class="site-nav__item nav-dropdown" data-dropdown><button class="site-nav__button" type="button" data-dropdown-button aria-controls="nav-services-concept" aria-expanded="false">Servicios y tarifas</button><div class="nav-dropdown__panel" id="nav-services-concept"><a href="../gimnasio/index.html" aria-current="page">Fitness</a><a href="../padel/index.html">Pádel</a></div></li>
               <li class="site-nav__item"><a class="site-nav__link" href="../horarios/index.html">Horario</a></li>
               <li class="site-nav__item"><a class="site-nav__link" href="../contacto/index.html">Contacto</a></li>
               <li class="site-nav__item"><a class="site-nav__link site-nav__link--cta" href="../contacto/index.html" data-booking-trigger>Reserva pista</a></li>
@@ -2152,7 +2217,7 @@
               <li class="mobile-nav__accordion" data-mobile-accordion>
                 <button type="button" data-accordion-button aria-expanded="true" aria-controls="mobile-services">Servicios y tarifas</button>
                 <ul class="mobile-subnav" id="mobile-services" role="list" data-accordion-panel>
-                  <li><a href="../gimnasio/index.html" aria-current="page">Sala fitness</a></li>
+                  <li><a href="../gimnasio/index.html" aria-current="page">Fitness</a></li>
                   <li><a href="../padel/index.html">Pádel</a></li>
                 </ul>
               </li>
@@ -2175,7 +2240,7 @@
               <a class="concept-zone" id="fitness" href="#galeria-fitness" data-reveal style="--reveal-delay: 80ms;">
                 <div class="concept-zone__copy">
                   <div class="concept-zone__meta"><span>500m²</span></div>
-                  <h3>Fitness</h3>
+                  <h3>Sala Fitness</h3>
                   <span class="concept-zone__link">Ver galería</span>
                 </div>
                 <div class="concept-zone__media">
@@ -2185,7 +2250,7 @@
               <a class="concept-zone concept-zone--dark" id="hybrid" href="#galeria-hybrid" data-reveal style="--reveal-delay: 140ms;">
                 <div class="concept-zone__copy">
                   <div class="concept-zone__meta"><span>300m²</span></div>
-                  <h3>Hybrid</h3>
+                  <h3>Zona Hybrid</h3>
                   <span class="concept-zone__link">Ver galería</span>
                 </div>
                 <div class="concept-zone__media">
@@ -2195,7 +2260,7 @@
               <a class="concept-zone" id="funcional" href="#galeria-funcional" data-reveal style="--reveal-delay: 200ms;">
                 <div class="concept-zone__copy">
                   <div class="concept-zone__meta"><span>200m²</span></div>
-                  <h3>Funcional</h3>
+                  <h3>Zona Funcional</h3>
                   <span class="concept-zone__link">Ver galería</span>
                 </div>
                 <div class="concept-zone__media">
@@ -2206,6 +2271,152 @@
           </div>
         </section>
 
+        <section class="concept-inline-section gym-pricing" id="tarifas" data-reveal>
+          <div class="concept-section__head">
+            <p class="concept-kicker">Tarifas</p>
+            <h2>Tarifas abonados</h2>
+            <p>Encuentra la cuota que mejor encaja con tu forma de entrenar.</p>
+          </div>
+          <div class="gym-pricing__grid" aria-label="Tarifas principales para abonados">
+            <article class="gym-price-card gym-price-card--featured">
+              <div class="gym-price-card__top">
+                <p class="gym-price-card__type">Cuota completa</p>
+                <span class="gym-price-card__badge">Más completa</span>
+              </div>
+              <h3>Premium</h3>
+              <div class="gym-price-card__body">
+                <div>
+                  <div class="gym-price-card__price-row">
+                    <span class="gym-price-card__price">50 €</span>
+                    <span class="gym-price-card__period">/mes</span>
+                  </div>
+                </div>
+                <ul class="gym-feature-list">
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness y Zona Funcional durante todo el horario de apertura.</span></li>
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Hybrid durante todo el horario de apertura, siempre que no haya clases programadas.</span></li>
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Dos clases semanales incluidas.</span></li>
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
+                </ul>
+              </div>
+            </article>
+            <article class="gym-price-card">
+              <div class="gym-price-card__top">
+                <p class="gym-price-card__type">Cuota base</p>
+              </div>
+              <h3>Individual</h3>
+              <div class="gym-price-card__body">
+                <div>
+                  <div class="gym-price-card__price-row">
+                    <span class="gym-price-card__price">40 €</span>
+                    <span class="gym-price-card__period">/mes</span>
+                  </div>
+                </div>
+                <ul class="gym-feature-list">
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness y Zona Funcional durante todo el horario de apertura.</span></li>
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
+                  <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye acceso a Sala Hybrid.</span></li>
+                  <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye clases.</span></li>
+                </ul>
+              </div>
+            </article>
+            <article class="gym-price-card">
+              <div class="gym-price-card__top">
+                <p class="gym-price-card__type">Unidad familiar</p>
+              </div>
+              <h3>Familiar</h3>
+              <div class="gym-price-card__body">
+                <div>
+                  <div class="gym-price-card__price-row">
+                    <span class="gym-price-card__price">52 €</span>
+                    <span class="gym-price-card__period">/mes</span>
+                  </div>
+                </div>
+                <ul class="gym-feature-list">
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness y Zona Funcional durante todo el horario de apertura.</span></li>
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Para matrimonio o pareja de hecho. Hijos menores de 18 años incluidos sin suplemento extra; hijos entre 18 y 24 años con plus de 8€.</span></li>
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
+                  <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye acceso a Sala Hybrid.</span></li>
+                  <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye clases.</span></li>
+                </ul>
+              </div>
+            </article>
+            <article class="gym-price-card">
+              <div class="gym-price-card__top">
+                <p class="gym-price-card__type">Menores de 25</p>
+              </div>
+              <h3>Juvenil</h3>
+              <div class="gym-price-card__body">
+                <div>
+                  <div class="gym-price-card__price-row">
+                    <span class="gym-price-card__price">31 €</span>
+                    <span class="gym-price-card__period">/mes</span>
+                  </div>
+                </div>
+                <ul class="gym-feature-list">
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness y Zona Funcional durante todo el horario de apertura.</span></li>
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Para menores de 25 años.</span></li>
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
+                  <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye acceso a Sala Hybrid.</span></li>
+                  <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye clases.</span></li>
+                </ul>
+              </div>
+            </article>
+            <article class="gym-price-card">
+              <div class="gym-price-card__top">
+                <p class="gym-price-card__type">Franja reducida</p>
+              </div>
+              <h3>Social</h3>
+              <div class="gym-price-card__body">
+                <div>
+                  <div class="gym-price-card__price-row">
+                    <span class="gym-price-card__price">24 €</span>
+                    <span class="gym-price-card__period">/mes</span>
+                  </div>
+                </div>
+                <ul class="gym-feature-list">
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Acceso limitado de lunes a viernes de 9:30 a 14:00.</span></li>
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Para pensionistas y desempleados.</span></li>
+                  <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
+                  <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye acceso a Sala Hybrid.</span></li>
+                  <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye clases.</span></li>
+                </ul>
+              </div>
+            </article>
+            <article class="gym-price-card gym-price-card--addon">
+              <div class="gym-price-card__top">
+                <p class="gym-price-card__type">Complementos</p>
+              </div>
+              <h3>Añade entrenamiento funcional</h3>
+              <div class="gym-price-card__body">
+                <p class="gym-price-card__hint">Una clase semanal y 15 boxes individuales.</p>
+                <div class="gym-addon-prices" aria-label="Precios del complemento de entrenamiento funcional">
+                  <div class="gym-addon-price">
+                    <span>Para abonados</span>
+                    <div class="gym-addon-price__value">
+                      <strong>8 €</strong>
+                      <span>/mes</span>
+                    </div>
+                    <small>Una clase semanal</small>
+                  </div>
+                  <div class="gym-addon-price">
+                    <span>Para no abonados</span>
+                    <div class="gym-addon-price__value">
+                      <strong>20 €</strong>
+                      <span>/mes</span>
+                    </div>
+                    <small>Una clase semanal</small>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div class="gym-pricing-close">
+            <h3>¿Tienes dudas sobre qué cuota elegir?</h3>
+            <p>Consulta condiciones, requisitos y disponibilidad directamente en recepción.</p>
+            <a href="../contacto/index.html">Ver información de contacto</a>
+          </div>
+        </section>
+
         <section class="concept-section concept-section--dark" id="clases">
           <div class="concept-container concept-agenda">
             <div class="concept-agenda__head" data-reveal style="--reveal-delay: 80ms;">
@@ -2213,7 +2424,7 @@
               <h2>Calendario de clases</h2>
               <p>Consulta los horarios de las clases disponibles durante la semana.</p>
             </div>
-            <div class="class-calendar" data-class-calendar data-calendar-default-class="Hybrid" data-calendar-valid-until="2026-08-31" data-calendar-events='{"1":[{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"2":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"19:30 - 20:30"},{"name":"Hybrid","detail":"20:30 - 21:30"},{"name":"Hybrid","detail":"21:30 - 22:30"}],"3":[{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"4":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"19:30 - 20:30"},{"name":"Hybrid","detail":"20:30 - 21:30"},{"name":"Hybrid","detail":"21:30 - 22:30"}]}' data-reveal style="--reveal-delay: 150ms;">
+            <div class="class-calendar" data-class-calendar data-calendar-default-class="Hybrid" data-calendar-periods='[{"months":[7,8],"events":{"1":[{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"2":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"19:30 - 20:30"},{"name":"Hybrid","detail":"20:30 - 21:30"},{"name":"Hybrid","detail":"21:30 - 22:30"}],"3":[{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"4":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"19:30 - 20:30"},{"name":"Hybrid","detail":"20:30 - 21:30"},{"name":"Hybrid","detail":"21:30 - 22:30"}]}},{"months":[1,2,3,4,5,6,9,10,11,12],"events":{"1":[{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"2":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"18:00 - 19:00"},{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"3":[{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"4":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"18:00 - 19:00"},{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}]}}]' data-reveal style="--reveal-delay: 150ms;">
               <div class="class-calendar__toolbar">
                 <div class="class-calendar__heading">
                   <p class="class-calendar__eyebrow">Agenda</p>
@@ -2281,151 +2492,6 @@
                 <button class="concept-gallery-more" type="button" data-gallery-more aria-expanded="false">Ver más</button>
               </section>
             </div>
-            <section class="concept-inline-section gym-pricing" id="tarifas" data-reveal>
-              <div class="concept-section__head">
-                <p class="concept-kicker">Tarifas</p>
-                <h2>Tarifas abonados</h2>
-                <p>Encuentra la cuota que mejor encaja con tu forma de entrenar.</p>
-              </div>
-              <div class="gym-pricing__grid" aria-label="Tarifas principales para abonados">
-                <article class="gym-price-card gym-price-card--featured">
-                  <div class="gym-price-card__top">
-                    <p class="gym-price-card__type">Cuota completa</p>
-                    <span class="gym-price-card__badge">Más completa</span>
-                  </div>
-                  <h3>Premium</h3>
-                  <div class="gym-price-card__body">
-                    <div>
-                      <div class="gym-price-card__price-row">
-                        <span class="gym-price-card__price">50 €</span>
-                        <span class="gym-price-card__period">/mes</span>
-                      </div>
-                    </div>
-                    <ul class="gym-feature-list">
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness y Zona Funcional durante todo el horario de apertura.</span></li>
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Hybrid durante todo el horario de apertura, siempre que no haya clases programadas.</span></li>
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Dos clases semanales incluidas.</span></li>
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
-                    </ul>
-                  </div>
-                </article>
-                <article class="gym-price-card">
-                  <div class="gym-price-card__top">
-                    <p class="gym-price-card__type">Cuota base</p>
-                  </div>
-                  <h3>Individual</h3>
-                  <div class="gym-price-card__body">
-                    <div>
-                      <div class="gym-price-card__price-row">
-                        <span class="gym-price-card__price">40 €</span>
-                        <span class="gym-price-card__period">/mes</span>
-                      </div>
-                    </div>
-                    <ul class="gym-feature-list">
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness y Zona Funcional durante todo el horario de apertura.</span></li>
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
-                      <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye acceso a Sala Hybrid.</span></li>
-                      <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye clases.</span></li>
-                    </ul>
-                  </div>
-                </article>
-                <article class="gym-price-card">
-                  <div class="gym-price-card__top">
-                    <p class="gym-price-card__type">Unidad familiar</p>
-                  </div>
-                  <h3>Familiar</h3>
-                  <div class="gym-price-card__body">
-                    <div>
-                      <div class="gym-price-card__price-row">
-                        <span class="gym-price-card__price">52 €</span>
-                        <span class="gym-price-card__period">/mes</span>
-                      </div>
-                    </div>
-                    <ul class="gym-feature-list">
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness y Zona Funcional durante todo el horario de apertura.</span></li>
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Para matrimonio o pareja de hecho. Hijos menores de 18 años incluidos sin suplemento extra; hijos entre 18 y 24 años con plus de 8€.</span></li>
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
-                      <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye acceso a Sala Hybrid.</span></li>
-                      <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye clases.</span></li>
-                    </ul>
-                  </div>
-                </article>
-                <article class="gym-price-card">
-                  <div class="gym-price-card__top">
-                    <p class="gym-price-card__type">Menores de 25</p>
-                  </div>
-                  <h3>Juvenil</h3>
-                  <div class="gym-price-card__body">
-                    <div>
-                      <div class="gym-price-card__price-row">
-                        <span class="gym-price-card__price">31 €</span>
-                        <span class="gym-price-card__period">/mes</span>
-                      </div>
-                    </div>
-                    <ul class="gym-feature-list">
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Uso de Sala Fitness y Zona Funcional durante todo el horario de apertura.</span></li>
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Para menores de 25 años.</span></li>
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
-                      <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye acceso a Sala Hybrid.</span></li>
-                      <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye clases.</span></li>
-                    </ul>
-                  </div>
-                </article>
-                <article class="gym-price-card">
-                  <div class="gym-price-card__top">
-                    <p class="gym-price-card__type">Franja reducida</p>
-                  </div>
-                  <h3>Social</h3>
-                  <div class="gym-price-card__body">
-                    <div>
-                      <div class="gym-price-card__price-row">
-                        <span class="gym-price-card__price">24 €</span>
-                        <span class="gym-price-card__period">/mes</span>
-                      </div>
-                    </div>
-                    <ul class="gym-feature-list">
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Acceso limitado de lunes a viernes de 9:30 a 14:00.</span></li>
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Para pensionistas y desempleados.</span></li>
-                      <li><span class="gym-feature-list__icon" aria-hidden="true">✓</span><span>Precios reducidos en pádel.</span></li>
-                      <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye acceso a Sala Hybrid.</span></li>
-                      <li><span class="gym-feature-list__icon gym-feature-list__icon--negative" aria-hidden="true">×</span><span>No incluye clases.</span></li>
-                    </ul>
-                  </div>
-                </article>
-                <article class="gym-price-card gym-price-card--addon">
-                  <div class="gym-price-card__top">
-                    <p class="gym-price-card__type">Complementos</p>
-                  </div>
-                  <h3>Añade entrenamiento funcional</h3>
-                  <div class="gym-price-card__body">
-                    <p class="gym-price-card__hint">Una clase semanal y 15 boxes individuales.</p>
-                    <div class="gym-addon-prices" aria-label="Precios del complemento de entrenamiento funcional">
-                      <div class="gym-addon-price">
-                        <span>Para abonados</span>
-                        <div class="gym-addon-price__value">
-                          <strong>8 €</strong>
-                          <span>/mes</span>
-                        </div>
-                        <small>Una clase semanal</small>
-                      </div>
-                      <div class="gym-addon-price">
-                        <span>Para no abonados</span>
-                        <div class="gym-addon-price__value">
-                          <strong>20 €</strong>
-                          <span>/mes</span>
-                        </div>
-                        <small>Una clase semanal</small>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              </div>
-              <div class="gym-pricing-close">
-                <h3>¿Tienes dudas sobre qué cuota elegir?</h3>
-                <p>Consulta condiciones, requisitos y disponibilidad directamente en recepción.</p>
-                <a href="../contacto/index.html">Ver información de contacto</a>
-              </div>
-            </section>
             <section class="concept-inline-section gym-routine-access" id="rutinas" data-reveal>
               <div class="gym-routine-access__grid">
                 <div class="concept-section__head">
@@ -2470,16 +2536,6 @@
                 </div>
               </div>
             </section>
-            <div class="concept-cta" data-reveal>
-              <div>
-                <h2>Gimnasio, Hybrid y funcional en El Tablero</h2>
-                <p>Consulta tarifas o contacta con el club para resolver cualquier duda.</p>
-              </div>
-              <div class="concept-actions">
-                <a class="button" href="../horarios/index.html">Ver horarios</a>
-                <a class="button-ghost" href="../contacto/index.html">Contacto</a>
-              </div>
-            </div>
           </div>
         </section>
       </main>
