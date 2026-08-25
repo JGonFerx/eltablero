@@ -928,15 +928,6 @@
         border-bottom: 1px solid rgba(251, 250, 246, 0.1);
       }
 
-      .concept-section--cta-follow {
-        padding: clamp(3.5rem, 8vw, 7rem) var(--page-gutter);
-      }
-
-      .concept-section--cta-follow .concept-cta {
-        min-height: clamp(14rem, 22vw, 21rem);
-        margin-top: 0;
-      }
-
       .concept-section--dark .concept-kicker {
         color: var(--concept-muted);
       }
@@ -1974,7 +1965,7 @@
           <nav class="site-nav" aria-label="Principal">
             <ul class="site-nav__list">
               <li class="site-nav__item"><a class="site-nav__link" href="../index.html">Inicio</a></li>
-              <li class="site-nav__item nav-dropdown" data-dropdown><button class="site-nav__button" type="button" data-dropdown-button aria-controls="nav-services-concept" aria-expanded="false">Servicios y tarifas</button><div class="nav-dropdown__panel" id="nav-services-concept"><a href="../gimnasio/index.html">Sala fitness</a><a href="../padel/index.html" aria-current="page">Pádel</a></div></li>
+              <li class="site-nav__item nav-dropdown" data-dropdown><button class="site-nav__button" type="button" data-dropdown-button aria-controls="nav-services-concept" aria-expanded="false">Servicios y tarifas</button><div class="nav-dropdown__panel" id="nav-services-concept"><a href="../gimnasio/index.html">Fitness</a><a href="../padel/index.html" aria-current="page">Pádel</a></div></li>
               <li class="site-nav__item"><a class="site-nav__link" href="../horarios/index.html">Horario</a></li>
               <li class="site-nav__item"><a class="site-nav__link" href="../contacto/index.html">Contacto</a></li>
               <li class="site-nav__item"><a class="site-nav__link site-nav__link--cta" href="../contacto/index.html" data-booking-trigger>Reserva pista</a></li>
@@ -2005,7 +1996,7 @@
               <li class="mobile-nav__accordion" data-mobile-accordion>
                 <button type="button" data-accordion-button aria-expanded="true" aria-controls="mobile-services">Servicios y tarifas</button>
                 <ul class="mobile-subnav" id="mobile-services" role="list" data-accordion-panel>
-                  <li><a href="../gimnasio/index.html">Sala fitness</a></li>
+                  <li><a href="../gimnasio/index.html">Fitness</a></li>
                   <li><a href="../padel/index.html" aria-current="page">Pádel</a></li>
                 </ul>
               </li>
@@ -2025,21 +2016,21 @@
               <p class="concept-kicker">Espacios</p>
             </div>
             <div class="concept-space-board" aria-label="Espacios de pádel">
-              <a class="concept-zone" id="pistas" href="#galeria-padel" data-reveal style="--reveal-delay: 80ms;">
+              <a class="concept-zone" id="pistas" href="#tarifas" data-reveal style="--reveal-delay: 80ms;">
                 <div class="concept-zone__copy">
                   <div class="concept-zone__meta"><span>6 pistas</span></div>
-                  <h3>Pádel</h3>
-                  <span class="concept-zone__link">Ver galería</span>
+                  <h3>Pista libre</h3>
+                  <span class="concept-zone__link">Ver precios</span>
                 </div>
                 <div class="concept-zone__media">
                   <img class="concept-zone__media-img--padel" src="../imagenes/carruselpadel/IMG_8821.webp" srcset="../imagenes/carruselpadel/thumbs/IMG_8821.webp 960w, ../imagenes/carruselpadel/IMG_8821.webp 1800w" sizes="(max-width: 860px) calc(100vw - 2rem), 33vw" alt="Pistas de pádel de El Tablero Sport Club en Ponte Caldelas" width="1800" height="1350" fetchpriority="high" decoding="async">
                 </div>
               </a>
-              <a class="concept-zone concept-zone--dark" id="reservas" href="#tarifas" data-reveal style="--reveal-delay: 140ms;">
+              <a class="concept-zone concept-zone--dark" id="reservas" href="#galeria-padel" data-reveal style="--reveal-delay: 140ms;">
                 <div class="concept-zone__copy">
                   <div class="concept-zone__meta"><span>90 min</span></div>
-                  <h3>Pista libre</h3>
-                  <span class="concept-zone__link">Ver precios</span>
+                  <h3>Pádel</h3>
+                  <span class="concept-zone__link">Ver galería</span>
                 </div>
                 <div class="concept-zone__media">
                   <img src="../imagenes/carruselpadel/IMG_0016.webp" alt="Pista de pádel interior de El Tablero Sport Club" width="417" height="626" loading="lazy" decoding="async">
@@ -2267,20 +2258,6 @@
           </div>
         </section>
 
-        <section class="concept-section concept-section--cta-follow">
-          <div class="concept-container">
-            <div class="concept-cta" data-reveal>
-              <div>
-                <h2>Pádel en El Tablero</h2>
-                <p>Consulta tarifas o contacta con el club.</p>
-              </div>
-              <div class="concept-actions">
-                <a class="button" href="../horarios/index.html">Ver horarios</a>
-                <a class="button-ghost" href="../contacto/index.html">Contacto</a>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       <nav class="mobile-sticky-actions" data-mobile-sticky-actions aria-label="Accesos rápidos móviles">
