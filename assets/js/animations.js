@@ -1,21 +1,16 @@
 (function () {
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const heroSequenceElements = document.querySelectorAll("[data-hero-sequence]");
 
   if (heroSequenceElements.length) {
-    if (reduceMotion) {
-      heroSequenceElements.forEach((element) => element.classList.add("is-visible"));
-    } else {
-      window.requestAnimationFrame(() => {
-        window.setTimeout(() => {
-          heroSequenceElements.forEach((element) => element.classList.add("is-visible"));
-        }, 40);
-      });
-    }
+    window.requestAnimationFrame(() => {
+      window.setTimeout(() => {
+        heroSequenceElements.forEach((element) => element.classList.add("is-visible"));
+      }, 40);
+    });
   }
 
   const revealElements = document.querySelectorAll("[data-reveal]");
-  if (!revealElements.length || reduceMotion || !("IntersectionObserver" in window)) {
+  if (!revealElements.length || !("IntersectionObserver" in window)) {
     revealElements.forEach((element) => element.classList.add("is-visible"));
     return;
   }

@@ -67,11 +67,3 @@
   --z-dialog: 1300;
   --z-loader: 1400;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --duration-fast: 1ms;
-    --duration-normal: 1ms;
-    --duration-slow: 1ms;
-  }
-}

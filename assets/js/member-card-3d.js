@@ -18,7 +18,6 @@
     return;
   }
 
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const compactMotion = window.matchMedia("(pointer: coarse), (max-width: 47.98rem)").matches;
   const initialCameraPitch = 0;
   const initialRotateY = 0;
@@ -510,11 +509,6 @@
     stage.addEventListener("lostpointercapture", endDrag);
 
     stage.classList.add("is-webgl-ready");
-
-    if (reduceMotion) {
-      render();
-      return;
-    }
 
     let lastTime = performance.now();
     const tick = (time) => {

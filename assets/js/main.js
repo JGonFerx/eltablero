@@ -950,7 +950,7 @@
   }
 
   const immersiveHero = document.querySelector(".hero--immersive");
-  if (immersiveHero && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  if (immersiveHero) {
     immersiveHero.classList.add("hero--scroll-enhanced");
     const decisionPrimary = immersiveHero.querySelector(".hero__decision-primary");
     let ticking = false;
@@ -1152,14 +1152,10 @@
     window.addEventListener("resize", requestHeroScrollCameraUpdate, { passive: true });
     window.visualViewport?.addEventListener("resize", requestHeroScrollCameraUpdate, { passive: true });
     window.visualViewport?.addEventListener("scroll", requestHeroScrollCameraUpdate, { passive: true });
-  } else if (immersiveHero) {
-    immersiveHero.querySelector(".hero__decision-primary")?.classList.add("is-interactive");
   }
 
   const autoscrollTrigger = document.querySelector("[data-hero-autoscroll-trigger]");
   if (autoscrollTrigger) {
-    const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const clubSection = document.querySelector("#club");
     const rootElement = document.documentElement;
     const autoscrollState = {
       active: false,
@@ -1240,13 +1236,6 @@
         return;
       }
 
-      if (reduceMotionQuery.matches) {
-        if (clubSection) {
-          clubSection.scrollIntoView();
-        }
-        return;
-      }
-
       stopAutoscroll();
       autoscrollState.active = true;
       autoscrollState.lastTimestamp = 0;
@@ -1267,67 +1256,59 @@
     .filter((carousel) => carousel.slides.length > 1);
 
   if (cardCarousels.length) {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      cardCarousels.forEach((carousel) => {
-        carousel.slides.forEach((slide, index) => {
-          slide.classList.toggle("is-active", index === 0);
-        });
-      });
-    } else {
-      const intervalMs = 2600;
-      let timerId = null;
-      const requestIdle = window.requestIdleCallback
-        ? window.requestIdleCallback.bind(window)
-        : (callback) => window.setTimeout(callback, 180);
+    const intervalMs = 2600;
+    let timerId = null;
+    const requestIdle = window.requestIdleCallback
+      ? window.requestIdleCallback.bind(window)
+      : (callback) => window.setTimeout(callback, 180);
 
-      const warmSlide = (slide) => {
-        if (!slide || slide.dataset.warmed === "true") {
-          return;
+    const warmSlide = (slide) => {
+      if (!slide || slide.dataset.warmed === "true") {
+        return;
+      }
+
+      slide.dataset.warmed = "true";
+      slide.loading = "eager";
+      slide.decoding = "async";
+
+      requestIdle(() => {
+        if (typeof slide.decode === "function") {
+          slide.decode().catch(() => {});
         }
+      });
+    };
 
-        slide.dataset.warmed = "true";
-        slide.loading = "eager";
-        slide.decoding = "async";
+    cardCarousels.forEach((carousel) => {
+      const presetIndex = carousel.slides.findIndex((slide) => slide.classList.contains("is-active"));
+      carousel.activeIndex = presetIndex >= 0 ? presetIndex : 0;
+      carousel.slides.forEach((slide, index) => {
+        slide.classList.toggle("is-active", index === carousel.activeIndex);
+      });
+      warmSlide(carousel.slides[carousel.activeIndex]);
+      warmSlide(carousel.slides[(carousel.activeIndex + 1) % carousel.slides.length]);
+      warmSlide(carousel.slides[(carousel.activeIndex + 2) % carousel.slides.length]);
+    });
 
-        requestIdle(() => {
-          if (typeof slide.decode === "function") {
-            slide.decode().catch(() => {});
-          }
-        });
-      };
-
+    const stepCarousels = () => {
       cardCarousels.forEach((carousel) => {
-        const presetIndex = carousel.slides.findIndex((slide) => slide.classList.contains("is-active"));
-        carousel.activeIndex = presetIndex >= 0 ? presetIndex : 0;
+        carousel.activeIndex = (carousel.activeIndex + 1) % carousel.slides.length;
         carousel.slides.forEach((slide, index) => {
           slide.classList.toggle("is-active", index === carousel.activeIndex);
         });
-        warmSlide(carousel.slides[carousel.activeIndex]);
         warmSlide(carousel.slides[(carousel.activeIndex + 1) % carousel.slides.length]);
         warmSlide(carousel.slides[(carousel.activeIndex + 2) % carousel.slides.length]);
       });
+    };
 
-      const stepCarousels = () => {
-        cardCarousels.forEach((carousel) => {
-          carousel.activeIndex = (carousel.activeIndex + 1) % carousel.slides.length;
-          carousel.slides.forEach((slide, index) => {
-            slide.classList.toggle("is-active", index === carousel.activeIndex);
-          });
-          warmSlide(carousel.slides[(carousel.activeIndex + 1) % carousel.slides.length]);
-          warmSlide(carousel.slides[(carousel.activeIndex + 2) % carousel.slides.length]);
-        });
-      };
+    const startCarousels = () => {
+      if (timerId) {
+        return;
+      }
 
-      const startCarousels = () => {
-        if (timerId) {
-          return;
-        }
+      timerId = window.setInterval(stepCarousels, intervalMs);
+    };
 
-        timerId = window.setInterval(stepCarousels, intervalMs);
-      };
-
-      startCarousels();
-    }
+    startCarousels();
   }
 
   const classCalendars = Array.from(document.querySelectorAll("[data-class-calendar]"));

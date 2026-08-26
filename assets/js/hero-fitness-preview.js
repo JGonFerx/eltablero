@@ -1,7 +1,6 @@
 (function () {
   const hero = document.querySelector(".hero--immersive");
   const supportsHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const openDelay = 2500;
 
   const previews = [
@@ -67,15 +66,11 @@
 
       unloadVideo(itemState.video);
 
-      if (reduceMotion) {
-        preview.hidden = true;
-      } else {
-        window.setTimeout(() => {
-          if (!itemState.isOpen) {
-            preview.hidden = true;
-          }
-        }, 500);
-      }
+      window.setTimeout(() => {
+        if (!itemState.isOpen) {
+          preview.hidden = true;
+        }
+      }, 500);
     });
 
     document.body.classList.remove("dialog-open");
@@ -157,11 +152,6 @@
       unloadVideo(video);
 
       document.body.classList.remove("dialog-open");
-
-      if (reduceMotion) {
-        preview.hidden = true;
-        return;
-      }
 
       window.setTimeout(() => {
         if (!itemState.isOpen) {

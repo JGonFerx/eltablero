@@ -1494,12 +1494,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .club-ticker__track {
-    animation: none;
-  }
-}
-
 @media (min-width: 48rem) {
   .home-page {
     --home-section-gap: clamp(4.25rem, 6.5vw, 6rem);
@@ -3359,70 +3353,5 @@
 @media (max-width: 47.99rem) {
   .legal-page .page-hero {
     padding-top: clamp(2.5rem, 11vw, 4rem);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero--immersive {
-    --hero-decision-shell-opacity: 1;
-    --hero-decision-shell-shift-y: 0px;
-    --hero-decision-intro-opacity: 1;
-    --hero-decision-intro-shift-y: 0px;
-    --hero-decision-intro-scale: 1;
-    --hero-decision-primary-opacity: 1;
-    --hero-decision-primary-shift-y: 0px;
-    --hero-decision-primary-scale: 1;
-    --hero-decision-utilities-opacity: 1;
-    --hero-decision-utilities-shift-y: 0px;
-    --hero-decision-utilities-scale: 1;
-  }
-
-  .hero__sign-glow {
-    animation: none;
-    transition: none;
-  }
-
-  .hero__fitness-progress-track {
-    transition: none;
-  }
-
-  .hotspot--fitness.is-arming + .hero__fitness-progress-track {
-    opacity: 1;
-  }
-
-  .hotspot--fitness.is-arming + .hero__fitness-progress-track .hero__fitness-progress-bar {
-    animation: none;
-    transform: rotate(11.2deg) scaleX(1);
-  }
-
-  .hotspot--padel.is-arming + .hero__padel-progress-track {
-    opacity: 1;
-  }
-
-  .hotspot--padel.is-arming + .hero__padel-progress-track .hero__padel-progress-bar {
-    animation: none;
-    transform: rotate(10deg) scaleX(1);
-  }
-
-  .hotspot--crossfit.is-arming + .hero__crossfit-progress-track {
-    opacity: 1;
-  }
-
-  .hotspot--crossfit.is-arming + .hero__crossfit-progress-track .hero__crossfit-progress-bar {
-    animation: none;
-    transform: rotate(13deg) scaleX(1);
-  }
-
-  .hotspot--hybrid.is-arming + .hero__hybrid-progress-track {
-    opacity: 1;
-  }
-
-  .hotspot--hybrid.is-arming + .hero__hybrid-progress-track .hero__hybrid-progress-bar {
-    animation: none;
-    transform: rotate(15deg) scaleX(1);
-  }
-
-  .fitness-preview__dialog {
-    transition: none;
   }
 }

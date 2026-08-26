@@ -25,17 +25,3 @@
   opacity: 1;
   transform: translateY(0);
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .js-enabled [data-reveal],
-  .js-enabled [data-hero-sequence] {
-    transition: none;
-    animation: none;
-  }
-
-  .js-enabled [data-reveal],
-  .js-enabled [data-hero-sequence] {
-    opacity: 1;
-    transform: none;
-  }
-}
