@@ -11,9 +11,9 @@
       "source": "repdb-free",
       "datasetGeneratedAt": "2026-07-18T12:48:53Z",
       "importedAt": "2026-07-23T22:13:45.308Z",
-      "total": 405
+      "total": 406
     },
-    "exerciseCount": 405,
+    "exerciseCount": 406,
     "note": "Este archivo se genera desde ejercicios/data/exercises.json mediante scripts/generate-ai-context.mjs. No editar a mano."
   },
   "routineEncoding": {
@@ -243,6 +243,7 @@
       "Extensión de piernas",
       "Kettlebell",
       "Mancuerna",
+      "Máquina",
       "Máquina curl de bíceps",
       "Máquina curl predicador",
       "Máquina de abducción de cadera",
@@ -5354,6 +5355,22 @@
         "Barra"
       ],
       "difficulty": "Intermedio",
+      "bodyPart": "Espalda",
+      "category": "Fuerza",
+      "bodyweight": false
+    },
+    {
+      "id": "machine-t-bar-row",
+      "name": "Remo en T en máquina",
+      "primaryGroup": "Espalda",
+      "primaryMuscles": [
+        "Dorsal Ancho",
+        "Romboides"
+      ],
+      "equipment": [
+        "Máquina"
+      ],
+      "difficulty": "Principiante",
       "bodyPart": "Espalda",
       "category": "Fuerza",
       "bodyweight": false

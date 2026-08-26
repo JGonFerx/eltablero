@@ -3,7 +3,7 @@
     "source": "repdb-free",
     "datasetGeneratedAt": "2026-07-18T12:48:53Z",
     "importedAt": "2026-07-23T22:13:45.308Z",
-    "total": 405
+    "total": 406
   },
   "grupos": [
     "Pecho",
@@ -14985,6 +14985,54 @@
         "Inclina el torso unos 45 grados manteniendo la espalda plana.",
         "Tira llevando los codos hacia atrás, no solo con los brazos.",
         "Junta los omóplatos en la parte alta del tirón."
+      ]
+    },
+    {
+      "id": "machine-t-bar-row",
+      "slug": "machine-t-bar-row",
+      "nombre": "Remo en T en máquina",
+      "nombreAlternativo": "Machine T-Bar Row",
+      "descripcion": "Un remo en máquina con apoyo en el pecho que trabaja dorsales, romboides y trapecio medio con una trayectoria guiada.",
+      "categoria": "Fuerza",
+      "dificultad": "Principiante",
+      "tipoFuerza": "Tirar",
+      "mecanica": "Compuesto",
+      "parteCuerpo": "Espalda",
+      "grupoMuscular": "Espalda",
+      "gruposMusculares": [
+        "Espalda"
+      ],
+      "musculosPrincipales": [
+        "Dorsal Ancho",
+        "Romboides"
+      ],
+      "musculosSecundarios": [
+        "Bíceps",
+        "Trapecio",
+        "Deltoides Posterior"
+      ],
+      "equipamiento": [
+        "Máquina"
+      ],
+      "objetivos": [
+        "Hipertrofia",
+        "Fuerza"
+      ],
+      "esPesoCorporal": false,
+      "esUnilateral": false,
+      "imagenInicial": "assets/images/flat/machine-t-bar-row-start.webp",
+      "imagenFinal": "assets/images/flat/machine-t-bar-row-peak.webp",
+      "instrucciones": [
+        "Colócate en la máquina con el pecho apoyado en el soporte y los pies firmes en la plataforma.",
+        "Agarra los mangos con los brazos extendidos y mantén el torso estable.",
+        "Tira de los mangos hacia el cuerpo llevando los codos hacia atrás.",
+        "Aprieta la espalda en la parte final del recorrido.",
+        "Vuelve a extender los brazos de forma controlada y repite."
+      ],
+      "consejos": [
+        "Mantén el pecho apoyado y evita despegar el torso del soporte.",
+        "Tira con los codos hacia atrás, no solo con los brazos.",
+        "Controla la bajada para mantener tensión en la espalda."
       ]
     },
     {
