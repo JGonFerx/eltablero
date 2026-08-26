@@ -1814,18 +1814,6 @@ body.has-filter-panel-open {
   outline-offset: 2px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .filter-panel__overlay,
-  .filter-panel__sheet,
-  .filter-expand-toggle__caret,
-  .filter-switch__track,
-  .filter-switch__track::before,
-  .exercises-filters-btn,
-  .filter-panel__apply {
-    transition: none !important;
-  }
-}
-
 /* Grid de tarjetas */
 
 .exercises-grid {
@@ -2119,13 +2107,6 @@ body.has-filter-panel-open {
 .exercise-dialog.is-visible .exercise-dialog__panel {
   opacity: 1;
   transform: scale(1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .exercise-dialog__backdrop,
-  .exercise-dialog__panel {
-    transition: none;
-  }
 }
 
 .exercise-dialog__topbar {
@@ -4041,13 +4022,6 @@ body.has-routine-cart-builder {
 
 .tour-popup__next:hover {
   background: #2c2e2a;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tour-spot,
-  .tour-popup {
-    transition: none !important;
-  }
 }
 
 @media (max-width: 42rem) {
@@ -6451,25 +6425,6 @@ body.has-filter-panel-open > .exercises-searchbar {
 .exercises-back-to-top:focus-visible {
   outline: 2px solid #d99369;
   outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .exercise-card,
-  .exercises-chip,
-  .exercise-card__media img,
-  .exercise-detail__media-figure img,
-  .exercise-detail__similar-card-media img,
-  .exercise-card__cta,
-  .routine-cart__toggle,
-  .routine-cart__media img,
-  .exercises-back-to-top {
-    transition: none;
-  }
-
-  .exercise-card-skeleton__media,
-  .exercise-card-skeleton__line {
-    animation: none;
-  }
 }
 
 /* Rediseño editorial del catálogo y ficha completa */

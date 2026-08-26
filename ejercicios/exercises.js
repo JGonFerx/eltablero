@@ -559,8 +559,7 @@
     }
     routineCartValidation.textContent = message;
     routineCartValidation.hidden = false;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    routineCartValidation.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+    routineCartValidation.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   function hasRoutineValue(value) {
@@ -1063,9 +1062,8 @@
   }
 
   function renderRoutineCartWithReorderAnimation(movedIds) {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const previousRects = new Map();
-    if (routineCartBuilderList && !reduceMotion) {
+    if (routineCartBuilderList) {
       routineCartBuilderList.querySelectorAll("[data-routine-builder-id]").forEach((row) => {
         previousRects.set(row.dataset.routineBuilderId, row.getBoundingClientRect());
       });
@@ -1073,7 +1071,7 @@
 
     renderRoutineCart();
 
-    if (!routineCartBuilderList || reduceMotion || previousRects.size === 0) {
+    if (!routineCartBuilderList || previousRects.size === 0) {
       return;
     }
 
@@ -2205,10 +2203,9 @@
     if (!routineCartResult) {
       return;
     }
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.setTimeout(() => {
       routineCartResult.scrollIntoView({
-        behavior: reduceMotion ? "auto" : "smooth",
+        behavior: "smooth",
         block: "center",
         inline: "nearest",
       });
@@ -2784,8 +2781,6 @@
     }, 120);
   }
 
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
   const HEART_ICON =
     '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.8-9.1C.7 8 2.2 4.7 5.4 4c2-.4 3.9.5 5 2.1C11.6 4.5 13.5 3.6 15.5 4c3.2.7 4.7 4 3.2 7.4C16.4 15.9 12 20.5 12 20.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg>';
 
@@ -3132,10 +3127,10 @@
       target.scrollIntoView({
         block: "center",
         inline: "nearest",
-        behavior: prefersReducedMotion ? "auto" : "smooth",
+        behavior: "smooth",
       });
     }
-    window.setTimeout(() => positionCatalogTourAt(step, target), target && !prefersReducedMotion ? 260 : 0);
+    window.setTimeout(() => positionCatalogTourAt(step, target), target ? 260 : 0);
   }
 
   function positionCatalogTourAt(step, target) {
@@ -3406,11 +3401,11 @@
       target.scrollIntoView({
         block: "center",
         inline: "nearest",
-        behavior: prefersReducedMotion ? "auto" : "smooth",
+        behavior: "smooth",
       });
     }
 
-    window.setTimeout(() => positionRoutineCartTourAt(step, target), target && !prefersReducedMotion ? 260 : 0);
+    window.setTimeout(() => positionRoutineCartTourAt(step, target), target ? 260 : 0);
   }
 
   function positionRoutineCartTourAt(step, target) {
@@ -3690,10 +3685,10 @@
       target.scrollIntoView({
         block: "center",
         inline: "nearest",
-        behavior: prefersReducedMotion ? "auto" : "smooth",
+        behavior: "smooth",
       });
     }
-    window.setTimeout(() => positionRoutineViewTourAt(step, target), target && !prefersReducedMotion ? 260 : 0);
+    window.setTimeout(() => positionRoutineViewTourAt(step, target), target ? 260 : 0);
   }
 
   function positionRoutineViewTourAt(step, target) {
@@ -5578,7 +5573,7 @@
     });
 
     backToTopButton.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
   }
 
@@ -5666,11 +5661,7 @@
       filterPanel.hidden = true;
       restoreFilterPanelMount();
     };
-    if (prefersReducedMotion) {
-      finish();
-    } else {
-      window.setTimeout(finish, 260);
-    }
+    window.setTimeout(finish, 260);
 
     if (previousFocusedElement) {
       previousFocusedElement.focus();

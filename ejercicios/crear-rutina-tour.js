@@ -55,7 +55,6 @@
   let repositionHandler = null;
   let previousFocus = null;
 
-  const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function currentTarget() {
     const step = STEPS[currentIndex];
@@ -179,11 +178,11 @@
       target.scrollIntoView({
         block: "center",
         inline: "nearest",
-        behavior: prefersReducedMotion() ? "auto" : "smooth",
+        behavior: "smooth",
       });
     }
 
-    const delay = target && !prefersReducedMotion() ? 340 : 0;
+    const delay = target ? 340 : 0;
     window.setTimeout(() => positionAt(step, target), delay);
   }
 

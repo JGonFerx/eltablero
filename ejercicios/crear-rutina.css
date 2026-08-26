@@ -746,13 +746,6 @@
   background: #2c2e2a;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .tour-spot,
-  .tour-popup {
-    transition: none !important;
-  }
-}
-
 /* Póster de impresión: oculto en pantalla, visible solo al imprimir */
 
 .routine-poster {

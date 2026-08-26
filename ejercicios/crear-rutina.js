@@ -71,7 +71,6 @@
     core: { label: "Core", all: "Core completo", values: ["Abdominales", "Zona lumbar"] },
   };
 
-  const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const escapeHtml = (value) =>
     String(value).replace(/[&<>"']/g, (char) => (
@@ -528,7 +527,7 @@
         document.body.style.overflow = "";
         closeTimer = null;
       },
-      prefersReducedMotion() ? 0 : 300
+      300
     );
 
     if (lastFocusedElement) {
@@ -944,11 +943,7 @@
     const finish = () => {
       filterPanel.hidden = true;
     };
-    if (prefersReducedMotion()) {
-      finish();
-    } else {
-      window.setTimeout(finish, 260);
-    }
+    window.setTimeout(finish, 260);
 
     if (filtersOpenButton) {
       filtersOpenButton.focus();
