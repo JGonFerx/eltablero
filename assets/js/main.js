@@ -1045,7 +1045,7 @@
       const mobileChromeScrollGuard = isMobileHero ? Math.min(128, viewportHeight * 0.15) : 0;
       const adjustedRawScroll = Math.max(rawScroll - mobileChromeScrollGuard, 0);
       const totalScrollDistance = Math.max(immersiveHero.offsetHeight - viewportHeight, 1);
-      const revealDistance = totalScrollDistance;
+      const revealDistance = totalScrollDistance * 0.75;
       const progress = clamp(adjustedRawScroll / revealDistance, 0, 1);
       const easedCameraProgress = easeInOut(progress);
 
