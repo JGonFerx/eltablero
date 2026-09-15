@@ -725,9 +725,30 @@
 }
 
 .class-calendar-event strong {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  flex-wrap: wrap;
   color: var(--color-ink);
   font-size: var(--text-sm);
   line-height: 1.15;
+}
+
+.class-calendar-event__badge {
+  display: inline-grid;
+  place-items: center;
+  min-height: 1.05rem;
+  padding: 0.18rem 0.38rem 0.16rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff2d3d 0%, #c80f25 52%, #8f0b1c 100%);
+  color: #fff;
+  font-size: 0.58rem;
+  font-style: normal;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), 0 8px 18px rgba(255, 45, 61, 0.22);
 }
 
 .class-calendar-event span {
