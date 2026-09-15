@@ -1,6 +1,25 @@
 (function () {
   const config = window.siteConfig || {};
   const siteHeader = document.querySelector("[data-site-header]");
+  const formatLocalDateKey = (date = new Date()) => [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
+  const currentLocalDateKey = formatLocalDateKey();
+  const isLocalDateInRange = (from = "", until = "") => (
+    (!from || currentLocalDateKey >= from) &&
+    (!until || currentLocalDateKey <= until)
+  );
+
+  document.querySelectorAll("[data-gallery-badge]").forEach((node) => {
+    const from = node.dataset.badgeFrom || "";
+    const until = node.dataset.badgeUntil || "";
+
+    if (!isLocalDateInRange(from, until)) {
+      node.removeAttribute("data-gallery-badge");
+    }
+  });
 
   document.querySelectorAll("[data-current-year]").forEach((node) => {
     node.textContent = new Date().getFullYear();
@@ -1441,6 +1460,12 @@
       }));
     };
 
+    const getEventBadgeMarkup = (event) => (
+      event.badge && isLocalDateInRange(event.badgeFrom || "", event.badgeUntil || "")
+        ? `<em class="class-calendar-event__badge">${event.badge}</em>`
+        : ""
+    );
+
     const createDayMarkup = (date) => {
       const weekdayIndex = (date.getDay() + 6) % 7;
       const events = getEventsForDate(date);
@@ -1448,7 +1473,7 @@
       const eventsMarkup = events.length
         ? events.map((event) => `
             <article class="class-calendar-event">
-              <strong>${event.name}</strong>
+              <strong>${event.name}${getEventBadgeMarkup(event)}</strong>
               <span>${event.detail}</span>
             </article>
           `).join("")
@@ -1471,7 +1496,7 @@
       const eventsMarkup = events.length
         ? events.map((event) => `
             <article class="class-calendar-event">
-              <strong>${event.name}</strong>
+              <strong>${event.name}${getEventBadgeMarkup(event)}</strong>
               <span>${event.detail}</span>
             </article>
           `).join("")
