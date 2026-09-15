@@ -1709,6 +1709,33 @@
         cursor: zoom-in;
       }
 
+      .concept-gallery button[data-gallery-badge]::after {
+        content: attr(data-gallery-badge);
+        position: absolute;
+        top: 0.85rem;
+        right: -3rem;
+        z-index: 3;
+        width: 10rem;
+        padding: 0.46rem 0 0.44rem;
+        transform: rotate(38deg);
+        background:
+          linear-gradient(90deg, rgba(255, 255, 255, 0.28), transparent 22%, transparent 76%, rgba(0, 0, 0, 0.18)),
+          linear-gradient(135deg, #ff2d3d 0%, #c80f25 48%, #8f0b1c 100%);
+        color: #fff;
+        font-size: 0.74rem;
+        font-weight: 1000;
+        letter-spacing: 0.2em;
+        line-height: 1;
+        text-align: center;
+        text-transform: uppercase;
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.28);
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.44),
+          0 0 0 999px rgba(0, 0, 0, 0),
+          0 14px 34px rgba(255, 45, 61, 0.42);
+        pointer-events: none;
+      }
+
       .concept-gallery [data-gallery-extra]:not([hidden]) {
         animation: concept-gallery-reveal 260ms var(--ease-standard) both;
       }
@@ -2393,7 +2420,7 @@
               <h2>Calendario de clases</h2>
               <p>Consulta los horarios de las clases disponibles durante la semana.</p>
             </div>
-            <div class="class-calendar" data-class-calendar data-calendar-default-class="Hybrid" data-calendar-periods='[{"months":[7,8],"events":{"1":[{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"2":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"19:30 - 20:30"},{"name":"Hybrid","detail":"20:30 - 21:30"},{"name":"Hybrid","detail":"21:30 - 22:30"}],"3":[{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"4":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"19:30 - 20:30"},{"name":"Hybrid","detail":"20:30 - 21:30"},{"name":"Hybrid","detail":"21:30 - 22:30"}]}},{"months":[1,2,3,4,5,6,9,10,11,12],"events":{"1":[{"name":"Hybrid","detail":"18:00 - 19:00"},{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"2":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"18:00 - 19:00"},{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"3":[{"name":"Hybrid","detail":"18:00 - 19:00"},{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"4":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"18:00 - 19:00"},{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}]}}]' data-reveal style="--reveal-delay: 150ms;">
+            <div class="class-calendar" data-class-calendar data-calendar-default-class="Hybrid" data-calendar-periods='[{"months":[7,8],"events":{"1":[{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"2":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"19:30 - 20:30"},{"name":"Hybrid","detail":"20:30 - 21:30"},{"name":"Hybrid","detail":"21:30 - 22:30"}],"3":[{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"4":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"19:30 - 20:30"},{"name":"Hybrid","detail":"20:30 - 21:30"},{"name":"Hybrid","detail":"21:30 - 22:30"}]}},{"months":[1,2,3,4,5,6,9,10,11,12],"events":{"1":[{"name":"Hybrid","detail":"18:00 - 19:00","badge":"NEW","badgeFrom":"2026-09-15","badgeUntil":"2026-10-15"},{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"2":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"18:00 - 19:00"},{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"3":[{"name":"Hybrid","detail":"18:00 - 19:00","badge":"NEW","badgeFrom":"2026-09-15","badgeUntil":"2026-10-15"},{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}],"4":[{"name":"Hybrid","detail":"10:00 - 11:00"},{"name":"Hybrid","detail":"18:00 - 19:00"},{"name":"Hybrid","detail":"19:00 - 20:00"},{"name":"Hybrid","detail":"20:00 - 21:00"},{"name":"Hybrid","detail":"21:00 - 22:00"}]}}]' data-reveal style="--reveal-delay: 150ms;">
               <div class="class-calendar__toolbar">
                 <div class="class-calendar__heading">
                   <p class="class-calendar__eyebrow">Agenda</p>
@@ -2423,6 +2450,8 @@
                   <button type="button" data-gallery-set="fitness" data-lightbox-src="../imagenes/carruselgym/IMG_6018.webp" data-lightbox-alt="Sala Fitness de El Tablero Sport Club con máquinas y zona de cardio" data-lightbox-caption="Fitness"><img src="../imagenes/carruselgym/thumbs/IMG_6018.webp" alt="Sala Fitness de El Tablero Sport Club con máquinas y zona de cardio" width="1800" height="1200" loading="lazy" decoding="async"><span>Fitness</span></button>
                   <button type="button" data-gallery-set="fitness" data-lightbox-src="../imagenes/carruselgym/IMG_6024.webp" data-lightbox-alt="Sala Fitness de El Tablero Sport Club con bancos y máquinas" data-lightbox-caption="Fitness"><img src="../imagenes/carruselgym/thumbs/IMG_6024.webp" alt="Sala Fitness de El Tablero Sport Club con bancos y máquinas" width="1800" height="1200" loading="lazy" decoding="async"><span>Fitness</span></button>
                   <button type="button" data-gallery-set="fitness" data-lightbox-src="../assets/videos/vidfitness-720.mp4" data-lightbox-type="video" data-lightbox-caption="Fitness"><video data-lazy-video-src="../assets/videos/vidfitness-720.mp4" autoplay muted loop playsinline preload="none" aria-label="Vídeo de fitness"></video><span>Fitness</span></button>
+                  <button type="button" data-gallery-set="fitness" data-gallery-extra hidden data-gallery-badge="NEW" data-badge-from="2026-09-15" data-badge-until="2026-10-15" data-lightbox-src="../imagenes/carruselgym/IMG_4587.webp" data-lightbox-alt="Nueva vista de la Sala Fitness de El Tablero Sport Club" data-lightbox-caption="Fitness"><img src="../imagenes/carruselgym/thumbs/IMG_4587.webp" alt="Nueva vista de la Sala Fitness de El Tablero Sport Club" width="1600" height="991" loading="lazy" decoding="async"><span>Fitness</span></button>
+                  <button type="button" data-gallery-set="fitness" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_4585.webp" data-lightbox-alt="Sala Fitness de El Tablero Sport Club con equipamiento de entrenamiento" data-lightbox-caption="Fitness"><img src="../imagenes/carruselgym/thumbs/IMG_4585.webp" alt="Sala Fitness de El Tablero Sport Club con equipamiento de entrenamiento" width="1600" height="998" loading="lazy" decoding="async"><span>Fitness</span></button>
                   <button type="button" data-gallery-set="fitness" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_5707.webp" data-lightbox-alt="Sala fitness con máquinas de entrenamiento" data-lightbox-caption="Fitness"><img src="../imagenes/carruselgym/thumbs/IMG_5707.webp" alt="Sala fitness con máquinas de entrenamiento" width="1200" height="1800" loading="lazy" decoding="async"><span>Fitness</span></button>
                   <button type="button" data-gallery-set="fitness" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_5709.webp" data-lightbox-alt="Zona de bicicletas y material de sala fitness" data-lightbox-caption="Fitness"><img src="../imagenes/carruselgym/thumbs/IMG_5709.webp" alt="Zona de bicicletas y material de sala fitness" width="1200" height="1800" loading="lazy" decoding="async"><span>Fitness</span></button>
                   <button type="button" data-gallery-set="fitness" data-gallery-extra hidden data-lightbox-src="../imagenes/carruselgym/IMG_5713.webp" data-lightbox-alt="Vista vertical de la sala fitness" data-lightbox-caption="Fitness"><img src="../imagenes/carruselgym/thumbs/IMG_5713.webp" alt="Vista vertical de la sala fitness" width="1200" height="1800" loading="lazy" decoding="async"><span>Fitness</span></button>
